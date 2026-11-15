@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 import { Effect, Schema, Stdio, Array as Arr, pipe } from "effect";
 
+import { checkAll } from "#/app/all-checks.ts";
+import { ProblemsFound, writeStdout } from "#/app/output.ts";
+import { runCli } from "#/app/runtime.ts";
 import { JSON_FLAG } from "#/shared/lib/cli-contract.ts";
 import { ProblemList, formatProblem, sortProblems } from "#/shared/lib/problem.ts";
 import type { Problem } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
-
-import { checkAll } from "./all-checks.ts";
-import { ProblemsFound, writeStdout } from "./output.ts";
-import { runCli } from "./runtime.ts";
 
 const NO_PROBLEMS = 0;
 
