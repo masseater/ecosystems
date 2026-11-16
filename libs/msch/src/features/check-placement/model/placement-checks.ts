@@ -6,6 +6,7 @@ import { checkDocPlacement } from "./doc-placement.ts";
 import { checkIgnoredSources } from "./ignored-sources.ts";
 import { checkLayeredSource } from "./layered-source.ts";
 import { checkSourceAliases } from "./source-aliases.ts";
+import { checkSourceNames } from "./source-names.ts";
 
 /** @internal */
 export const checkPlacement = Effect.fn("checkPlacement")(function* checkPlacement(root: string) {
@@ -15,6 +16,7 @@ export const checkPlacement = Effect.fn("checkPlacement")(function* checkPlaceme
       checkColocatedTests(root),
       checkLayeredSource(root),
       checkSourceAliases(root),
+      checkSourceNames(root),
       checkColocatedGitPatterns(root),
       checkIgnoredSources(root),
     ],

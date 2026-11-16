@@ -1,15 +1,15 @@
-import { Array as Arr, Effect, Option, Order, Schema, String as Str, pipe } from "effect";
+import { Array as Arr, Effect, Option, Schema, String as Str, pipe } from "effect";
 
 import { MANIFEST_FILE, EntryManifestJson, publicEntriesOf } from "#/entities/package/index.ts";
 import type { PublicEntry } from "#/entities/package/index.ts";
-import type { Problem, RuleName } from "#/shared/lib/problem.ts";
+import type { RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
-import { memberSources } from "./member-sources.ts";
+import { fileProblem as problemAt, memberSources, ownerOf } from "./member-sources.ts";
+import type { Owned } from "./member-sources.ts";
 
 const LAYERED_RULE: RuleName = "layered-source";
 const ENTRY_RULE: RuleName = "public-entry";
-const FIRST = 1;
 const SOURCE_DIRECTORY = "src";
 const SEPARATOR = "/";
 const LOOSE_DEPTH = 2;
@@ -29,34 +29,6 @@ const ENTRY_MESSAGE =
   "is a package entry that points inside a slice. Point exports and bin at bin/<name>.ts, src/app/<entry>.ts or a slice's index.ts.";
 
 const decodeEntryManifest = Schema.decodeUnknownOption(EntryManifestJson);
-
-interface Owned {
-  readonly workspace: string;
-  readonly inner: string;
-}
-
-const byLength = Order.mapInput(Order.Number, (directory: string) => directory.length);
-
-const problemAt = (file: string, rule: RuleName, message: string): Problem => ({
-  file,
-  line: FIRST,
-  column: FIRST,
-  rule,
-  message,
-});
-
-const ownerOf =
-  (workspaces: readonly string[]) =>
-  (name: string): Option.Option<Owned> =>
-    pipe(
-      workspaces,
-      Arr.filter((workspace) => Str.startsWith(`${workspace}${SEPARATOR}`)(name)),
-      (owners) => Arr.last(Arr.sort(owners, byLength)),
-      Option.map((workspace) => ({
-        workspace,
-        inner: Str.slice(workspace.length + SEPARATOR.length)(name),
-      })),
-    );
 
 const layerProblemOf = (owned: Owned): Option.Option<readonly [string, string]> => {
   const parts = Str.split(owned.inner, SEPARATOR);
@@ -93,7 +65,9 @@ const entryProblems = Effect.fn("entryProblems")(function* entryProblems(
     Option.map((manifest) => publicEntriesOf({ manifest, join, packEntries: [] })),
     Option.getOrElse((): readonly PublicEntry[] => []),
     Arr.filter(({ source }) => !PUBLIC_ENTRY.test(files.relative(directory, source))),
-    Arr.map(({ label, source }) => problemAt(source, ENTRY_RULE, `${label} ${ENTRY_MESSAGE}`)),
+    Arr.map(({ label, source }) =>
+      problemAt({ file: source, rule: ENTRY_RULE, message: `${label} ${ENTRY_MESSAGE}` }),
+    ),
   );
 });
 
@@ -111,7 +85,9 @@ export const checkLayeredSource = Effect.fn("checkLayeredSource")(function* chec
     Arr.map(layerProblemOf),
     Arr.getSomes,
     Arr.dedupeWith(([left], [right]) => left === right),
-    Arr.map(([file, message]) => problemAt(files.join(root, file), LAYERED_RULE, message)),
+    Arr.map(([file, message]) =>
+      problemAt({ file: files.join(root, file), rule: LAYERED_RULE, message }),
+    ),
   );
   const entries = yield* Effect.forEach(workspaces, (workspace) => entryProblems(root, workspace), {
     concurrency: 1,
