@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["src", "upstream", "*.ts"],
+  "compilerOptions": {
+    "types": ["@r_masseater/msch/vite"],
+    "resolveJsonModule": true
+  }
+}
