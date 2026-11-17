@@ -9,9 +9,9 @@ use super::common::{
 };
 use super::headings::rule;
 use super::inline::bare_urls;
-use crate::rule::{Context, Report, Rule, RuleMeta};
-use crate::source::utf16_len;
-use crate::tree::Kind;
+use crate::features::check_markdown::rule::{Context, Report, Rule, RuleMeta};
+use crate::shared::source::utf16_len;
+use crate::shared::tree::Kind;
 
 rule!(
     Md009,

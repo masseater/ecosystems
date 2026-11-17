@@ -3,14 +3,14 @@ use std::collections::HashSet;
 
 use serde_json::Value;
 
-use crate::rules::blocks::CodeBlock;
-use crate::rules::common::Heading;
-use crate::rules::links::ReferenceData;
-use crate::rules::lists::List;
-use crate::rules::tables::Table;
+use crate::features::check_markdown::rules::blocks::CodeBlock;
+use crate::features::check_markdown::rules::common::Heading;
+use crate::features::check_markdown::rules::links::ReferenceData;
+use crate::features::check_markdown::rules::lists::List;
+use crate::features::check_markdown::rules::tables::Table;
 
-use crate::source::Source;
-use crate::tree::Tree;
+use crate::shared::source::Source;
+use crate::shared::tree::Tree;
 
 pub struct RuleMeta {
     pub names: &'static [&'static str],

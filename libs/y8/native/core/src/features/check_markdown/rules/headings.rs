@@ -7,9 +7,9 @@ use super::common::{
     Heading, HeadingStyle, front_matter_has_title, headings, ignored_block_lines, is_blank_line,
     is_comment_html,
 };
-use crate::rule::{Context, Report, Rule, RuleMeta};
-use crate::source::utf16_len;
-use crate::tree::Kind;
+use crate::features::check_markdown::rule::{Context, Report, Rule, RuleMeta};
+use crate::shared::source::utf16_len;
+use crate::shared::tree::Kind;
 
 macro_rules! rule {
     ($ty:ident, [$($name:literal),+], $description:literal, [$($tag:literal),*]) => {

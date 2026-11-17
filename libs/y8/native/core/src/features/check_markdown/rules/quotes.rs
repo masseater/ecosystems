@@ -3,8 +3,8 @@ use std::collections::HashSet;
 use super::blocks::code_blocks;
 use super::common::{add_range, lines_of};
 use super::headings::rule;
-use crate::rule::{Context, Report, Rule, RuleMeta};
-use crate::tree::Kind;
+use crate::features::check_markdown::rule::{Context, Report, Rule, RuleMeta};
+use crate::shared::tree::Kind;
 
 rule!(
     Md027,

@@ -3,9 +3,9 @@ use super::common::inline_math_spans;
 use super::common::lines_of;
 use super::headings::rule;
 use super::inline::{bare_urls, html_text_runs};
-use crate::rule::{Context, Report, Rule, RuleMeta};
-use crate::source::utf16_len;
-use crate::tree::{Kind, LinkKind};
+use crate::features::check_markdown::rule::{Context, Report, Rule, RuleMeta};
+use crate::shared::source::utf16_len;
+use crate::shared::tree::{Kind, LinkKind};
 
 rule!(
     Md044,

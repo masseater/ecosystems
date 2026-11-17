@@ -3,9 +3,9 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 
-use crate::rule::Context;
-use crate::source::Source;
-use crate::tree::{Kind, Node, Tree};
+use crate::features::check_markdown::rule::Context;
+use crate::shared::source::Source;
+use crate::shared::tree::{Kind, Node, Tree};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HeadingStyle {
@@ -156,11 +156,6 @@ pub fn block_lines(ctx: &Context<'_>, matches: impl Fn(&Kind) -> bool) -> HashSe
 #[must_use]
 pub fn is_code_block(kind: &Kind) -> bool {
     matches!(kind, Kind::CodeBlock { .. })
-}
-
-#[must_use]
-pub fn is_fenced(kind: &Kind) -> bool {
-    matches!(kind, Kind::CodeBlock { fenced: true, .. })
 }
 
 #[must_use]

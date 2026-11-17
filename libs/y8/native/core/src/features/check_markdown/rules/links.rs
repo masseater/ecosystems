@@ -9,9 +9,9 @@ use super::common::{definition_lines, inline_math_spans, text_segments};
 use super::headings::is_docfx_tab;
 use super::headings::rule;
 use super::inline::{html_tags, label_range};
-use crate::rule::{Context, Report, Rule, RuleMeta, ellipsify};
-use crate::source::utf16_len;
-use crate::tree::{Kind, LinkKind};
+use crate::features::check_markdown::rule::{Context, Report, Rule, RuleMeta, ellipsify};
+use crate::shared::source::utf16_len;
+use crate::shared::tree::{Kind, LinkKind};
 
 rule!(
     Md052,

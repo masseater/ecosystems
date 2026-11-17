@@ -5,9 +5,9 @@ use regex::Regex;
 use super::common::{is_blank_line, lines_of};
 use super::headings::{content_start, rule};
 use super::whitespace::{code_indented_lines, fence_closed};
-use crate::rule::{Context, Report, Rule, RuleMeta};
-use crate::source::utf16_len;
-use crate::tree::{Kind, Node};
+use crate::features::check_markdown::rule::{Context, Report, Rule, RuleMeta};
+use crate::shared::source::utf16_len;
+use crate::shared::tree::{Kind, Node};
 
 rule!(
     Md014,

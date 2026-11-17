@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 use std::path::Path;
 
-use y8_core::{Input, Linter};
+use super::{Input, Linter};
 
 type Entry = (
     String,

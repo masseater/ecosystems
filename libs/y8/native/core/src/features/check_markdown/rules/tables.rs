@@ -2,8 +2,8 @@ use unicode_width::UnicodeWidthStr;
 
 use super::common::is_blank_line;
 use super::headings::{content_start, rule};
-use crate::rule::{Context, Report, Rule, RuleMeta};
-use crate::tree::Kind;
+use crate::features::check_markdown::rule::{Context, Report, Rule, RuleMeta};
+use crate::shared::tree::Kind;
 
 rule!(
     Md055,

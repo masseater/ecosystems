@@ -6,9 +6,9 @@ use regex::Regex;
 use super::autolink::literal_autolinks;
 use super::common::{inline_math_spans, is_comment_html, is_leaf_block, text_segments};
 use super::headings::rule;
-use crate::rule::{Context, Report, Rule, RuleMeta};
-use crate::source::utf16_len;
-use crate::tree::{Kind, LinkKind, Tree};
+use crate::features::check_markdown::rule::{Context, Report, Rule, RuleMeta};
+use crate::shared::source::utf16_len;
+use crate::shared::tree::{Kind, LinkKind, Tree};
 
 rule!(Md033, ["MD033", "no-inline-html"], "Inline HTML", ["html"]);
 rule!(
@@ -78,7 +78,6 @@ pub struct HtmlTag<'a> {
     pub name: &'a str,
     pub close: bool,
     pub in_table: bool,
-    pub in_block: bool,
 }
 
 static TAG: LazyLock<Regex> = LazyLock::new(|| {
@@ -90,7 +89,7 @@ static TAG: LazyLock<Regex> = LazyLock::new(|| {
 static TAG_NAME: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^<([^!>][^/\s>]*)").expect("tag name"));
 
-fn tag(start: usize, text: &str, in_table: bool, in_block: bool) -> Option<HtmlTag<'_>> {
+fn tag(start: usize, text: &str, in_table: bool) -> Option<HtmlTag<'_>> {
     let caps = TAG_NAME.captures(text)?;
     let raw = caps.get(1)?.as_str();
     let close = raw.starts_with('/');
@@ -100,7 +99,6 @@ fn tag(start: usize, text: &str, in_table: bool, in_block: bool) -> Option<HtmlT
         name: if close { &raw[1..] } else { raw },
         close,
         in_table,
-        in_block,
     })
 }
 
@@ -118,12 +116,9 @@ pub fn html_tags<'a>(ctx: &'a Context<'_>) -> Vec<HtmlTag<'a>> {
                 {
                     continue;
                 }
-                if let Some(found) = tag(
-                    node.start,
-                    &ctx.source.text[node.start..node.end],
-                    in_table,
-                    false,
-                ) {
+                if let Some(found) =
+                    tag(node.start, &ctx.source.text[node.start..node.end], in_table)
+                {
                     tags.push(found);
                 }
             }
@@ -141,7 +136,7 @@ pub fn html_tags<'a>(ctx: &'a Context<'_>) -> Vec<HtmlTag<'a>> {
                     {
                         continue;
                     }
-                    if let Some(t) = tag(node.start + found.start(), found.as_str(), false, true) {
+                    if let Some(t) = tag(node.start + found.start(), found.as_str(), false) {
                         tags.push(t);
                     }
                 }
@@ -250,12 +245,8 @@ impl Rule for Md034 {
             for &child in children {
                 let node = ctx.tree.node(child);
                 if matches!(node.kind, Kind::InlineHtml) {
-                    if let Some(t) = tag(
-                        node.start,
-                        &ctx.source.text[node.start..node.end],
-                        false,
-                        false,
-                    ) {
+                    if let Some(t) = tag(node.start, &ctx.source.text[node.start..node.end], false)
+                    {
                         if t.close {
                             if let Some(pos) =
                                 depth.iter().rposition(|n| n.eq_ignore_ascii_case(t.name))

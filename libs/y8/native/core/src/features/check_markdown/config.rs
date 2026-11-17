@@ -5,8 +5,8 @@ use regex::Regex;
 use serde::Serialize;
 use serde_json::{Map, Value};
 
-use crate::rule::Rule;
-use crate::source::Source;
+use crate::features::check_markdown::rule::Rule;
+use crate::shared::source::Source;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]

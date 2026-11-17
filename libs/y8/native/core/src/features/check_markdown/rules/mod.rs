@@ -10,7 +10,7 @@ pub mod quotes;
 pub mod tables;
 pub mod whitespace;
 
-use crate::rule::Rule;
+use crate::features::check_markdown::rule::Rule;
 
 #[must_use]
 pub fn builtin() -> Vec<&'static dyn Rule> {
