@@ -34,7 +34,7 @@ catalog:
   langium-cli: 4.4.1
   vscode-languageserver: 11.0.1
   "@r_masseater/oxlint-typed-rules": 0.4.3
-  "@r_masseater/vite-plus-adopt": 0.11.1
+  "@r_masseater/vite-plus-adopt": 0.12.0
   oxlint-plugin-eslint: 1.95.0
   "@cloudflare/workers-types": 5.20261123.1
   "@effect/platform-node": 4.1.5
@@ -120,7 +120,6 @@ catalogs:
     typescript: 7.1.0-beta
     vite-plus: 1.7.0
 overrides:
-  "@r_masseater/vite-plus-adopt>@r_masseater/h56m": "workspace:*" # exit: npm:@r_masseater/vite-plus-adopt requires @r_masseater/h56m@>=0.2.0
   "langium>vscode-languageserver": "catalog:" # exit: npm:langium allows vscode-languageserver@>=11
   "@remotion/eslint-plugin>@typescript-eslint/utils": "-" # exit: npm:@remotion/eslint-plugin allows @typescript-eslint/utils@>=8
   "@remotion/eslint-plugin>typescript": "-" # exit: npm:@remotion/eslint-plugin drops typescript || npm:@remotion/eslint-plugin allows typescript@>=7
@@ -180,6 +179,10 @@ minimumReleaseAgeExclude:
   - "@voidzero-dev/vite-plus-win32-arm64-msvc@1.7.0"
   - "@voidzero-dev/vite-plus-win32-x64-msvc@1.7.0"
   - vite-plus@1.7.0
+  - "@r_masseater/h56m-linux-x64-gnu@0.2.0"
+  - "@r_masseater/h56m-win32-x64-msvc@0.2.0"
+  - "@r_masseater/h56m@0.2.0"
+  - "@r_masseater/vite-plus-adopt@0.12.0"
 
 cargo:
   enabled: true
