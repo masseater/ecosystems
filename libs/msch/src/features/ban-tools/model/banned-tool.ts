@@ -17,7 +17,7 @@ const CONFIG_SOURCE = /(?:^|\/)[^/]*\.config\.[cm]?[jt]s$/u;
 export const isProgramSource = ({ name }: Listed): boolean =>
   PROGRAM_SOURCE.test(name) && !CONFIG_SOURCE.test(name);
 
-interface PatternSets {
+export interface PatternSets {
   readonly spawn: readonly RegExp[];
   readonly command: readonly RegExp[];
   readonly toolVersions?: readonly RegExp[];
