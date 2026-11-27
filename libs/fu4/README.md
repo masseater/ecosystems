@@ -97,4 +97,4 @@ On the same files in nodejs/node, fu4 reports 74 of the 86 findings of actionlin
 
 ## Agent skills
 
-The package ships TanStack Intent skills for coding agents. Load one with `vp exec intent load @r_masseater/fu4#<skill>`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/fu4": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.

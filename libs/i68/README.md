@@ -73,4 +73,4 @@ Directives follow ESLint's: they start the comment, `//` or `/* */`, and separat
 
 ## Agent skills
 
-The package ships TanStack Intent skills for coding agents. Load one with `vp exec intent load @r_masseater/i68#<skill>`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/i68": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.

@@ -70,6 +70,8 @@ export default defineConfig({
 });
 ```
 
+`vpa --prepare` leaves alone the links that pnpm made into `.agents/skills/`, which `.gitignore` there lists in its `# pnpm` block, and fails when a declared skill has the same name as one of them. pnpm links the skills that approved dependencies ship, so list in `skills` only what no dependency ships.
+
 Fetched skills are stored read-only in `~/.cache/vpa/skills/` (under `XDG_CACHE_HOME`, or `LOCALAPPDATA` on Windows), and `.agents/skills/` points to them with symbolic links (junctions on Windows). A commit is fetched once per machine and shared by every worktree. Private repositories are fetched with `GITHUB_TOKEN`.
 
 A key starting with `./` is a folder in this repository. It takes no commit and points directly to the folders under it that contain `SKILL.md`.

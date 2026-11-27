@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/i68-presets",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The official i68 rule presets for .fumx songs, one per concern: pop (key, range, leaps, breath), harmony (voicing clashes, low interval limits, crowded low mids, chord placement, voice leaps), classical (parallel fifths and octaves, unresolved dissonance), progressions (famous chord progressions) and bach (chord changes compared with the Bach chorales).",
   "keywords": [
     "fumx",
@@ -23,7 +23,7 @@
   "files": [
     "LICENSE",
     "dist",
-    "skills/use-presets"
+    "skills/use-i68-presets"
   ],
   "type": "module",
   "imports": {
