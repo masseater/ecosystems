@@ -10,6 +10,7 @@ import { nodeServicesLayer } from "#/shared/lib/repository-files.ts";
 
 const CLI_PATH = new URL(import.meta.resolve("@r_masseater/msch/cli")).pathname;
 const decodeProblems = Schema.decodeUnknownEffect(Schema.fromJsonString(ProblemList));
+const known = new Map<string, readonly Problem[]>();
 
 const findProblems = (
   cwd: string,
@@ -32,8 +33,24 @@ const withServices = <Value>(
     Effect.scoped,
   );
 
-const lookup = findProblems(process.cwd()).pipe(withServices);
+const remember = (cwd: string): Effect.Effect<void> =>
+  findProblems(cwd).pipe(
+    withServices,
+    Effect.flatMap((found) =>
+      Effect.sync(() => {
+        known.set(cwd, found);
+      }),
+    ),
+  );
 
-const problems = await Effect.runPromise(lookup);
+const loadProblems = (cwd: string): readonly Problem[] => {
+  if (!known.has(cwd)) {
+    known.set(cwd, []);
+    Effect.runFork(remember(cwd));
+  }
+  return known.get(cwd) ?? [];
+};
 
-export default mschPlugin(() => problems);
+await Effect.runPromise(remember(process.cwd()));
+
+export default mschPlugin(loadProblems);
