@@ -1,4 +1,4 @@
-import { Array as Arr, Effect, Option, Schema, String as Str, pipe } from "effect";
+import { Array as Arr, Config, Effect, Option, Schema, String as Str, pipe } from "effect";
 import { Base64 } from "effect/encoding";
 import { HttpClient, HttpClientResponse } from "effect/http";
 
@@ -6,7 +6,7 @@ const ATTESTATIONS = "https://registry.npmjs.org/-/npm/v1/attestations/";
 const SLSA = /slsa\.dev\/provenance/u;
 
 const Digest = Schema.Struct({ gitCommit: Schema.String });
-const Dependency = Schema.Struct({ digest: Digest });
+const Dependency = Schema.Struct({ uri: Schema.String, digest: Digest });
 const BuildDefinition = Schema.Struct({ resolvedDependencies: Schema.Array(Dependency) });
 const Predicate = Schema.Struct({ buildDefinition: BuildDefinition });
 const Statement = Schema.fromJsonString(Schema.Struct({ predicate: Predicate }));
@@ -22,19 +22,23 @@ export interface Version {
   readonly version: string;
 }
 
-const commitOf = (payload: string): Effect.Effect<Option.Option<string>> =>
-  pipe(
-    Base64.decodeString(payload),
-    Effect.fromResult,
-    Effect.flatMap(Schema.decodeEffect(Statement)),
-    Effect.map(({ predicate }) =>
-      pipe(
-        Arr.head(predicate.buildDefinition.resolvedDependencies),
-        Option.map(({ digest }) => digest.gitCommit),
+/** @internal */
+export const commitOf =
+  (repository: string) =>
+  (payload: string): Effect.Effect<Option.Option<string>> =>
+    pipe(
+      Base64.decodeString(payload),
+      Effect.fromResult,
+      Effect.flatMap(Schema.decodeEffect(Statement)),
+      Effect.map(({ predicate }) =>
+        pipe(
+          Arr.head(predicate.buildDefinition.resolvedDependencies),
+          Option.filter(({ uri }) => Str.includes(`github.com/${repository}@`)(uri)),
+          Option.map(({ digest }) => digest.gitCommit),
+        ),
       ),
-    ),
-    Effect.orElseSucceed(() => Option.none<string>()),
-  );
+      Effect.orElseSucceed(() => Option.none<string>()),
+    );
 
 /** @internal */
 export const provenanceCommit = Effect.fn("publish.provenanceCommit")(function* provenanceCommit({
@@ -42,6 +46,7 @@ export const provenanceCommit = Effect.fn("publish.provenanceCommit")(function* 
   version,
 }: Version) {
   const client = yield* HttpClient.HttpClient;
+  const repository = yield* Config.String("GITHUB_REPOSITORY");
   const url = `${ATTESTATIONS}${Str.replace("/", "%2f")(name)}@${version}`;
   const found = yield* HttpClient.filterStatusOk(client)
     .get(url)
@@ -55,5 +60,5 @@ export const provenanceCommit = Effect.fn("publish.provenanceCommit")(function* 
   if (Option.isNone(found)) {
     return Option.none<string>();
   }
-  return yield* commitOf(found.value.bundle.dsseEnvelope.payload);
+  return yield* commitOf(repository)(found.value.bundle.dsseEnvelope.payload);
 });
