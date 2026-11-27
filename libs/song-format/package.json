@@ -101,6 +101,7 @@
     "vscode-languageserver": "catalog:"
   },
   "devDependencies": {
+    "@effect/platform-node": "catalog:",
     "@effect/platform-node-shared": "catalog:",
     "@effect/vitest": "catalog:",
     "@r_masseater/mapped-import": "workspace:^",
@@ -114,6 +115,7 @@
     "vite-plus": "catalog:stack"
   },
   "peerDependencies": {
+    "@effect/platform-node": ">=4.1.5",
     "@effect/platform-node-shared": ">=4.1.5",
     "@r_masseater/mapped-import": "workspace:^",
     "effect": "^4.1.0",
@@ -121,6 +123,9 @@
     "vite-plus": "^1.8.0"
   },
   "peerDependenciesMeta": {
+    "@effect/platform-node": {
+      "optional": true
+    },
     "@effect/platform-node-shared": {
       "optional": true
     },
