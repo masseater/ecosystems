@@ -8,7 +8,7 @@ import {
   withinText,
   withKeys,
 } from "#/features/audit-workflows/lib/location.ts";
-import { draftsIf, withGitHub } from "#/features/audit-workflows/lib/online.ts";
+import { draftsIf, onlineCheck } from "#/features/audit-workflows/lib/online.ts";
 import {
   repoTargetCheck,
   reusableTargetCheck,
@@ -16,12 +16,7 @@ import {
 } from "#/features/audit-workflows/lib/uses-targets.ts";
 import type { UsesTarget } from "#/features/audit-workflows/lib/uses-targets.ts";
 import { commitRef, refSlug } from "#/features/audit-workflows/lib/uses.ts";
-import type {
-  Audit,
-  AuditContext,
-  Drafts,
-  Produced,
-} from "#/features/audit-workflows/model/audit.ts";
+import type { Audit, Drafts } from "#/features/audit-workflows/model/audit.ts";
 import type { SymbolicLocation } from "#/features/audit-workflows/model/finding.ts";
 
 const meta = {
@@ -48,14 +43,10 @@ const draft = (target: UsesTarget) => (): Drafts => [
   pipe(finding(meta), severity("high"), confidence("high"), at(target.grip), at(flagged(target))),
 ];
 
-const check = (target: UsesTarget, context: AuditContext): Produced =>
-  Option.match(Option.all([refSlug(target.ref), commitRef(target.ref)]), {
-    onNone: (): Produced => [],
-    onSome: ([slug, sha]) =>
-      withGitHub(context)((client) =>
-        Effect.map(isImpostor(client)(slug.full)(sha), draftsIf(draft(target))),
-      ),
-  });
+const check = onlineCheck((target) => Option.all([refSlug(target.ref), commitRef(target.ref)]))(
+  ({ client, found: [slug, sha], target }) =>
+    Effect.map(isImpostor(client)(slug.full)(sha), draftsIf(draft(target))),
+);
 
 const step = stepTargetCheck(check);
 

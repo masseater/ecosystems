@@ -7,7 +7,7 @@ import {
   withinText,
   withKeys,
 } from "#/features/audit-workflows/lib/location.ts";
-import { draftsIf, withGitHub } from "#/features/audit-workflows/lib/online.ts";
+import { draftsIf, onlineCheck } from "#/features/audit-workflows/lib/online.ts";
 import {
   repoTargetCheck,
   reusableTargetCheck,
@@ -15,12 +15,7 @@ import {
 } from "#/features/audit-workflows/lib/uses-targets.ts";
 import type { UsesTarget } from "#/features/audit-workflows/lib/uses-targets.ts";
 import { refSlug, symbolicRef } from "#/features/audit-workflows/lib/uses.ts";
-import type {
-  Audit,
-  AuditContext,
-  Drafts,
-  Produced,
-} from "#/features/audit-workflows/model/audit.ts";
+import type { Audit, Drafts } from "#/features/audit-workflows/model/audit.ts";
 import type { SymbolicLocation } from "#/features/audit-workflows/model/finding.ts";
 import type { NamedRef } from "#/features/audit-workflows/model/github.ts";
 
@@ -62,16 +57,12 @@ const named =
       Arr.some((ref) => ref.name === name),
     );
 
-const check = (target: UsesTarget, context: AuditContext): Produced =>
-  Option.match(Option.all([refSlug(target.ref), symbolicRef(target.ref)]), {
-    onNone: (): Produced => [],
-    onSome: ([slug, name]) =>
-      withGitHub(context)((client) =>
-        Effect.map(client.refs(slug.full), ({ branches, tags }) =>
-          draftsIf(draft(target))(named(name)(branches) && named(name)(tags)),
-        ),
-      ),
-  });
+const check = onlineCheck((target) => Option.all([refSlug(target.ref), symbolicRef(target.ref)]))(
+  ({ client, found: [slug, name], target }) =>
+    Effect.map(client.refs(slug.full), ({ branches, tags }) =>
+      draftsIf(draft(target))(named(name)(branches) && named(name)(tags)),
+    ),
+);
 
 const step = stepTargetCheck(check);
 
