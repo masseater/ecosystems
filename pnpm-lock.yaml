@@ -501,7 +501,7 @@ catalogs:
       version: 1.7.0
 
 overrides:
-  '@r_masseater/h56m': workspace:*
+  '@r_masseater/vite-plus-adopt>@r_masseater/h56m': workspace:*
   langium>vscode-languageserver: 11.0.1
   '@remotion/eslint-plugin>@typescript-eslint/utils': '-'
   '@remotion/eslint-plugin>typescript': '-'
