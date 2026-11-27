@@ -75,6 +75,7 @@ const flagsAutomaticPublishing = Effect.gen(function* flagsAutomaticPublishing()
       "  verify:",
       "    steps:",
       "      - run: vp run verify",
+      '      - run: vp exec msch-publish compat "$DIRECTORY"',
     ]),
   });
   const problems = yield* checkPublishTrigger(root);

@@ -22,9 +22,6 @@ import type { CompatCase, CompatManifest } from "./compat-manifest.ts";
 import { workspaceTarballs } from "./compat-workspace.ts";
 import type { Tarballs } from "./compat-workspace.ts";
 
-export { IncompatiblePackage, compatCasesOf, smokeTargetsOf } from "./compat-manifest.ts";
-export type { CompatCase, CompatManifest, SmokeTargets } from "./compat-manifest.ts";
-
 const MANIFEST_FILE = "package.json";
 const INSTALL_FLAGS = ["--no-audit", "--no-fund"];
 

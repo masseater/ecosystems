@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { compatCasesOf, smokeTargetsOf } from "./compat.ts";
-import type { CompatManifest } from "./compat.ts";
+import { compatCasesOf, smokeTargetsOf } from "./compat-manifest.ts";
+import type { CompatManifest } from "./compat-manifest.ts";
 
 const manifest = (fields: Partial<CompatManifest>): CompatManifest => ({
   name: "@scope/pkg",

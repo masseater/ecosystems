@@ -46,10 +46,8 @@
   "scripts": {
     "prepublishOnly": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm/')) { console.error('npm publish leaves catalog: in dependencies. Publish the tarball from vp pm pack instead.'); process.exit(1) }\" && vp run build"
   },
-  "dependencies": {
-    "@effect/platform-node": "catalog:"
-  },
   "devDependencies": {
+    "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
     "effect": "catalog:stack",
     "vite-plus": "catalog:stack"
@@ -58,6 +56,6 @@
     "effect": "^4.1.0"
   },
   "engines": {
-    "node": ">=26.13.0"
+    "node": ">=26.13.1"
   }
 }
