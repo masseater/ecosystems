@@ -31,7 +31,7 @@ const IMPORT_ONLY = "await import(process.argv[1])";
 
 const SPAWN_CHECKED = `import { spawnSync } from "node:child_process"; const { stderr } = spawnSync(process.execPath, process.argv.slice(1), { encoding: "utf8", stdio: ["ignore", "ignore", "pipe"], timeout: 60000 }); if (${LOAD_FAILURE}.test(stderr)) { process.stderr.write(stderr); process.exit(1); }`;
 
-const Versions = Schema.fromJsonString(Schema.Array(Schema.String));
+const Versions = Schema.String.pipe(Schema.Array, Schema.fromJsonString);
 const ConsumerJson = Schema.fromJsonString(Schema.Record(Schema.String, Schema.Unknown));
 
 const installedNode = Effect.fn("compat.node")(function* installedNode(

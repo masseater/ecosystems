@@ -11,6 +11,7 @@ members = [
   "libs/wism/native/core",
   "libs/wism/native/node",
 ]
+exclude = ["patches/crates/lindera-dictionary"]
 
 [workspace.package]
 version = "0.0.0"
@@ -48,3 +49,6 @@ strip = "none"
 inherits = "release"
 debug = true
 strip = "none"
+
+[patch.crates-io]
+lindera-dictionary = { path = "patches/crates/lindera-dictionary" } # exit: crate:lindera-dictionary@>7.0.0

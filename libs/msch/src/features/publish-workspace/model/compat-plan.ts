@@ -5,7 +5,7 @@ import { compatCasesOf, compatManifestIn } from "./compat-manifest.ts";
 import { goesToNpm } from "./manifest.ts";
 import { graphTasks, workspacesOf } from "./plan.ts";
 
-const Directories = Schema.fromJsonString(Schema.Array(Schema.String));
+const Directories = Schema.String.pipe(Schema.Array, Schema.fromJsonString);
 
 const isChecked = Effect.fn("compat.isChecked")(function* isChecked(directory: string) {
   const manifest = yield* compatManifestIn(directory);
