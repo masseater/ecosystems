@@ -47,6 +47,29 @@ describe("compat cases", () => {
   });
 });
 
+describe("compat cases with a vite peer", () => {
+  test("a vite peer is left to the vite that vite-plus brings in, as in a repository set up by vite-plus-adopt", () => {
+    expect(
+      compatCasesOf(
+        manifest({
+          engines: { node: ">=26.0.0" },
+          peerDependencies: { vite: "*", "vite-plus": "^1.8.0" },
+        }),
+      ),
+    ).toStrictEqual([
+      { label: "floor", node: "~26.0.0", peers: { "vite-plus": "~1.8.0" } },
+      { label: "latest", node: "^26", peers: { "vite-plus": "^1.8.0" } },
+    ]);
+  });
+
+  test("a vite peer without vite-plus is installed as declared", () => {
+    const [, latest] = compatCasesOf(
+      manifest({ engines: { node: ">=26.0.0" }, peerDependencies: { vite: "^8.0.0" } }),
+    );
+    expect(latest).toStrictEqual({ label: "latest", node: "^26", peers: { vite: "^8.0.0" } });
+  });
+});
+
 describe("smoke targets", () => {
   test("imports every published subpath except package.json and patterns", () => {
     const targets = smokeTargetsOf(
