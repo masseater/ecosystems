@@ -1,7 +1,7 @@
 import { NodeFileSystem } from "@effect/platform-node-shared";
+import { mappedOutput } from "@r_masseater/mapped-import/mapper";
+import type { Request } from "@r_masseater/mapped-import/mapper";
 import { Effect, FileSystem, ManagedRuntime } from "effect";
-import { mappedOutput } from "mapped-import/mapper";
-import type { Request } from "mapped-import/mapper";
 import type { TransformResult } from "ts-content-mapper";
 
 import { songModuleOf } from "#/features/build-song-module/index.ts";

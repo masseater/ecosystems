@@ -1,9 +1,9 @@
 import { SongSchema, readSong } from "@r_masseater/fumx-parser";
 import type { Song, Named, Outline, SongSource, SourceIssue } from "@r_masseater/fumx-parser";
+import { nameLiteral, quoted, text } from "@r_masseater/mapped-import";
+import type { Segment } from "@r_masseater/mapped-import";
+import type { Issue, Mapped } from "@r_masseater/mapped-import/mapper";
 import { Array as Arr, Effect, Option, Record as Rec, Schema, pipe } from "effect";
-import { nameLiteral, quoted, text } from "mapped-import";
-import type { Segment } from "mapped-import";
-import type { Issue, Mapped } from "mapped-import/mapper";
 
 export interface SongModuleSource<Failure> {
   readonly path: string;

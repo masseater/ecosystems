@@ -1,28 +1,74 @@
 {
-  "name": "@masseater.dev/song-format",
-  "version": "0.0.0",
-  "private": true,
-  "description": "The .fumx song format: TypeScript imports, language server, MIDI conversion and the song-report command.",
+  "name": "@r_masseater/song-format",
+  "version": "0.1.0",
+  "description": "Tooling for .fumx songs: import a song from TypeScript with Vite, a language server, MIDI to .fumx conversion that checks the result against the original, and a song report.",
+  "keywords": [
+    "fumx",
+    "language-server",
+    "midi",
+    "music",
+    "tanstack-intent",
+    "vite-plugin"
+  ],
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/song-format#readme",
+  "bugs": {
+    "url": "https://github.com/masseater/ecosystems/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
+    "directory": "libs/song-format"
+  },
   "bin": {
     "fumx-language-server": "./bin/fumx-language-server.ts",
     "midi-to-fumx": "./bin/midi-to-fumx.ts",
     "song-report": "./bin/song-report.ts"
   },
+  "files": [
+    "LICENSE",
+    "dist",
+    "skills/use-fumx-tools"
+  ],
   "type": "module",
   "imports": {
     "#/*": "./src/*"
   },
   "exports": {
     "./convert-midi": "./src/features/convert-midi/index.ts",
-    "./vite": "./src/app/vite.ts"
+    "./vite": "./src/app/vite.ts",
+    "./mapper": "./src/app/mapper.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "bin": {
+      "fumx-language-server": "./dist/fumx-language-server.mjs",
+      "midi-to-fumx": "./dist/midi-to-fumx.mjs",
+      "song-report": "./dist/song-report.mjs"
+    },
+    "exports": {
+      "./convert-midi": {
+        "types": "./dist/convert-midi.d.mts",
+        "default": "./dist/convert-midi.mjs"
+      },
+      "./vite": {
+        "types": "./dist/vite.d.mts",
+        "default": "./dist/vite.mjs"
+      },
+      "./mapper": "./dist/mapper.mjs",
+      "./package.json": "./package.json"
+    },
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "prepublishOnly": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm/')) { console.error('npm publish leaves catalog: in dependencies. Publish the tarball from vp pm pack instead.'); process.exit(1) }\" && vp run build"
   },
   "dependencies": {
     "@effect/platform-node-shared": "catalog:",
-    "@r_masseater/fumx-parser": "workspace:*",
-    "@r_masseater/node-main": "workspace:*",
-    "effect": "catalog:stack",
+    "@r_masseater/fumx-parser": "workspace:^",
+    "@r_masseater/mapped-import": "workspace:^",
     "langium": "catalog:",
-    "mapped-import": "workspace:*",
     "midi-file": "catalog:",
     "tonal": "catalog:",
     "ts-content-mapper": "0.1.1",
@@ -30,10 +76,15 @@
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@masseater.dev/song-format": "workspace:*",
+    "@r_masseater/node-main": "workspace:*",
     "@types/node": "catalog:",
+    "effect": "catalog:stack",
     "typescript": "catalog:stack",
     "vite-plus": "catalog:stack"
+  },
+  "peerDependencies": {
+    "effect": "^4.1.2",
+    "vite-plus": "^1.5.0"
   },
   "typescript": {
     "contentMapper": {
@@ -41,8 +92,13 @@
       "dynamicConfig": false,
       "exec": [
         "node",
-        "src/app/mapper.ts"
+        "--input-type=module",
+        "-e",
+        "import \"@r_masseater/song-format/mapper\""
       ]
     }
+  },
+  "engines": {
+    "node": "v26.13.1"
   }
 }
