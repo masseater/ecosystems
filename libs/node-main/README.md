@@ -45,7 +45,7 @@ const watched = Effect.never.pipe(whileParentAlive(Option.some("12345")));
 
 ## Agent skills
 
-The package ships TanStack Intent skills for coding agents. Load one with `vp exec intent load @r_masseater/node-main#<skill>`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/node-main": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.
 
 ## License
 

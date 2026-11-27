@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/fu4-presets",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The official fu4 rules for GitHub Actions: actionlint, shellcheck and zizmor checks in TypeScript, grouped into presets you pick per concern.",
   "keywords": [
     "actionlint",
@@ -23,7 +23,7 @@
   "files": [
     "LICENSE",
     "dist",
-    "skills/apply-presets"
+    "skills/apply-fu4-presets"
   ],
   "type": "module",
   "imports": {

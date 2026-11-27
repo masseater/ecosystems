@@ -1,5 +1,5 @@
 ---
-name: use-presets
+name: use-h56m-presets
 description: >
   Use when choosing the rules h56m scans with, or when h56m reports that it has no rules. Covers
   extending a preset from @r_masseater/h56m-presets in vite.config.ts or makeDetector, and turning
@@ -12,7 +12,7 @@ sources:
   - src/app/index.ts
 ---
 
-# use-presets
+# use-h56m-presets
 
 h56m holds only the engine. The rules come from a preset file that `extend.path` names, plus the
 `rules` a project adds.

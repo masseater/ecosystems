@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/vite-plus-adopt",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Adopt h56m secret scanning, commitlint, textlint, fallow and dependency checks into Vite+ through the settings in vite.config.ts, and ship @arethetypeswrong/core for TypeScript 7.",
   "keywords": [
     "arethetypeswrong",

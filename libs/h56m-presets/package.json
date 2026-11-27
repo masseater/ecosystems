@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/h56m-presets",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Ready-made rule presets for the h56m secret scanner, starting with the default Betterleaks rules.",
   "keywords": [
     "betterleaks",
@@ -26,7 +26,7 @@
     "THIRD-PARTY-NOTICES.txt",
     "dist",
     "presets",
-    "skills/use-presets"
+    "skills/use-h56m-presets"
   ],
   "type": "module",
   "imports": {

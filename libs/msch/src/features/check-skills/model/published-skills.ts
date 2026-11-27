@@ -16,7 +16,6 @@ const SKILLS = "skills";
 const MANIFEST_FILE = "package.json";
 const SKILL_FILE = "SKILL.md";
 const SUCCEEDED = 0;
-const SYNC = "Run vp exec intent maintainer sync in the repository root.";
 const INTENT_CLI = fileURLToPath(new URL("./cli.mjs", import.meta.resolve("@tanstack/intent")));
 
 const problemAt = problemInFile(RULE);
@@ -44,7 +43,7 @@ const packagingMessages = (
     Option.liftPredicate(keywords, (own) => !Arr.contains(own, KEYWORD)),
     Option.map(
       () =>
-        `is published with skills but lacks the ${KEYWORD} keyword, so Intent does not find them. ${SYNC}`,
+        `is published with skills but lacks the ${KEYWORD} keyword, so Intent does not find them. Add it to keywords.`,
     ),
   );
   const unshipped = pipe(
@@ -58,7 +57,7 @@ const packagingMessages = (
     Option.filter((left) => Arr.isReadonlyArrayNonEmpty(left)),
     Option.map(
       (left) =>
-        `leaves ${Arr.join(left, ", ")} out of files, so the published package does not ship them. ${SYNC}`,
+        `leaves ${Arr.join(left, ", ")} out of files, so the published package does not ship them. List them in files.`,
     ),
   );
   return Arr.getSomes([keyword, unshipped]);
@@ -89,7 +88,7 @@ const problemsIn = Effect.fn("problemsIn")(function* problemsIn(
     return [
       problemAt(
         manifest,
-        `is published without TanStack Intent skills. Write the tasks an agent needs for this package as ${SKILLS}/<task>/${SKILL_FILE} with vp exec intent maintainer add, so agents in the repositories that install it load guidance for the installed version.`,
+        `is published without agent skills. Write the tasks an agent needs for this package as ${SKILLS}/<task>/${SKILL_FILE}, so that repositories which approve them in the permissions of pnpm-workspace.yaml give their agents guidance for the installed version.`,
       ),
     ];
   }

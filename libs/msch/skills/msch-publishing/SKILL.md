@@ -1,5 +1,5 @@
 ---
-name: publishing
+name: msch-publishing
 description: >
   Use in a repository that depends on @r_masseater/msch when releasing a workspace: publishing an
   npm package, shipping an app's installers as a GitHub Release, bumping a version, or adding a
@@ -13,7 +13,7 @@ sources:
   - src/features/publish-workspace/**
 ---
 
-# publishing
+# msch-publishing
 
 Every release is manual. Nothing publishes on a push to main, and msch reports release-please and any workflow that runs `msch-publish` from another trigger.
 

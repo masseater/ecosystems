@@ -7,14 +7,14 @@ vp add -D @r_masseater/msch
 vp exec msch
 ```
 
-Guidance for agents ships in the package as TanStack Intent skills. Load one with `vp exec intent load @r_masseater/msch#<skill>`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/msch": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.
 
-| Skill                | When to use                                 |
-| -------------------- | ------------------------------------------- |
-| `msch-checks`        | Running msch and fixing what it reports     |
-| `publishing`         | Releasing a workspace to npm or GitHub      |
-| `repository-config`  | Building the root `vite.config.ts`          |
-| `workspace-settings` | Changing the settings of a single workspace |
+| Skill                     | When to use                                 |
+| ------------------------- | ------------------------------------------- |
+| `msch-checks`             | Running msch and fixing what it reports     |
+| `msch-publishing`         | Releasing a workspace to npm or GitHub      |
+| `msch-repository-config`  | Building the root `vite.config.ts`          |
+| `msch-workspace-settings` | Changing the settings of a single workspace |
 
 The package has these entry points.
 

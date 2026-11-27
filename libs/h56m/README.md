@@ -76,4 +76,4 @@ h56m uses the Betterleaks rules and, like Betterleaks, scans only the lines each
 
 ## Agent skills
 
-The package ships TanStack Intent skills for coding agents. Load one with `vp exec intent load @r_masseater/h56m#<skill>`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/h56m": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.

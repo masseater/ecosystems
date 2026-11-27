@@ -1,5 +1,5 @@
 ---
-name: apply-presets
+name: apply-fu4-presets
 description: >
   Use when choosing which @r_masseater/fu4-presets presets a repository's fu4 config extends,
   setting their options, or fixing what their actionlint/ and zizmor/ rules report on GitHub
@@ -13,7 +13,7 @@ sources:
   - src/app/presets.ts
 ---
 
-# apply-presets
+# apply-fu4-presets
 
 Each preset returns a fu4 config that loads one plugin and turns its rules on as errors. A config
 lists the presets it wants in `extends`; its own `rules` and `overrides` come after them and win.

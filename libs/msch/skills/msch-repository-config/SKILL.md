@@ -1,5 +1,5 @@
 ---
-name: repository-config
+name: msch-repository-config
 description: >
   Use when creating or changing the root vite.config.ts of a repository that uses @r_masseater/msch:
   repositoryConfig, workspaceSettings, the lint preset and its rule sets, extra root tasks, h56m
@@ -16,7 +16,7 @@ sources:
   - src/features/build-workspace-settings/index.ts
 ---
 
-# repository-config
+# msch-repository-config
 
 The root `vite.config.ts` builds the whole configuration with `repositoryConfig` from `@r_masseater/msch/config`. It passes only what belongs to the repository. Everything shared by masseater's repositories comes from msch.
 

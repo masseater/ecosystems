@@ -1,5 +1,5 @@
 ---
-name: apply-presets
+name: apply-y8-presets
 description: >
   Use when choosing which @r_masseater/y8-presets presets a repository extends, setting their
   options, or fixing what their docs/, readme/, agents-md/ and skill-md/ rules report.
@@ -12,7 +12,7 @@ sources:
   - src/features/check-documents/model/recommended.ts
 ---
 
-# apply-presets
+# apply-y8-presets
 
 Each preset returns a y8 config for one concern. A config lists the presets it wants in
 `extends`; its own `rules` and `overrides` come after them and win. The rules run on the tree y8
