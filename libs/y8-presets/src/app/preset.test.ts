@@ -177,3 +177,19 @@ test("inline HTML other than images is still reported", () =>
     );
     expect(errors).toStrictEqual(["README.md markdownlint/MD033", "README.md markdownlint/MD033"]);
   }).pipe(services.runPromise));
+
+const ONE_SENTENCE_LINE =
+  "この文は日本語を 1 文 1 行で書くリポジトリの段落を表し、80 桁を大きく超えても折り返さずに 1 行のまま書き切ることを、プリセットが行の長さの規則で咎めないことを確かめるためにある。";
+const ENGLISH_LINE =
+  "Write each sentence on its own line and never wrap it at eighty columns, because a wrapped sentence splits across lines and every later edit reflows the whole paragraph into a noisy diff.";
+
+test("a long line is not reported, because documents keep one sentence per line", () =>
+  Effect.gen(function* longLine() {
+    const diagnostics = yield* lintRepository({
+      "package.json": PACKAGE,
+      "README.md": `${README}\n${ONE_SENTENCE_LINE}\n`,
+      "AGENTS.md": `${ROOT_AGENTS}- ${ENGLISH_LINE}\n`,
+      "dist/index.js": "",
+    });
+    expect(errorsOf(diagnostics)).toStrictEqual([]);
+  }).pipe(services.runPromise));
