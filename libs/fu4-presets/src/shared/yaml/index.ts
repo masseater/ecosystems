@@ -1,4 +1,4 @@
-export { describePosition, isNull, pairsOf, textOf, valueAt } from "./node.ts";
+export { describePosition, isNull, pairsOf, readYaml, textOf, valueAt } from "./node.ts";
 export type { Pair, Text } from "./node.ts";
 export {
   custom,

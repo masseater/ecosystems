@@ -1,5 +1,5 @@
-import type { Position, YamlNode } from "@r_masseater/fu4";
-import { Array as Arr, Option, pipe } from "effect";
+import type { Position, Source, YamlNode } from "@r_masseater/fu4";
+import { Array as Arr, Option, Result, pipe } from "effect";
 
 const PAIR = 2;
 const KEY = 0;
@@ -50,3 +50,14 @@ export const textOf = (node: YamlNode): Text => ({
 
 export const describePosition = (position: Position): string =>
   `line:${String(position.line)},col:${String(position.column)}`;
+
+export const readYaml =
+  <Value>(read: (source: Source) => Result.Result<Value, string>) =>
+  (source: Source): Result.Result<Value, string> =>
+    pipe(
+      Arr.head(source.errors),
+      Option.match({
+        onNone: () => read(source),
+        onSome: (error) => Result.fail(`yaml: line ${String(error.line)}: ${error.message}`),
+      }),
+    );
