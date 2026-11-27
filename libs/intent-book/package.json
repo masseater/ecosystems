@@ -1,0 +1,81 @@
+{
+  "name": "@r_masseater/intent-book",
+  "version": "0.0.0",
+  "description": "Builds a GitBook-style documentation site for people from the TanStack Intent agent skills (SKILL.md) that an npm package ships, so agent and human documentation share one source.",
+  "keywords": [
+    "agent-skills",
+    "documentation",
+    "skill-md",
+    "static-site",
+    "tanstack-intent"
+  ],
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/intent-book#readme",
+  "bugs": {
+    "url": "https://github.com/masseater/ecosystems/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
+    "directory": "libs/intent-book"
+  },
+  "bin": {
+    "intent-book": "./bin/intent-book.ts"
+  },
+  "files": [
+    "LICENSE",
+    "dist",
+    "skills/build-skill-docs-site"
+  ],
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "exports": {
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "bin": {
+      "intent-book": "./dist/intent-book.mjs"
+    },
+    "exports": {
+      "./package.json": "./package.json"
+    },
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "prepublishOnly": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm/')) { console.error('npm publish leaves catalog: in dependencies. Publish the tarball from vp pm pack instead.'); process.exit(1) }\" && vp run build"
+  },
+  "dependencies": {
+    "@r_masseater/node-main": "workspace:*",
+    "@shikijs/rehype": "catalog:",
+    "hast-util-to-html": "catalog:",
+    "hastscript": "catalog:",
+    "mdast-util-to-string": "catalog:",
+    "rehype-slug": "catalog:",
+    "remark-gfm": "catalog:",
+    "remark-parse": "catalog:",
+    "remark-rehype": "catalog:",
+    "unified": "catalog:",
+    "unist-util-visit": "catalog:",
+    "yaml": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/platform-node": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@types/hast": "catalog:",
+    "@types/node": "catalog:",
+    "effect": "catalog:stack",
+    "hast-util-from-html": "catalog:",
+    "hast-util-select": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:stack"
+  },
+  "peerDependencies": {
+    "effect": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=26.13.1"
+  }
+}

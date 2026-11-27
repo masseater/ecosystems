@@ -111,6 +111,11 @@ catalog:
   verovio: 6.4.1
   modern-web-guidance: 1.0.2
   smol-toml: 1.9.1
+  "@shikijs/rehype": 4.6.0
+  hast-util-to-html: 9.0.7
+  hastscript: 9.0.3
+  rehype-slug: 6.0.0
+  remark-rehype: 11.1.2
 catalogs:
   stack:
     "@effect/tsgo": 0.73.7
