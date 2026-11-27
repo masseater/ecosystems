@@ -72,30 +72,18 @@ const jsonAttempts = (): readonly ExtensionAttempt[] => [
   attempt("Json", Extension.Json),
 ];
 
-const jsxAttempts = family(
-  [Extension.Tsx],
-  [
-    ["TypeScript", Extension.Tsx],
-    ["TypeScript", Extension.Ts],
-    ["Declaration", Extension.Dts],
-  ],
-  [
-    ["JavaScript", Extension.Jsx],
-    ["JavaScript", Extension.Js],
-  ],
-);
+const TS_FILE: Listed = ["TypeScript", Extension.Ts];
+const TSX_FILE: Listed = ["TypeScript", Extension.Tsx];
+const DTS_FILE: Listed = ["Declaration", Extension.Dts];
+const JS_FILE: Listed = ["JavaScript", Extension.Js];
+const JSX_FILE: Listed = ["JavaScript", Extension.Jsx];
+
+const jsxAttempts = family([Extension.Tsx], [TSX_FILE, TS_FILE, DTS_FILE], [JSX_FILE, JS_FILE]);
 
 const defaultAttempts = family(
   [Extension.Ts, Extension.Dts],
-  [
-    ["TypeScript", Extension.Ts],
-    ["TypeScript", Extension.Tsx],
-    ["Declaration", Extension.Dts],
-  ],
-  [
-    ["JavaScript", Extension.Js],
-    ["JavaScript", Extension.Jsx],
-  ],
+  [TS_FILE, TSX_FILE, DTS_FILE],
+  [JS_FILE, JSX_FILE],
 );
 
 const arbitraryAttempts = (candidate: string, original: string): readonly ExtensionAttempt[] =>
