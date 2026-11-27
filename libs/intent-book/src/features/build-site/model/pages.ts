@@ -8,7 +8,6 @@ import {
   orderedSkills,
   requiredName,
   routeOf,
-  slugOf,
   typeOf,
 } from "#/entities/book/index.ts";
 import type { Book, Skill } from "#/entities/book/index.ts";
@@ -58,10 +57,10 @@ const crumbs = (trail: readonly (Element | string)[]): Element => {
 };
 
 const skillRoute = (base: string, book: Book, skill: Skill): string =>
-  withBase(base)(routeOf(slugOf(book.name), { kind: "skill", name: skill.name }));
+  withBase(base)(routeOf(book.name, { kind: "skill", name: skill.name }));
 
 const rawRoute = (base: string, book: Book, skill: Skill): string =>
-  withBase(base)(routeOf(slugOf(book.name), { kind: "source", name: skill.name }));
+  withBase(base)(routeOf(book.name, { kind: "source", name: skill.name }));
 
 const sourceLocation = (source: string): Option.Option<string> =>
   pipe(
@@ -122,7 +121,7 @@ const requiredLink = (base: string, book: Book, requirement: string): Element =>
   );
 
 const overviewRoute = (base: string, book: Book): string =>
-  withBase(base)(routeOf(slugOf(book.name), { kind: "overview" }));
+  withBase(base)(routeOf(book.name, { kind: "overview" }));
 
 const bookLink = (base: string, book: Book): Element =>
   h("a", { href: overviewRoute(base, book) }, book.name);

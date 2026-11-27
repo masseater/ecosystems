@@ -1,7 +1,7 @@
 import { Array as Arr, Effect, Function as Fn, Option, pipe } from "effect";
 import { toString as textOf } from "mdast-util-to-string";
 
-import { routeOf, slugOf } from "#/entities/book/index.ts";
+import { routeOf } from "#/entities/book/index.ts";
 import type { Book } from "#/entities/book/index.ts";
 import { renderMarkdown } from "#/shared/lib/render-markdown.ts";
 import type { SiteFile } from "#/shared/lib/site-file.ts";
@@ -81,7 +81,7 @@ export const renderBook = Effect.fn("renderBook")(function* renderBook(input: {
   readonly book: Book;
   readonly base: string;
 }) {
-  const slug = slugOf(input.book.name);
+  const slug = input.book.name;
   const context: BookContext = {
     ...input,
     slug,
