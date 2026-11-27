@@ -17,9 +17,10 @@ import { parse } from "yaml";
 
 import { characterColumnOf } from "#/shared/text/index.ts";
 
-import { isAuditable, kindOf, probe, probedOf } from "./conformance.test.support.ts";
+import { probe, probedOf } from "./conformance.test.support.ts";
 import { KNOWN, ZIZMOR_TESTS, casesIn, knownIds } from "./integration.test.support.ts";
 import type { Invocation, SnapshotCase } from "./integration.test.support.ts";
+import { isAuditable, kindOf } from "./workflow-paths.test.support.ts";
 
 const services = ManagedRuntime.make(nodeServices);
 afterAll(() => services.dispose());

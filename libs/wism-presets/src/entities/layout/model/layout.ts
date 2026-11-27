@@ -1,10 +1,9 @@
+import { ancestors, baseName, below, join, matcher, parent } from "@masseater.dev/path-kit";
+import type { Matcher } from "@masseater.dev/path-kit";
 import { Array as Arr, Option, Record as Rec, String as Str, pipe } from "effect";
 
 import type { Kind, Layers } from "#/entities/kind/@x/layout.ts";
-import { matcher } from "#/shared/lib/glob.ts";
-import type { Matcher } from "#/shared/lib/glob.ts";
 import { memoize } from "#/shared/lib/memo.ts";
-import { ancestors, baseName, inside, join, parent } from "#/shared/lib/path.ts";
 
 import { IGNORED, OUTSIDE, globsOf, locateRest } from "./position.ts";
 import type { LayerGlobs, Position } from "./position.ts";
@@ -138,7 +137,7 @@ const ownersIn =
 const inner =
   (instance: Instance) =>
   (path: string): Option.Option<string> =>
-    inside(instance.dir)(path);
+    below(instance.dir)(path);
 
 const scopeOf =
   ({ isEntryDir }: Readonly<Index>, instance: Instance) =>
@@ -158,7 +157,7 @@ const locateIn =
       Option.all({ layers, layerGlobs, within }),
       Option.filter((found) => found.layerGlobs.files(found.within)),
       Option.map((found) =>
-        Option.match(inside(found.layers.dir)(found.within), {
+        Option.match(below(found.layers.dir)(found.within), {
           onNone: () => OUTSIDE,
           onSome: scopeOf(index, instance)(found.layers, found.layerGlobs),
         }),

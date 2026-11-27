@@ -1,4 +1,13 @@
-import { Option, Predicate, Record, pipe } from "effect";
+import {
+  Array as Arr,
+  Config,
+  ConfigProvider,
+  Effect,
+  Option,
+  Predicate,
+  Record,
+  pipe,
+} from "effect";
 
 import type { ReceiverAddress } from "#/entities/telemetry/index.ts";
 
@@ -22,11 +31,31 @@ const QUICK_EXPORT = {
   OTEL_METRIC_EXPORT_TIMEOUT: "100",
 } as const;
 
+const PROTOCOL = "OTEL_EXPORTER_OTLP_PROTOCOL";
+
+const readVariable = (name: string): Effect.Effect<Option.Option<readonly [string, string]>> =>
+  Config.option(Config.String(name)).pipe(
+    Effect.map(Option.map((value): readonly [string, string] => [name, value])),
+    Effect.orDie,
+  );
+
+const freshProvider = ConfigProvider.fromEnv();
+
+const readAll = Effect.all(Arr.map([PROTOCOL, ...Record.keys(QUICK_EXPORT)], readVariable), {
+  concurrency: 1,
+});
+
+const currentEnvironment: Effect.Effect<Environment> = pipe(
+  readAll,
+  Effect.map((found) => Record.fromEntries(Arr.getSomes(found))),
+  Effect.provideService(ConfigProvider.ConfigProvider, freshProvider),
+);
+
 const endpointFor =
   (address: ReceiverAddress) =>
   (env: Environment): string =>
     Option.match(
-      Option.liftPredicate(env["OTEL_EXPORTER_OTLP_PROTOCOL"], (protocol) => protocol === "grpc"),
+      Option.liftPredicate(env[PROTOCOL], (protocol) => protocol === "grpc"),
       { onNone: () => address.httpEndpoint, onSome: () => address.grpcEndpoint },
     );
 
@@ -40,3 +69,8 @@ export const receiverEnvironment =
     ...POINTED,
     OTEL_EXPORTER_OTLP_ENDPOINT: endpointFor(address)(env),
   });
+
+export const receiverEnvironmentNow = (
+  address: ReceiverAddress,
+): Effect.Effect<Readonly<Record<string, string>>> =>
+  currentEnvironment.pipe(Effect.map(receiverEnvironment(address)));

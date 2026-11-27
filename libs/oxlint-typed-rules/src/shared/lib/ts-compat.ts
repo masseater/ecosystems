@@ -81,7 +81,7 @@ export const forEachChild: {
     node.forEachChild(visit),
 );
 
-const ts = {
+export const ts = {
   forEachChild,
   isArrayBindingPattern,
   isArrowFunction,
@@ -187,4 +187,3 @@ export {
 } from "typescript/ast/is";
 export { NodeFlags, SyntaxKind } from "typescript/ast";
 export { JsxEmit, SymbolFlags, TypeFlags } from "typescript/sync";
-export default ts;

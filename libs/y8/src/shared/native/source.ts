@@ -1,13 +1,12 @@
-import { aligned, wordAt } from "@masseater.dev/lint-host";
+import { STRING_WORDS, WORD, aligned, spanText, wordAt, wordsOf } from "@masseater.dev/lint-host";
 
 import type { NodeType } from "./index.ts";
 
-const WORD = 4;
 const EMPTY = 0;
+const BYTE = 1;
+const UTF8 = "utf8";
 const HEADER_WORDS = 5;
 const HEADER = { nodes: 0, strings: 1, lines: 2, text: 3 } as const;
-const STRING_WORDS = 2;
-const LENGTH = 1;
 export const NODE_WORDS = 8;
 
 export const FIELD = {
@@ -77,11 +76,6 @@ interface Layout {
   readonly textLength: number;
 }
 
-const wordsOf =
-  (buffer: Uint8Array) =>
-  (at: number, count: number): Uint32Array =>
-    new Uint32Array(buffer.buffer, buffer.byteOffset + at * WORD, count);
-
 const layoutOf = (header: Uint32Array): Layout => ({
   nodeCount: wordAt(header)(HEADER.nodes),
   stringCount: wordAt(header)(HEADER.strings),
@@ -97,17 +91,14 @@ export const sourceView = (raw: Uint8Array): SourceView => {
   const linesAt = stringsAt + stringCount * STRING_WORDS;
   const textAt = (linesAt + lineCount) * WORD;
   const bytes = buffer.subarray(textAt, textAt + textLength);
-  const strings = words(stringsAt, stringCount * STRING_WORDS);
   const blob = buffer.subarray(textAt + padded(textLength));
+  const stringAt = spanText(words(stringsAt, stringCount * STRING_WORDS))(blob, UTF8)(EMPTY, BYTE);
   return {
     nodeCount,
     nodes: words(HEADER_WORDS, nodeCount * NODE_WORDS),
     lineStarts: words(linesAt, lineCount),
     text: () => decoder.decode(bytes),
     slice: (start, end) => decode(bytes, start, end),
-    stringAt: (index) => {
-      const offset = wordAt(strings)(index * STRING_WORDS);
-      return decode(blob, offset, offset + wordAt(strings)(index * STRING_WORDS + LENGTH));
-    },
+    stringAt,
   };
 };

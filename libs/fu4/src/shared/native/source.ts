@@ -1,10 +1,8 @@
-import { aligned, wordAt } from "@masseater.dev/lint-host";
+import { STRING_WORDS, WORD, aligned, spanText, wordAt, wordsOf } from "@masseater.dev/lint-host";
 import { Option } from "effect";
 
-const WORD = 4;
 const EMPTY = 0;
-const NEXT = 1;
-const STRING_WORDS = 2;
+const START = 0;
 export const NONE = 4_294_967_295;
 export const HEADER_WORDS = 8;
 export const SEMANTIC_WORDS = 8;
@@ -60,7 +58,7 @@ export interface SourceView {
   readonly text: string;
 }
 
-const utf16 = new TextDecoder("utf-16le");
+const UTF16 = "utf-16le";
 
 const rootOf = (value: number): Option.Option<number> =>
   Option.liftPredicate(value, (id) => id !== NONE);
@@ -103,24 +101,23 @@ const layoutOf = (header: Uint32Array): Layout => {
 const stringsOf = (
   words: Uint32Array,
   blob: Uint8Array,
-  spanAt: number,
+  spansAt: number,
 ): ((index: number) => string) => {
   const cache = new Map<number, string>();
-  const decode = (index: number): string => {
-    const offset = wordAt(words)(spanAt + index * STRING_WORDS) * STRING_WORDS;
-    const length = wordAt(words)(spanAt + index * STRING_WORDS + NEXT) * STRING_WORDS;
-    const value = utf16.decode(blob.subarray(offset, offset + length));
+  const decode = spanText(words)(blob, UTF16)(spansAt, STRING_WORDS);
+  const store = (index: number): string => {
+    const value = decode(index);
     cache.set(index, value);
     return value;
   };
-  return (index) => Option.getOrElse(Option.fromNullishOr(cache.get(index)), () => decode(index));
+  return (index) => Option.getOrElse(Option.fromNullishOr(cache.get(index)), () => store(index));
 };
 
 export const sourceView = (raw: Uint8Array): SourceView => {
   const buffer = aligned(raw);
-  const header = new Uint32Array(buffer.buffer, buffer.byteOffset, HEADER_WORDS);
+  const header = wordsOf(buffer)(START, HEADER_WORDS);
   const layout = layoutOf(header);
-  const words = new Uint32Array(buffer.buffer, buffer.byteOffset, layout.blobAt / WORD);
+  const words = wordsOf(buffer)(START, layout.blobAt / WORD);
   const stringAt = stringsOf(words, buffer.subarray(layout.blobAt), layout.spanAt);
   return {
     semanticCount: layout.semanticCount,

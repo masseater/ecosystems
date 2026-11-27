@@ -1,4 +1,13 @@
-import { Cause, Effect, Exit, Layer, ManagedRuntime, Option, String as Str } from "effect";
+import {
+  Cause,
+  Effect,
+  Exit,
+  Function as Fn,
+  Layer,
+  ManagedRuntime,
+  Option,
+  String as Str,
+} from "effect";
 import { FetchHttpClient } from "effect/http";
 import { OtlpSerialization, OtlpTracer } from "effect/observability";
 import { createFileSystemLayer } from "typescript/fs";
@@ -7,7 +16,6 @@ import type { Project, Snapshot } from "typescript/sync";
 
 import { internProgram } from "./compat.ts";
 import type { CompatProgram } from "./compat.ts";
-import { memoizeByKey } from "./memo.ts";
 
 const tracing = OtlpTracer.layerFromConfig({
   resource: { serviceName: "oxlint-typed-rules" },
@@ -43,7 +51,7 @@ const matchesText = (project: Project, overlay: Overlay): boolean =>
 
 const directoryOf = (fileName: string): string => Str.replace(/[\\/][^\\/]*$/u, "")(fileName);
 
-const directoryProjects = memoizeByKey(
+const directoryProjects = Fn.memoize(
   (_snapshot: Snapshot): Map<string, Project> => new Map<string, Project>(),
 );
 

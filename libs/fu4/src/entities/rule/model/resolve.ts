@@ -1,6 +1,6 @@
 import { settingOf } from "@masseater.dev/lint-host";
+import { matcher, selects } from "@masseater.dev/path-kit";
 import { Array as Arr, Option, Record as Rec, String as Str, pipe } from "effect";
-import { minimatch } from "minimatch";
 
 import type {
   Fu4Config,
@@ -11,7 +11,6 @@ import type {
   Severity,
 } from "#/shared/config/index.ts";
 
-const NEGATION = "!";
 const SEPARATOR = "/";
 const START = 0;
 
@@ -36,32 +35,15 @@ const enabled = ([id, entry]: readonly [string, RuleEntry]): readonly Enabled[] 
   return [{ id, severity, options }];
 };
 
-const matches =
-  (path: string) =>
-  (pattern: string): boolean =>
-    minimatch(path, pattern, { dot: true });
-
-const negated = Str.startsWith(NEGATION);
-
 const applies =
   (path: string) =>
   (override: Override): boolean =>
-    pipe(
-      override.files,
-      Arr.filter((pattern) => !negated(pattern)),
-      Arr.some(matches(path)),
-    ) &&
-    !pipe(
-      override.files,
-      Arr.filter(negated),
-      Arr.map(Str.slice(NEGATION.length)),
-      Arr.some(matches(path)),
-    );
+    selects(override.files)(path);
 
 export const isIgnored =
   (config: Fu4Config) =>
   (path: string): boolean =>
-    pipe(config.ignores ?? [], Arr.some(matches(path)));
+    matcher(config.ignores ?? [])(path);
 
 export const entriesFor =
   (config: Fu4Config) =>

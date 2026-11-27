@@ -18,10 +18,6 @@ export default defineConfig({
             "effecttsgo/schema-sync": "off",
           },
         },
-        {
-          files: ["src/features/ban-comments/model/comments.ts"],
-          rules: { "effecttsgo/node-builtin-import": "off" },
-        },
       ],
     },
   },

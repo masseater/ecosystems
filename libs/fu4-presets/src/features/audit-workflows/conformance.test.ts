@@ -17,9 +17,10 @@ import {
 import { afterAll, expect, test } from "vite-plus/test";
 import { parse } from "yaml";
 
-import { ExpectedFinding, expectedOf, kindOf, probe } from "./conformance.test.support.ts";
+import { ExpectedFinding, expectedOf, probe } from "./conformance.test.support.ts";
 import type { Expected } from "./conformance.test.support.ts";
 import { AUDITS } from "./model/concerns/index.ts";
+import { kindOf } from "./workflow-paths.test.support.ts";
 
 const services = ManagedRuntime.make(nodeServices);
 afterAll(() => services.dispose());

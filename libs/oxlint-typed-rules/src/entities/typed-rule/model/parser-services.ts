@@ -1,4 +1,4 @@
-import { Array as Arr, Option, Predicate, pipe } from "effect";
+import { Array as Arr, Function as Fn, Option, Predicate, pipe } from "effect";
 import { SyntaxKind } from "typescript/ast";
 import type { Node, SourceFile } from "typescript/ast";
 import type { Context, Location, Range } from "vite-plus/lint/plugins";
@@ -6,7 +6,7 @@ import type { Context, Location, Range } from "vite-plus/lint/plugins";
 import type { CompatSymbol } from "#/shared/lib/compat-symbol.ts";
 import type { CompatType } from "#/shared/lib/compat-type.ts";
 import type { CompatProgram } from "#/shared/lib/compat.ts";
-import { lazily, memoizeByKey } from "#/shared/lib/memo.ts";
+import { lazily } from "#/shared/lib/memo.ts";
 
 export interface RangedNode {
   readonly range: Readonly<Range>;
@@ -107,9 +107,7 @@ const esTreeIndex = ({ context }: FileProgram): ReadonlyMap<string, MappedNode> 
 
 export const createParserServices = (file: FileProgram): ParserServices => {
   const esTreeNodes = lazily(() => esTreeIndex(file));
-  const toTSNode = memoizeByKey((node: RangedNode) =>
-    innermostSpanning(file.sourceFile, node.range),
-  );
+  const toTSNode = Fn.memoize((node: RangedNode) => innermostSpanning(file.sourceFile, node.range));
   const checker = file.program.getTypeChecker();
   const toESTreeNode = (node: Node): MappedNode => {
     const key = rangeKey([node.getStart(), node.end]);

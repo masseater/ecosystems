@@ -1,0 +1,33 @@
+{
+  "name": "@masseater.dev/path-kit",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Reads slash-separated path strings: the last segment, parent directories, whether a path sits inside a directory, and the part of a path below a directory.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
+    "directory": "libs/path-kit"
+  },
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "exports": {
+    ".": "./src/app/index.ts",
+    "./package.json": "./package.json"
+  },
+  "devDependencies": {
+    "@r_masseater/vitest-otlp": "workspace:*",
+    "@types/node": "catalog:",
+    "effect": "catalog:stack",
+    "minimatch": "catalog:",
+    "vite": "catalog:",
+    "vite-plus": "catalog:stack"
+  },
+  "peerDependencies": {
+    "effect": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=26.13.1"
+  }
+}

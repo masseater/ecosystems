@@ -1,8 +1,8 @@
+import { baseName } from "@masseater.dev/path-kit";
 import type { InputKind, Source, YamlNode } from "@r_masseater/fu4";
 import { Option, Result, pipe } from "effect";
 
 import type { AuditInput } from "#/features/audit-workflows/model/input.ts";
-import { baseName } from "#/shared/text/index.ts";
 import { documentOf } from "#/shared/yamlpath/index.ts";
 import type { Document } from "#/shared/yamlpath/index.ts";
 

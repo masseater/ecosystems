@@ -1,3 +1,4 @@
+import { isInside } from "@masseater.dev/path-kit";
 import {
   Array as Arr,
   Config,
@@ -69,22 +70,6 @@ const withoutTopDirectory = ({ header, bytes }: TarEntry): TarEntry => ({
   bytes,
 });
 
-/** @internal */
-export const isUnder =
-  (directory: string) =>
-  (path: string): boolean =>
-    directory === "" || Str.startsWith(`${directory}${SEPARATOR}`)(path);
-
-/** @internal */
-export const relativeTo =
-  (directory: string) =>
-  (path: string): string => {
-    if (directory === "") {
-      return path;
-    }
-    return Str.slice(directory.length + NEXT)(path);
-  };
-
 const parentOf = (path: string): string =>
   pipe(
     path,
@@ -98,7 +83,7 @@ const isSkillFile =
     entry.header.type === "File" &&
     (entry.header.path === SKILL_FILE ||
       Str.endsWith(`${SEPARATOR}${SKILL_FILE}`)(entry.header.path)) &&
-    isUnder(root)(entry.header.path);
+    isInside(root)(entry.header.path);
 
 interface Candidate {
   readonly directory: string;
@@ -110,7 +95,7 @@ const isOutermost =
   ({ directory }: Candidate): boolean =>
     !pipe(
       candidates,
-      Arr.some((other) => other.directory !== directory && isUnder(other.directory)(directory)),
+      Arr.some((other) => other.directory !== directory && isInside(other.directory)(directory)),
     );
 
 const toFound = ({ directory, name }: Candidate): readonly FoundSkill[] =>

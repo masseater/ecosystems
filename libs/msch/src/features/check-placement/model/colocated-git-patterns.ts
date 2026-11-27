@@ -1,8 +1,8 @@
+import { SEPARATOR, isInside } from "@masseater.dev/path-kit";
 import { Array as Arr, Effect, Option, String as Str, pipe } from "effect";
 
 import { MANIFEST_FILE } from "#/entities/package/index.ts";
 import { workspaceDirectories } from "#/entities/workspace/index.ts";
-import { SEPARATOR, isInside } from "#/shared/lib/path-segments.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 

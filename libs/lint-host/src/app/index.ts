@@ -20,4 +20,4 @@ export { sortByPosition, traceparent } from "#/shared/lib/trace.ts";
 export type { Positioned } from "#/shared/lib/trace.ts";
 export { layersOf, mergedLayers, mergedRecords } from "#/shared/lib/layers.ts";
 export type { Layer, Merged } from "#/shared/lib/layers.ts";
-export { aligned, wordAt } from "#/shared/lib/words.ts";
+export { STRING_WORDS, WORD, aligned, spanText, wordAt, wordsOf } from "#/shared/lib/words.ts";

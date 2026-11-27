@@ -1,6 +1,6 @@
-import { Array as Arr, Option, Record as Rec, Schema, String as Str, pipe } from "effect";
+import { toPosix } from "@masseater.dev/path-kit";
+import { Array as Arr, Record as Rec, Schema, String as Str, pipe } from "effect";
 
-import { SEPARATOR } from "#/shared/lib/path-segments.ts";
 import { reachable } from "#/shared/lib/reachable.ts";
 
 export const LOCK_FILE = "Cargo.lock";
@@ -41,20 +41,8 @@ export type CargoSource = typeof CargoSourceSchema.Type;
 export type CargoWorkspace = typeof CargoWorkspaceSchema.Type;
 export type CargoPackage = typeof CargoPackageSchema.Type;
 
-const normalized = Str.replaceAll("\\", SEPARATOR);
-
-export const relativeTo =
-  (root: string) =>
-  (file: string): Option.Option<string> => {
-    const prefix = `${normalized(root)}${SEPARATOR}`;
-    const path = normalized(file);
-    return Option.some(Str.slice(prefix.length)(path)).pipe(
-      Option.filter(() => Str.startsWith(prefix)(path)),
-    );
-  };
-
 export const directoryOf = (file: string): string =>
-  pipe(normalized(file), Str.replace(LAST_SEGMENT, ""));
+  pipe(toPosix(file), Str.replace(LAST_SEGMENT, ""));
 
 export const isLocal = (entry: CargoPackage): boolean => entry.source === null;
 
