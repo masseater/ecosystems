@@ -35,8 +35,8 @@ const isAttwUpstream = (importer: string | undefined): boolean =>
   );
 
 const ATTW_REDIRECTS: readonly (readonly [(id: string) => boolean, string])[] = [
-  [(id) => Str.endsWith("/multiCompilerHost.js")(id), VIRTUAL_HOSTS],
-  [(id) => id === "typescript", VIRTUAL_TYPESCRIPT],
+  [(id): boolean => Str.endsWith("/multiCompilerHost.js")(id), VIRTUAL_HOSTS],
+  [(id): boolean => id === "typescript", VIRTUAL_TYPESCRIPT],
 ];
 
 const attwRedirect = (id: string, importer: string | undefined): Option.Option<string> =>
