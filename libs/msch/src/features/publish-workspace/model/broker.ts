@@ -1,4 +1,4 @@
-import { mask } from "@masseater.dev/github-workflow";
+import { mask } from "@r_masseater/github-workflow";
 import { Config, Console, Effect, Option, Redacted, Schema } from "effect";
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http";
 

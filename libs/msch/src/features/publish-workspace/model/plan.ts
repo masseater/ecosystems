@@ -1,4 +1,4 @@
-import { outputOf, succeeds, writeOutputs } from "@masseater.dev/github-workflow";
+import { outputOf, succeeds, writeOutputs } from "@r_masseater/github-workflow";
 import {
   Array as Arr,
   Config,
@@ -59,7 +59,8 @@ export type Plan = typeof PlanSchema.Type;
 
 const AssetCount = Schema.fromJsonString(Schema.Finite);
 
-const graphTasks = outputOf({ command: "vp", args: ["run", "--json"] }).pipe(
+/** @internal */
+export const graphTasks = outputOf({ command: "vp", args: ["run", "--json"] }).pipe(
   Effect.flatMap(Schema.decodeEffect(TaskGraph)),
   Effect.map(({ tasks }) => Rec.values(tasks)),
 );
@@ -71,7 +72,8 @@ const tasksIn = (tasks: readonly (typeof Task.Type)[], directory: string): reado
     Arr.map(({ name }) => name),
   );
 
-const workspacesOf = (tasks: readonly (typeof Task.Type)[]): readonly string[] =>
+/** @internal */
+export const workspacesOf = (tasks: readonly (typeof Task.Type)[]): readonly string[] =>
   pipe(
     tasks,
     Arr.map((task) => task.package),

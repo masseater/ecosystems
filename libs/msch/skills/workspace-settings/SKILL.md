@@ -12,7 +12,8 @@ metadata:
 sources:
   - src/app/vite.d.ts
   - src/features/build-workspace-settings/**
-  - src/features/derive-locked-inputs/**
+  - src/shared/lib/locked-inputs.ts
+  - src/features/define-library/**
   - src/entities/workspace/**
 ---
 

@@ -40,7 +40,8 @@
   "exports": {
     "./cli": "./bin/msch.ts",
     "./cargo-inputs": "./src/features/derive-cargo-inputs/index.ts",
-    "./locked-inputs": "./src/features/derive-locked-inputs/index.ts",
+    "./library": "./src/features/define-library/index.ts",
+    "./locked-inputs": "./src/shared/lib/locked-inputs.ts",
     "./config": "./src/app/repository-config.ts",
     "./decision-rules": "./src/app/decision-rules.ts",
     "./lint-rules": "./src/features/define-lint-rules/index.ts",
@@ -64,6 +65,10 @@
       "./cargo-inputs": {
         "types": "./dist/cargo-inputs.d.mts",
         "default": "./dist/cargo-inputs.mjs"
+      },
+      "./library": {
+        "types": "./dist/library.d.mts",
+        "default": "./dist/library.mjs"
       },
       "./locked-inputs": {
         "types": "./dist/locked-inputs.d.mts",
@@ -148,7 +153,7 @@
     "@effect/platform-node": "catalog:",
     "@effect/tsgo": "catalog:stack",
     "@effect/vitest": "catalog:",
-    "@masseater.dev/github-workflow": "workspace:*",
+    "@r_masseater/github-workflow": "workspace:*",
     "@r_masseater/vitest-otlp": "workspace:*",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
@@ -160,13 +165,13 @@
     "wordnet-db": "catalog:"
   },
   "peerDependencies": {
-    "@effect/tsgo": ">=0.67.5",
-    "effect": "^4.1.2",
+    "@effect/tsgo": ">=0.73.0",
+    "effect": "^4.1.0",
     "typescript": ">=7.1.0-beta",
     "vite": "*",
-    "vite-plus": ">=1.5.0"
+    "vite-plus": ">=1.7.0"
   },
   "engines": {
-    "node": "v26.13.1"
+    "node": ">=26.13.1"
   }
 }

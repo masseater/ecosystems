@@ -1,4 +1,4 @@
-import { mustSucceed, succeeds, writeOutputs } from "@masseater.dev/github-workflow";
+import { mustSucceed, succeeds, writeOutputs } from "@r_masseater/github-workflow";
 import { Array as Arr, Config, Effect, FileSystem, Option, Order, Path, pipe } from "effect";
 
 import { goesToNpm, isRoot, isVersioned, manifestIn, releaseName, tagOf } from "./manifest.ts";

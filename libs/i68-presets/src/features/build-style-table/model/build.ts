@@ -1,6 +1,6 @@
-import { midiToFumx } from "@masseater.dev/song-format/convert-midi";
 import { readSong } from "@r_masseater/fumx-parser";
 import { soundingsOf } from "@r_masseater/fumx-parser/analysis";
+import { midiToFumx } from "@r_masseater/song-format/convert-midi";
 import { Array as Arr, Effect, Order, Record as Rec, Schema, String as Str, pipe } from "effect";
 import { VerovioToolkit } from "verovio/esm";
 import createVerovioModule from "verovio/wasm-hum";

@@ -54,8 +54,8 @@
   "devDependencies": {
     "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
-    "@masseater.dev/song-format": "workspace:*",
     "@r_masseater/i68": "workspace:*",
+    "@r_masseater/song-format": "workspace:*",
     "@types/node": "catalog:",
     "effect": "catalog:stack",
     "verovio": "catalog:",
@@ -63,9 +63,9 @@
   },
   "peerDependencies": {
     "@r_masseater/i68": "workspace:^",
-    "effect": "^4.1.2"
+    "effect": "^4.1.0"
   },
   "engines": {
-    "node": "v26.13.1"
+    "node": ">=26.13.1"
   }
 }

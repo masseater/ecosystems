@@ -1,3 +1,9 @@
-import { defineConfig } from "vite-plus";
+import { library } from "@r_masseater/msch/library";
 
-export default defineConfig({});
+export default library({
+  entry: {
+    index: "src/entities/segment/index.ts",
+    mapper: "src/features/map-content/index.ts",
+    vite: "src/features/import-content/index.ts",
+  },
+});

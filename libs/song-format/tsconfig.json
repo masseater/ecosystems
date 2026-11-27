@@ -6,7 +6,7 @@
   },
   "contentMappers": [
     {
-      "package": "@masseater.dev/song-format",
+      "package": "@r_masseater/song-format",
       "extensions": [".fumx"]
     }
   ]

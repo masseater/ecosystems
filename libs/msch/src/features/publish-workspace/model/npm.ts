@@ -1,4 +1,4 @@
-import { mustSucceed } from "@masseater.dev/github-workflow";
+import { mustSucceed } from "@r_masseater/github-workflow";
 import {
   Array as Arr,
   Console,
@@ -13,24 +13,19 @@ import {
 } from "effect";
 
 import { brokerCredential } from "./broker.ts";
+import { checkCompat } from "./compat.ts";
 import { onNpm } from "./dependencies.ts";
 import { checkExportTargets } from "./export-targets.ts";
 import { manifestIn } from "./manifest.ts";
 import type { Manifest } from "./manifest.ts";
-import { nativeFields, nativeFileOf, nativeReadme } from "./platforms.ts";
-import type { NativePackage } from "./platforms.ts";
-import { widenRangesEnv } from "./widened-ranges.ts";
+import { PackageJson, writeNative } from "./native-package.ts";
+import { pack } from "./pack.ts";
 
-const TARBALL = "package.tgz";
-const NPM_DIR = "npm";
-const NATIVE_DIR = "native";
 const MANIFEST_FILE = "package.json";
-const KEPT_FIELDS: readonly string[] = ["license", "repository", "homepage", "bugs", "engines"];
 const PUBLISH_FLAGS = ["--provenance", "--access", "public"];
 
 type Env = Readonly<Record<string, string>>;
 
-const PackageJson = Schema.fromJsonString(Schema.Record(Schema.String, Schema.Unknown));
 const PlatformManifest = Schema.fromJsonString(
   Schema.Struct({ name: Schema.String, version: Schema.String }),
 );
@@ -58,39 +53,7 @@ const verifyPackage = Effect.fn("publish.verify")(function* verifyPackage(
     { concurrency: 1, discard: true },
   );
   yield* checkExportTargets(directory);
-});
-
-const keptFields = Effect.fn("publish.keptFields")(function* keptFields(directory: string) {
-  const fileSystem = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const text = yield* fileSystem.readFileString(path.join(directory, MANIFEST_FILE));
-  const raw = yield* Schema.decodeEffect(PackageJson)(text);
-  return pipe(
-    raw,
-    Rec.filter((_value, key) => Arr.contains(KEPT_FIELDS, key)),
-  );
-});
-
-const writeNative = Effect.fn("publish.writeNative")(function* writeNative(
-  directory: string,
-  native: NativePackage,
-) {
-  const fileSystem = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const kept = yield* keptFields(directory);
-  const target = path.resolve(directory, NPM_DIR, native.target);
-  const file = nativeFileOf(native);
-  yield* fileSystem.makeDirectory(target, { recursive: true });
-  yield* fileSystem.copyFile(path.join(directory, NATIVE_DIR, file), path.join(target, file));
-  const text = yield* Schema.encodeEffect(PackageJson)({ ...kept, ...nativeFields(native) });
-  yield* Effect.all(
-    [
-      fileSystem.writeFileString(path.join(target, MANIFEST_FILE), text),
-      fileSystem.writeFileString(path.join(target, "README.md"), nativeReadme(native)),
-    ],
-    { concurrency: "unbounded" },
-  );
-  return target;
+  yield* checkCompat(directory);
 });
 
 const publishNative = Effect.fn("publish.publishNative")(function* publishNative(
@@ -152,21 +115,6 @@ const publishNatives = Effect.fn("publish.publishNatives")(function* publishNati
     concurrency: 1,
   });
   yield* addOptionalDependencies(directory, names, manifest.version);
-});
-
-const pack = Effect.fn("publish.pack")(function* pack(directory: string) {
-  const fileSystem = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const temporary = yield* fileSystem.makeTempDirectoryScoped();
-  const tarball = path.join(temporary, TARBALL);
-  const env = yield* widenRangesEnv(temporary);
-  yield* mustSucceed({
-    command: "vp",
-    args: ["pm", "pack", "--out", tarball],
-    env,
-    cwd: directory,
-  });
-  return tarball;
 });
 
 /** @internal */

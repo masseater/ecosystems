@@ -7,11 +7,11 @@ import { runScriptsOf } from "#/shared/lib/workflow-run.ts";
 import { keyOffsetIn, pairIn, workflowCheck } from "./workflow-yaml.ts";
 
 const RULE: RuleName = "publish-trigger";
-const PUBLISH = /\bmsch-publish\b/u;
+const PUBLISH = /\bmsch-publish\s+(?:plan|npm|release)\b/u;
 const MANUAL = "workflow_dispatch";
 const TRIGGER_KEY = "on";
 const MESSAGE =
-  "publishes with `msch-publish` from a trigger other than `workflow_dispatch`. Publishing is manual: bump the version in a PR, then dispatch the workflow for the workspace.";
+  "publishes with `msch-publish plan`, `npm` or `release` from a trigger other than `workflow_dispatch`. Publishing is manual: bump the version in a PR, then dispatch the workflow for the workspace.";
 
 const triggersOf = (node: unknown): readonly string[] => {
   if (isScalar(node)) {

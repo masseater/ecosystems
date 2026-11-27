@@ -13,6 +13,7 @@ export const generated = [
   ".claude/skills/**",
   ".intent/**",
   "AGENTS.md",
+  "CLAUDE.md",
   "**/CHANGELOG.md",
   ".github/release-please/*manifest.json",
   "**/.release-please-manifest.json",
