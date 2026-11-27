@@ -18,6 +18,7 @@ import {
 import { parsePattern, patternMatches, usesRef } from "#/features/audit-workflows/lib/uses.ts";
 import type { Audit, Drafts } from "#/features/audit-workflows/model/audit.ts";
 import type { Confidence, Persona } from "#/features/audit-workflows/model/finding.ts";
+import { isRepositoryBody } from "#/features/audit-workflows/model/step.ts";
 import type { StepView } from "#/features/audit-workflows/model/step.ts";
 
 const meta = {
@@ -77,7 +78,7 @@ const PATTERNS = pipe(
 
 const step = (view: StepView): Drafts => {
   const { body } = view;
-  if (body.type !== "uses" || body.uses.type !== "repository") {
+  if (!isRepositoryBody(body)) {
     return [];
   }
   const { uses } = body;

@@ -23,6 +23,7 @@ import type {
   FindingDraft,
   SymbolicLocation,
 } from "#/features/audit-workflows/model/finding.ts";
+import { isRepositoryBody } from "#/features/audit-workflows/model/step.ts";
 import type { StepView } from "#/features/audit-workflows/model/step.ts";
 
 import { revocation } from "./github-app-revocation.ts";
@@ -126,12 +127,7 @@ const permissionInputs = (inputs: ReadonlyMap<string, EnvValue>): readonly strin
 
 const tokenStepOf = (view: StepView): Option.Option<TokenStep> => {
   const { body } = view;
-  if (
-    body.type !== "uses" ||
-    body.uses.type !== "repository" ||
-    !isCreateToken(body.uses) ||
-    body.with.type !== "literal"
-  ) {
+  if (!isRepositoryBody(body) || !isCreateToken(body.uses) || body.with.type !== "literal") {
     return Option.none();
   }
   const usesAt = withinText(body.uses.raw)(withKeys("uses")(view.location));

@@ -5,6 +5,7 @@ import { parsePattern, patternMatches, usesRef } from "#/features/audit-workflow
 import type { UsesPattern } from "#/features/audit-workflows/lib/uses.ts";
 import type { EnvValue, RepositoryUses } from "#/features/audit-workflows/model/common.ts";
 import type { SymbolicLocation } from "#/features/audit-workflows/model/finding.ts";
+import { isRepositoryBody } from "#/features/audit-workflows/model/step.ts";
 import type { StepView } from "#/features/audit-workflows/model/step.ts";
 import codeqlSinks from "#/shared/data/zizmor/codeql-injection-sinks.json" with { type: "json" };
 
@@ -65,7 +66,7 @@ export const scriptsOf = (view: StepView): readonly Script[] => {
       },
     ];
   }
-  if (body.uses.type !== "repository" || body.with.type !== "literal") {
+  if (!isRepositoryBody(body) || body.with.type !== "literal") {
     return [];
   }
   const inputs = body.with.value;

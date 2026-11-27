@@ -6,6 +6,7 @@ import { COMMIT, usesMatches } from "#/features/audit-workflows/lib/uses.ts";
 import { isAtLeast, parseVersion } from "#/features/audit-workflows/lib/version.ts";
 import type { RepositoryUses } from "#/features/audit-workflows/model/common.ts";
 import type { Persona } from "#/features/audit-workflows/model/finding.ts";
+import { isRepositoryBody } from "#/features/audit-workflows/model/step.ts";
 import type { StepView } from "#/features/audit-workflows/model/step.ts";
 
 const V6 = Option.getOrThrow(parseVersion("v6"));
@@ -62,12 +63,7 @@ const personaOf = (value: Option.Option<string>): Option.Option<Persona> => {
 
 export const checkoutOf = (view: StepView): readonly Checkout[] => {
   const { body } = view;
-  if (
-    body.type !== "uses" ||
-    body.uses.type !== "repository" ||
-    !isCheckout(body.uses) ||
-    body.with.type !== "literal"
-  ) {
+  if (!isRepositoryBody(body) || !isCheckout(body.uses) || body.with.type !== "literal") {
     return [];
   }
   const { uses } = body;
@@ -85,12 +81,7 @@ export const checkoutOf = (view: StepView): readonly Checkout[] => {
 
 export const isVulnerableUpload = (view: StepView): boolean => {
   const { body } = view;
-  if (
-    body.type !== "uses" ||
-    body.uses.type !== "repository" ||
-    !isUpload(body.uses) ||
-    body.with.type !== "literal"
-  ) {
+  if (!isRepositoryBody(body) || !isUpload(body.uses) || body.with.type !== "literal") {
     return false;
   }
   return Option.exists(

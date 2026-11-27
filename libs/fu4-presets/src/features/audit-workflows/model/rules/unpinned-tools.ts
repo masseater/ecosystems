@@ -17,6 +17,7 @@ import {
 import type { Audit, Drafts } from "#/features/audit-workflows/model/audit.ts";
 import type { ControlOrigin, Usage } from "#/features/audit-workflows/model/coordinate.ts";
 import type { FindingDraft, Severity } from "#/features/audit-workflows/model/finding.ts";
+import { isRepositoryBody } from "#/features/audit-workflows/model/step.ts";
 import type { StepView } from "#/features/audit-workflows/model/step.ts";
 
 const meta = {
@@ -87,7 +88,7 @@ const draftOf = (view: StepView, raw: string, usage: Usage): Option.Option<Findi
 
 const step = (view: StepView): Drafts => {
   const { body } = view;
-  if (body.type !== "uses" || body.uses.type !== "repository") {
+  if (!isRepositoryBody(body)) {
     return [];
   }
   const { raw } = body.uses;
