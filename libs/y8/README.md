@@ -85,4 +85,4 @@ y8 reports the same findings as markdownlint-cli2 apart from a few lines, and ru
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/y8": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/y8": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.

@@ -24,4 +24,4 @@ The Betterleaks rules are under the MIT license. `THIRD-PARTY-NOTICES.txt` holds
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/h56m-presets": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/h56m-presets": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.

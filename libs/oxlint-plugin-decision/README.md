@@ -116,7 +116,7 @@ The rules that check a claim the code makes about itself are adapted from [jev-l
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/oxlint-plugin-decision": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/oxlint-plugin-decision": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.
 
 ## License
 

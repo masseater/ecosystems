@@ -21,4 +21,4 @@ npm install --save-dev textlint @r_masseater/textlint-rule-preset-ja @r_masseate
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/textlint-rule-preset-ja": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/textlint-rule-preset-ja": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.

@@ -23,4 +23,4 @@ const addon = loadAddon({
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@masseater.dev/lint-host": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@masseater.dev/lint-host": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.

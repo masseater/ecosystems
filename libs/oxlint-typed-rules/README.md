@@ -11,7 +11,7 @@ npm install -D @r_masseater/oxlint-typed-rules
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/oxlint-typed-rules": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/oxlint-typed-rules": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.
 
 ## Published to
 

@@ -76,4 +76,4 @@ Rules find parts by the `role` of their track (`melody`, `countermelody`, `harmo
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/i68-presets": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/i68-presets": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.

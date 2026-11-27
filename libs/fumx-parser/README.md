@@ -42,4 +42,4 @@ Times are integer ticks, `TICKS_PER_WHOLE` to a whole note; `fractionOf` prints 
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/fumx-parser": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/fumx-parser": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.

@@ -7,7 +7,7 @@ vp add -D @r_masseater/msch
 vp exec msch
 ```
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/msch": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/msch": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.
 
 | Skill                     | When to use                                 |
 | ------------------------- | ------------------------------------------- |

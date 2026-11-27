@@ -73,4 +73,4 @@ Directives follow ESLint's: they start the comment, `//` or `/* */`, and separat
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/i68": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/i68": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.

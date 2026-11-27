@@ -69,4 +69,4 @@ None of the tools finds a problem in this repository except steiger, whose recom
 
 ## Agent skills
 
-The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/wism": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into `.claude/skills`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/wism": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.
