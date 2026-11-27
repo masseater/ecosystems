@@ -1,7 +1,7 @@
 import { Array as Arr, Effect, Option } from "effect";
 import { rolldown } from "vite/rolldown";
 
-import { deployEntries } from "#/entities/workspace/index.ts";
+import { bundledEntries } from "#/entities/workspace/index.ts";
 import { bundleErrorDetail } from "#/shared/lib/bundle-error.ts";
 import { problemInFile } from "#/shared/lib/problem.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
@@ -47,7 +47,7 @@ export const checkWorkerBundles = Effect.fn("checkWorkerBundles")(function* chec
   root: string,
 ) {
   const files = yield* RepositoryFiles;
-  const entries = yield* deployEntries(root);
+  const entries = yield* bundledEntries(root);
   const found = yield* Effect.forEach(entries, (entry) => bundleProblem(files.join(root, entry)), {
     concurrency: BUNDLE_CONCURRENCY,
   });
