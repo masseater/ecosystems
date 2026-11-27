@@ -5,7 +5,8 @@ import { describe, it } from "vite-plus/test";
 import upstream from "./fixtures/readonly-parameters/upstream.json" with { type: "json" };
 import { mschLintPlugin } from "./plugin.ts";
 
-const FILE = new URL("./fixtures/readonly-parameters/file.ts", import.meta.url).pathname;
+const FIXTURES = new URL("./fixtures/readonly-parameters/", import.meta.url).pathname;
+const FILE = `${FIXTURES}file.ts`;
 const MESSAGE_ID = "shouldBeReadonly";
 
 const rule = pipe(

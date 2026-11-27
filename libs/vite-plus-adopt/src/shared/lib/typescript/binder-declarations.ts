@@ -98,7 +98,7 @@ export interface DeclareRequest {
 const DEFAULT_NAME = "default";
 
 export const exportsOf = (owner: Option.Option<BoundSymbol>): DeclarationTarget => ({
-  table: owner.pipe(Option.flatMap((symbol) => symbol.exportTable)),
+  table: owner.pipe(Option.flatMap((symbol: BoundSymbol) => symbol.exportTable)),
   parent: owner,
 });
 

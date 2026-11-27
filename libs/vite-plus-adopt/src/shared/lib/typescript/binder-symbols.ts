@@ -82,13 +82,6 @@ const EXPORT_TABLE_FLAGS = combineFlags(
   SymbolFlags.Variable,
 );
 
-const MEMBER_TABLE_FLAGS = combineFlags(
-  SymbolFlags.Class,
-  SymbolFlags.Interface,
-  SymbolFlags.TypeLiteral,
-  SymbolFlags.ObjectLiteral,
-);
-
 const entriesOf = (table: SymbolTable): ReadonlyMap<string, BoundSymbol> => table.entries;
 
 export class BoundSymbol {
@@ -103,8 +96,6 @@ export class BoundSymbol {
   #valueDeclaration: Node | undefined;
 
   #exports: Option.Option<SymbolTable> = Option.none();
-
-  #members: Option.Option<SymbolTable> = Option.none();
 
   #parent: BoundSymbol | undefined;
 
@@ -130,10 +121,6 @@ export class BoundSymbol {
 
   public get exports(): ReadonlyMap<string, BoundSymbol> | undefined {
     return this.#exports.pipe(Option.map(entriesOf), Option.getOrUndefined);
-  }
-
-  public get members(): ReadonlyMap<string, BoundSymbol> | undefined {
-    return this.#members.pipe(Option.map(entriesOf), Option.getOrUndefined);
   }
 
   public get parent(): BoundSymbol | undefined {
@@ -167,9 +154,6 @@ export class BoundSymbol {
     }
     if (hasFlag(flags, EXPORT_TABLE_FLAGS)) {
       this.openExports();
-    }
-    if (hasFlag(flags, MEMBER_TABLE_FLAGS)) {
-      this.#members = Option.orElseSome(this.#members, () => new SymbolTable());
     }
     if (hasFlag(flags, SymbolFlags.Value)) {
       this.setValueDeclaration(node);
@@ -219,13 +203,15 @@ export const exportOf: {
 );
 
 export const declareSymbol = (declaration: SymbolDeclaration): BoundSymbol => {
-  const symbol = Option.getOrElse(
+  const symbol: BoundSymbol = Option.getOrElse(
     Option.zipWith(declaration.table, declaration.name, (table, name) =>
       symbolInTable(table, name, declaration),
     ),
     () => new BoundSymbol(EMPTY, MISSING_NAME),
   );
   symbol.addDeclaration(declaration.node, declaration.includes);
-  declaration.parent.pipe(Option.map(symbol.adoptedBy));
+  if (Option.isSome(declaration.parent)) {
+    symbol.adoptedBy(declaration.parent.value);
+  }
   return symbol;
 };

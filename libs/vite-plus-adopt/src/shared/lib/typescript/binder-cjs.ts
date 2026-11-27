@@ -51,7 +51,7 @@ export const lookupSymbolForName: {
   (binding: FileBinding, name: string): Option.Option<BoundSymbol>;
 } = Fn.dual(DATA_FIRST_ARITY, (binding: FileBinding, name: string): Option.Option<BoundSymbol> => {
   const local = Option.fromNullishOr(binding.locals.entries.get(name)).pipe(
-    Option.map((found) => found.exportSymbol ?? found),
+    Option.map((found: BoundSymbol) => found.exportSymbol ?? found),
   );
   return local.pipe(
     Option.orElse(() =>

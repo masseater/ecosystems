@@ -256,7 +256,7 @@ const typePart = (search: Search, type: Type): Found => {
 
 export const writablePartOf =
   (project: Project) =>
-  (type: Type): Found => {
+  (type: Type): Option.Option<WritablePart> => {
     const seen = new Set<Type>();
     const partOf = (inner: Type): Found => {
       if (seen.has(inner)) {
