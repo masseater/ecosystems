@@ -59,6 +59,44 @@ jobs:
           path: node_modules/.cache/msch
           key: msch-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
 
+  compat-plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      directories: ${{ steps.plan.outputs.directories }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/setup
+        with:
+          native: "false"
+      - id: plan
+        run: vp exec msch-publish compat-plan .
+
+  compat:
+    needs: compat-plan
+    name: compat (${{ matrix.directory }})
+    strategy:
+      fail-fast: false
+      matrix:
+        directory: ${{ fromJSON(needs.compat-plan.outputs.directories) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: $/.github/actions/setup
+        with:
+          rust-cache: "false"
+          sccache: "true"
+      - run: vp exec msch-publish compat "$DIRECTORY"
+        env:
+          DIRECTORY: ${{ matrix.directory }}
+
   autofix:
     needs: verify
     if: failure()

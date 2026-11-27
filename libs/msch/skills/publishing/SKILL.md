@@ -43,6 +43,12 @@ In the repository every dependency is an exact version, as the `version-range` c
 
 The tag is the package name without its scope, then `-v` and the version. The repository root (`.`) is tagged `v` and the version, and always gets a GitHub Release with generated notes, marked latest, even without assets; a template repository releases this way. Release builds run in the GitHub environment `<name>-release`, which holds signing keys. A workspace at version `0.0.0` only builds; it publishes nothing.
 
+## Supported versions
+
+A published package supports the latest major and minor of what it runs on, not one exact version. `engines.node` and each `peerDependencies` range start at the minor the repository develops against, such as `>=26.13.0` and `^4.1.0`, and never name a patch. A package that declares `engines.node` is checked by `msch-publish compat <directory>`: it builds and packs the workspace and every workspace it depends on, installs the tarballs into a clean consumer, and imports every published export and starts every published bin on two runtimes. The floor case runs the newest patch of the lowest declared Node.js and peer minors, and the latest case runs the newest Node.js of the same major with the declared peer ranges. An import or start that fails to load, as a missing module, an unexported subpath or a syntax error, fails the check; an error raised while the module runs does not. A package that needs a runtime dependency to load declares it as a required peer, not an optional one.
+
+The `verify` workflow runs the check for every package `msch-publish compat-plan .` lists, on every push to main and on the daily schedule, so a new upstream release that breaks a package shows up the same day. `msch-publish npm` runs it again before it publishes.
+
 ## The workflow
 
 The `publish` workflow runs `msch-publish plan`, the builds and checks the plan lists, `msch-publish npm` in the `npm` environment, and `msch-publish release`, which tags the commit and uploads `release-assets/`. Runs for the same workspace are serialized and never cancelled; different workspaces publish independently.

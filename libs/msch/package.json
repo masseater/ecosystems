@@ -160,13 +160,13 @@
     "wordnet-db": "catalog:"
   },
   "peerDependencies": {
-    "@effect/tsgo": ">=0.67.5",
-    "effect": "^4.1.2",
+    "@effect/tsgo": ">=0.73.0",
+    "effect": "^4.1.0",
     "typescript": ">=7.1.0-beta",
     "vite": "*",
-    "vite-plus": ">=1.5.0"
+    "vite-plus": ">=1.7.0"
   },
   "engines": {
-    "node": "v26.13.1"
+    "node": ">=26.13.0"
   }
 }

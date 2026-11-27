@@ -3,16 +3,17 @@ import { Effect, Schema, Stdio } from "effect";
 
 import { runCli } from "#/app/runtime.ts";
 import {
+  checkCompat,
   planOf,
   publishRelease,
   publishToNpm,
+  writeCompatPlan,
   writePlan,
 } from "#/features/publish-workspace/index.ts";
 
-const Arguments = Schema.Union([
-  Schema.Tuple([Schema.Literal("plan"), Schema.String]),
-  Schema.Tuple([Schema.Literal("npm"), Schema.String]),
-  Schema.Tuple([Schema.Literal("release"), Schema.String]),
+const Arguments = Schema.Tuple([
+  Schema.Literals(["plan", "npm", "release", "compat", "compat-plan"]),
+  Schema.String,
 ]);
 
 const taggedError = Schema.TaggedError;
@@ -22,7 +23,19 @@ class UsageError extends taggedError<UsageError, { readonly brand: unique symbol
   { message: Schema.String },
 ) {}
 
-const USAGE = "usage: msch-publish <plan|npm|release> <workspace directory>";
+const USAGE = "usage: msch-publish <plan|npm|release|compat|compat-plan> <workspace directory>";
+
+const steps = {
+  plan: Effect.fn("plan")(function* plan(directory: string) {
+    return yield* planOf(directory).pipe(Effect.flatMap(writePlan));
+  }),
+  npm: publishToNpm,
+  release: publishRelease,
+  compat: checkCompat,
+  "compat-plan": Effect.fn("compat-plan")(function* compatPlan() {
+    return yield* writeCompatPlan();
+  }),
+};
 
 const publish = Effect.gen(function* publish() {
   const stdio = yield* Stdio.Stdio;
@@ -30,13 +43,7 @@ const publish = Effect.gen(function* publish() {
   const [step, directory] = yield* Schema.decodeUnknownEffect(Arguments)(args).pipe(
     Effect.mapError(() => UsageError.make({ message: USAGE })),
   );
-  if (step === "plan") {
-    return yield* planOf(directory).pipe(Effect.flatMap(writePlan));
-  }
-  if (step === "npm") {
-    return yield* publishToNpm(directory);
-  }
-  return yield* publishRelease(directory);
+  return yield* steps[step](directory);
 });
 
 runCli(publish);
