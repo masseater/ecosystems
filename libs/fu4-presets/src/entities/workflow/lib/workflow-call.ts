@@ -9,7 +9,6 @@ import type {
   WorkflowCallEvent,
 } from "#/entities/workflow/model/types.ts";
 import { quote } from "#/shared/text/index.ts";
-import type { Text } from "#/shared/yaml/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
 import type { Handler } from "./fold.ts";
@@ -17,6 +16,7 @@ import {
   emptyableCaselessSection,
   emptyableSection,
   entryRecord,
+  entryText,
   parseMapping,
 } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
@@ -58,11 +58,6 @@ const lift =
   (handler: Handler<CallEventInput>): Handler<InputState> =>
   (state, entry) => ({ ...state, input: handler(state.input, entry) });
 
-const anyString =
-  (sink: Sink) =>
-  (entry: Entry): Text =>
-    parseString(sink)(entry.value, true);
-
 const required =
   (sink: Sink) =>
   (entry: Entry): ReturnType<ReturnType<typeof parseBool>> =>
@@ -77,9 +72,9 @@ const callInput =
   (sink: Sink) =>
   (entry: Entry): CallEventInput => {
     const { set, setSome } = setters<CallEventInput>();
-    const description = lift(set("description", anyString(sink)));
+    const description = lift(set("description", entryText(sink)(true)));
     const isRequired = lift(setSome("required", required(sink)));
-    const fallback = lift(set("default", anyString(sink)));
+    const fallback = lift(set("default", entryText(sink)(true)));
     const state = foldEntries<InputState>({
       entries: mappingOf(sink, "input of workflow_call event")(entry),
       initial: { input: { id: entry.id, name: entry.key, kind: "invalid" }, typed: false },
@@ -112,7 +107,7 @@ const callSecret =
       entries: mappingOf(sink, "secret of workflow_call event")(entry),
       initial: { name: entry.key },
       handlers: [
-        ["description", set("description", anyString(sink))],
+        ["description", set("description", entryText(sink)(true))],
         ["required", setSome("required", required(sink))],
       ],
       unknown: rejecting({ sink, section: "secrets", expected: ["description", "required"] }),
@@ -127,7 +122,7 @@ const callOutput =
       entries: mappingOf(sink, "output of workflow_call event")(entry),
       initial: { name: entry.key },
       handlers: [
-        ["description", set("description", anyString(sink))],
+        ["description", set("description", entryText(sink)(true))],
         ["value", set("value", (item) => parseString(sink)(item.value, false))],
       ],
       unknown: rejecting({

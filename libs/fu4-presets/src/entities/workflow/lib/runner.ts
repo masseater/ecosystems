@@ -6,8 +6,7 @@ import type { Text } from "#/shared/yaml/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
 import type { Handler } from "./fold.ts";
-import { caselessSection, entryRecord, section } from "./mapping.ts";
-import type { Entry } from "./mapping.ts";
+import { caselessSection, entryRecord, entryText, section } from "./mapping.ts";
 import { mayParseExpression, parseString } from "./scalar.ts";
 import { parseStringOrSequence } from "./sequence.ts";
 import { reportMissing } from "./sink.ts";
@@ -31,11 +30,6 @@ const labelsHandler =
       onNone: (): Runner => ({ ...state, labels: labels(sink)("labels", entry.value) }),
     });
 
-const text =
-  (sink: Sink) =>
-  (entry: Entry): Text =>
-    parseString(sink)(entry.value, false);
-
 export const parseRunsOn =
   (sink: Sink) =>
   (node: YamlNode): Runner => {
@@ -51,7 +45,7 @@ export const parseRunsOn =
       initial: { labels: [] },
       handlers: [
         ["labels", labelsHandler(sink)],
-        ["group", setters<Runner>().set("group", text(sink))],
+        ["group", setters<Runner>().set("group", entryText(sink)(false))],
       ],
       unknown: rejecting({ sink, section: "runs-on", expected: ["labels", "group"] }),
     });
@@ -65,9 +59,9 @@ const snapshotMapping =
       entries: section(sink)("on", node),
       initial: {},
       handlers: [
-        ["image-name", set("imageName", text(sink))],
-        ["version", set("version", text(sink))],
-        ["if", set("condition", text(sink))],
+        ["image-name", set("imageName", entryText(sink)(false))],
+        ["version", set("version", entryText(sink)(false))],
+        ["if", set("condition", entryText(sink)(false))],
       ],
       unknown: rejecting({ sink, section: "snapshot", expected: ["image-name", "version", "if"] }),
     });

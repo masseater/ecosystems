@@ -116,6 +116,12 @@ export const caselessSection = sectionWith({ allowEmpty: false, caseSensitive: f
 export const emptyableSection = sectionWith({ allowEmpty: true, caseSensitive: true });
 export const emptyableCaselessSection = sectionWith({ allowEmpty: true, caseSensitive: false });
 
+export const entryText =
+  (sink: Sink) =>
+  (allowEmpty: boolean) =>
+  (entry: Entry): Text =>
+    parseString(sink)(entry.value, allowEmpty);
+
 export const entryRecord =
   <Value>(parse: (entry: Entry) => Value) =>
   (entries: readonly Entry[]): Readonly<Record<string, Value>> =>

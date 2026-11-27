@@ -12,17 +12,17 @@ import type {
 import { optional } from "#/shared/record/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
-import { caselessSection, emptyableCaselessSection, entryRecord, section } from "./mapping.ts";
-import type { Entry } from "./mapping.ts";
+import {
+  caselessSection,
+  emptyableCaselessSection,
+  entryRecord,
+  entryText,
+  section,
+} from "./mapping.ts";
 import { parseBool, parseExpression, parseString } from "./scalar.ts";
 import { reportEmpty } from "./sequence.ts";
 import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
-
-const text =
-  (sink: Sink) =>
-  (entry: Entry): Permissions["scopes"][string]["value"] =>
-    parseString(sink)(entry.value, false);
 
 export const parsePermissions =
   (sink: Sink) =>
@@ -32,7 +32,9 @@ export const parsePermissions =
     }
     const entries = emptyableCaselessSection(sink)("permissions", node);
     return {
-      scopes: entryRecord((entry) => ({ name: entry.key, value: text(sink)(entry) }))(entries),
+      scopes: entryRecord((entry) => ({ name: entry.key, value: entryText(sink)(false)(entry) }))(
+        entries,
+      ),
     };
   };
 
@@ -61,8 +63,8 @@ const defaultsRun =
       entries: section(sink)("run", node),
       initial: {},
       handlers: [
-        ["shell", set("shell", text(sink))],
-        ["working-directory", set("workingDirectory", text(sink))],
+        ["shell", set("shell", entryText(sink)(false))],
+        ["working-directory", set("workingDirectory", entryText(sink)(false))],
       ],
       unknown: rejecting({ sink, section: "run", expected: ["shell", "working-directory"] }),
     });
@@ -94,7 +96,7 @@ export const parseConcurrency =
       entries: section(sink)("concurrency", node),
       initial: {},
       handlers: [
-        ["group", set("group", text(sink))],
+        ["group", set("group", entryText(sink)(false))],
         [
           "cancel-in-progress",
           setSome("cancelInProgress", (entry) => parseBool(sink)(entry.value)),
@@ -121,8 +123,8 @@ export const parseEnvironment =
       entries: section(sink)("environment", node),
       initial: {},
       handlers: [
-        ["name", set("name", text(sink))],
-        ["url", set("url", text(sink))],
+        ["name", set("name", entryText(sink)(false))],
+        ["url", set("url", entryText(sink)(false))],
         ["deployment", setSome("deployment", (entry) => parseBool(sink)(entry.value))],
       ],
       unknown: rejecting({ sink, section: "environment", expected: ["deployment", "name", "url"] }),

@@ -5,18 +5,13 @@ import type { Container, Credentials, Services } from "#/entities/workflow/model
 import { quote } from "#/shared/text/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
-import { caselessSection, entryRecord, section } from "./mapping.ts";
+import { caselessSection, entryRecord, entryText, section } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { mayParseExpression, parseString } from "./scalar.ts";
 import { parseEnv } from "./sections.ts";
 import { parseStringSequence } from "./sequence.ts";
 import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
-
-const text =
-  (sink: Sink, allowEmpty: boolean) =>
-  (entry: Entry): NonNullable<Container["image"]> =>
-    parseString(sink)(entry.value, allowEmpty);
 
 const parseCredentials =
   (sink: Sink) =>
@@ -30,8 +25,8 @@ const parseCredentials =
       entries: section(sink)("credentials", entry.value),
       initial: {},
       handlers: [
-        ["username", set("username", text(sink, false))],
-        ["password", set("password", text(sink, false))],
+        ["username", set("username", entryText(sink)(false))],
+        ["password", set("password", entryText(sink)(false))],
       ],
       unknown: rejecting({ sink, section: "credentials", expected: ["username", "password"] }),
     });
@@ -68,12 +63,12 @@ const containerMapping =
       entries: section(sink)(name, node),
       initial: { ports: [], volumes: [] },
       handlers: [
-        ["image", set("image", text(sink, false))],
+        ["image", set("image", entryText(sink)(false))],
         ["credentials", setSome("credentials", parseCredentials(sink))],
         ["env", set("env", (entry) => parseEnv(sink)(entry.value))],
         ["ports", set("ports", strings(sink, "ports"))],
         ["volumes", set("volumes", strings(sink, "volumes"))],
-        ["options", set("options", text(sink, true))],
+        ["options", set("options", entryText(sink)(true))],
       ],
       unknown: rejecting({ sink, section: name, expected: CONTAINER_KEYS }),
     });

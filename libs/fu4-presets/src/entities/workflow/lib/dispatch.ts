@@ -16,10 +16,11 @@ import {
   emptyableCaselessSection,
   emptyableSection,
   entryRecord,
+  entryText,
   parseMapping,
 } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
-import { checkString, parseBool, parseString } from "./scalar.ts";
+import { checkString, parseBool } from "./scalar.ts";
 import { parseStringSequence } from "./sequence.ts";
 import type { Sink } from "./sink.ts";
 
@@ -60,11 +61,6 @@ const strings =
       allowElementEmpty: false,
     });
 
-const anyString =
-  (sink: Sink) =>
-  (entry: Entry): Text =>
-    parseString(sink)(entry.value, true);
-
 const dispatchInput =
   (sink: Sink) =>
   (input: Entry): DispatchInput => {
@@ -78,9 +74,9 @@ const dispatchInput =
       }),
       initial: { name: input.key, kind: "none", options: [] },
       handlers: [
-        ["description", set("description", anyString(sink))],
+        ["description", set("description", entryText(sink)(true))],
         ["required", setSome("required", (entry) => parseBool(sink)(entry.value))],
-        ["default", set("default", anyString(sink))],
+        ["default", set("default", entryText(sink)(true))],
         ["type", dispatchType(sink)],
         ["options", set("options", strings(sink, "options"))],
       ],
