@@ -41,7 +41,7 @@ export default defineConfig({
       "workspace-settings": "src/features/build-workspace-settings/index.ts",
     },
     platform: "node",
-    deps: { alwaysBundle: [/^@masseater\.dev\//u] },
+    deps: { alwaysBundle: [/^@masseater\.dev\//u, /^@r_masseater\/node-main$/u] },
     sourcemap: true,
     dts: { generator: "tsgo" },
     publint: { strict: true },
