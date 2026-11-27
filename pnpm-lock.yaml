@@ -1260,6 +1260,9 @@ importers:
       effect:
         specifier: catalog:stack
         version: 4.1.5
+      minimatch:
+        specifier: 'catalog:'
+        version: 11.0.9
       publint:
         specifier: 'catalog:'
         version: 0.3.25

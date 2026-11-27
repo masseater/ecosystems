@@ -63,6 +63,7 @@
     "@textlint/kernel": "catalog:",
     "@textlint/types": "catalog:",
     "effect": "catalog:stack",
+    "minimatch": "catalog:",
     "publint": "catalog:",
     "size-limit": "catalog:",
     "textlint": "catalog:",
@@ -71,7 +72,13 @@
   },
   "peerDependencies": {
     "@r_masseater/y8": "workspace:^",
-    "effect": "^4.1.0"
+    "effect": "^4.1.0",
+    "minimatch": ">=11.0.9"
+  },
+  "peerDependenciesMeta": {
+    "minimatch": {
+      "optional": true
+    }
   },
   "size-limit": [
     {
