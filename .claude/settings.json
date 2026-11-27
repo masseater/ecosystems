@@ -19,10 +19,18 @@
         "repo": "masseater/cc-jev-teacher",
         "ref": "45d08412ef37ac6f0ee7090b464afab56f083627"
       }
+    },
+    "masseater-dev": {
+      "source": {
+        "source": "github",
+        "repo": "masseater/masseater.dev"
+      }
     }
   },
   "enabledPlugins": {
-    "cc-jev-teacher@cc-jev-teacher": true
+    "cc-jev-teacher@cc-jev-teacher": true,
+    "kogane@masseater-dev": true,
+    "watashi@masseater-dev": true
   },
   "hooks": {
     "PreToolUse": [

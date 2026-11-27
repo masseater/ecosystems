@@ -4,7 +4,7 @@ Follow `masseater-ecosystem`, a skill in masseater/skills that says which skills
 
 Each workspace has its own AGENTS.md describing it and the rules that apply only there. Read it before changing that workspace.
 
-This repository holds the toolchain that masseater publishes to npm under `@r_masseater/*`: the linters and their presets, the fumx parser, msch and vite-plus-adopt, plus the libraries they need. masseater/masseater.dev, masseater/personal-space, masseater/mirucord and masseater/skills use it only through npm, never through a link to this workspace.
+This repository holds the toolchain that masseater publishes to npm under `@r_masseater/*`: the repository checks, the linters and their presets, the fumx parser, and the libraries they need. masseater/masseater.dev, masseater/personal-space, masseater/mirucord and masseater/skills use it only through npm, never through a link to this workspace.
 
 ## Tech stack
 
@@ -14,7 +14,7 @@ The base stack is TypeScript 7, Effect and Vite+.
 
 - `vp run verify` runs every check in this repository. The pre-push hook runs the same checks.
 - To run one test, run `vp test run <file>` in that package's directory.
-- To publish, dispatch the `publish` workflow on main with the workspace directory, such as `libs/y8`. Bump the version by hand in the pull request first.
+- To publish, dispatch the `publish` workflow on main with the workspace directory, such as a directory under `libs/`. Bump the version by hand in the pull request first.
 
 ## Rules
 
