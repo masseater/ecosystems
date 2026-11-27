@@ -19,7 +19,7 @@ import { Console, Effect } from "effect";
 runMain("my-tool")(Console.log("hello").pipe(Effect.withSpan("greet")));
 ```
 
-Traces go to the OTLP endpoint named by the `OTEL_EXPORTER_OTLP_*` variables. When none is set, nothing is sent.
+Traces, logs and metrics go to the OTLP endpoint named by the `OTEL_EXPORTER_OTLP_*` variables. When none is set, nothing is sent.
 
 ## Provide your own services
 
@@ -30,6 +30,21 @@ import { runMainWith } from "@r_masseater/node-main";
 import { Effect, Layer } from "effect";
 
 runMainWith({ serviceName: "my-tool", services: Layer.empty })(Effect.void);
+```
+
+## Report failures yourself
+
+By default a failed program is reported by Effect's runtime. Pass `onFailure` to write the report yourself. The runtime then stays silent, and `onFailure` runs once for every failure cause.
+
+```ts
+import { runMainWith } from "@r_masseater/node-main";
+import { Cause, Console, Effect, Layer } from "effect";
+
+runMainWith({
+  serviceName: "my-tool",
+  services: Layer.empty,
+  onFailure: (cause) => Console.error(Cause.pretty(cause)),
+})(Effect.fail("boom"));
 ```
 
 ## Stop with the parent

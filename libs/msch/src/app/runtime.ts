@@ -1,12 +1,10 @@
-import { runMain } from "@effect/platform-node-shared/NodeRuntime";
-import { Cause, Effect, Layer, Option, Schema, Stdio, Stream } from "effect";
+import { runMainWith } from "@r_masseater/node-main";
+import { Cause, Effect, Option, Schema, Stdio, Stream } from "effect";
 import type { FileSystem, Path } from "effect";
-import { FetchHttpClient } from "effect/http";
 import type { HttpClient } from "effect/http";
-import { Otlp, OtlpSerialization } from "effect/observability";
 import type { ChildProcessSpawner } from "effect/process";
 
-import { nodeRepositoryFiles, nodeServicesLayer } from "#/shared/lib/repository-files.ts";
+import { nodeRepositoryFiles } from "#/shared/lib/repository-files.ts";
 import type { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
 import { ProblemsFound } from "./output.ts";
@@ -23,11 +21,6 @@ const reportFailure = <Failure>(
     yield* Stream.make(`${Cause.pretty(cause)}\n`).pipe(Stream.run(stdio.stderr()), Effect.orDie);
   });
 
-const tracing = Otlp.layerFromConfig({ resource: { serviceName: "msch" } }).pipe(
-  Layer.provide(OtlpSerialization.layerJson),
-  Layer.provide(FetchHttpClient.layer),
-);
-
 /** @internal */
 export const runCli = <Value, Failure>(
   program: Effect.Effect<
@@ -41,14 +34,9 @@ export const runCli = <Value, Failure>(
     | HttpClient.HttpClient
   >,
 ): void => {
-  const services = Layer.mergeAll(nodeRepositoryFiles, tracing, FetchHttpClient.layer).pipe(
-    Layer.provideMerge(nodeServicesLayer),
-  );
-  const main = Layer.build(services).pipe(
-    Effect.flatMap((context) =>
-      Effect.provideContext(program.pipe(Effect.tapCause(reportFailure)), context),
-    ),
-    Effect.scoped,
-  );
-  runMain(main, { disableErrorReporting: true });
+  runMainWith({
+    serviceName: "msch",
+    services: nodeRepositoryFiles,
+    onFailure: reportFailure,
+  })(program);
 };

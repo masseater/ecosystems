@@ -16,7 +16,7 @@ sources:
 
 # run-effect-main
 
-`runMain` is the one call that starts an Effect program in Node.js. It provides the Node services and a fetch based HTTP client, sends traces over OTLP, and ends the process when the program ends.
+`runMain` is the one call that starts an Effect program in Node.js. It provides the Node services and a fetch based HTTP client, sends traces, logs and metrics over OTLP, and ends the process when the program ends.
 
 ## Setup
 
@@ -45,6 +45,8 @@ runMainWith({ serviceName: "my-tool", services: Layer.empty })(Effect.void);
 ```
 
 `services` is built once and merged with the Node services, so the program can use everything it provides.
+
+Pass `onFailure` to `runMainWith` to write the failure report yourself. The runtime then stops reporting on its own, so `onFailure` must print everything the owner needs to see.
 
 ## Stop a child with its parent
 
