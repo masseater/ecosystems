@@ -12,8 +12,8 @@ import {
 } from "typescript/ast/is";
 import { SymbolFlags } from "typescript/sync";
 
-import { declareBlockScoped, declareSourceFileMember } from "./binder-declarations.ts";
-import type { FileBinding, Scope, SymbolFlagPair } from "./binder-declarations.ts";
+import { ALIAS, inBlock, inContainer } from "./binder-declarations.ts";
+import type { FileBinding, FlagBinder, Scope, SymbolFlagPair } from "./binder-declarations.ts";
 import { hasExportModifier } from "./binder-names.ts";
 import { isAccessExpression, isRequireCall } from "./binder-syntax.ts";
 import { hasFlag } from "./flags.ts";
@@ -22,7 +22,6 @@ const DATA_FIRST_ARITY_3 = 3;
 
 export type VariableLike = VariableDeclaration | BindingElement;
 
-const ALIAS: SymbolFlagPair = { includes: SymbolFlags.Alias, excludes: SymbolFlags.AliasExcludes };
 const BLOCK_VARIABLE: SymbolFlagPair = {
   includes: SymbolFlags.BlockScopedVariable,
   excludes: SymbolFlags.BlockScopedVariableExcludes,
@@ -88,23 +87,15 @@ const isRequireAlias = (binding: FileBinding, node: VariableLike): boolean =>
   !hasJSDocTypeTag(node) &&
   !hasExportModifier(node);
 
-type VariableBinder = (binding: FileBinding, node: VariableLike, scope: Scope) => void;
+type VariableBinder = FlagBinder<VariableLike>;
 
-const bindRequireAlias: VariableBinder = (binding, node, scope) => {
-  if (scope.containerIsFile) {
-    declareSourceFileMember(binding, node, ALIAS);
-  }
-};
+const bindRequireAlias: VariableBinder = inContainer(ALIAS);
 
-const bindBlockVariable: VariableBinder = (binding, node, scope) => {
-  if (scope.blockIsFile) {
-    declareBlockScoped(binding, node, BLOCK_VARIABLE);
-  }
-};
+const bindBlockVariable: VariableBinder = inBlock(BLOCK_VARIABLE);
 
 const bindFunctionVariable: VariableBinder = (binding, node, scope) => {
-  if (scope.containerIsFile && !isParameterBinding(node)) {
-    declareSourceFileMember(binding, node, FUNCTION_VARIABLE);
+  if (!isParameterBinding(node)) {
+    inContainer(FUNCTION_VARIABLE)(binding, node, scope);
   }
 };
 

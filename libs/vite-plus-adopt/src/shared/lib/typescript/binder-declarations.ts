@@ -184,3 +184,30 @@ export const declareBlockScoped: {
     return declareLocal(binding, node, flags);
   },
 );
+
+export const ALIAS: SymbolFlagPair = {
+  includes: SymbolFlags.Alias,
+  excludes: SymbolFlags.AliasExcludes,
+};
+
+export type FlagBinder<Bound extends Node> = (
+  binding: FileBinding,
+  node: Bound,
+  scope: Scope,
+) => void;
+
+export const inContainer =
+  (flags: SymbolFlagPair): FlagBinder<Node> =>
+  (binding, node, scope) => {
+    if (scope.containerIsFile) {
+      declareSourceFileMember(binding, node, flags);
+    }
+  };
+
+export const inBlock =
+  (flags: SymbolFlagPair): FlagBinder<Node> =>
+  (binding, node, scope) => {
+    if (scope.blockIsFile) {
+      declareBlockScoped(binding, node, flags);
+    }
+  };
