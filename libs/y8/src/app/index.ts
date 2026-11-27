@@ -1,5 +1,5 @@
 export { agnix, definePlugin, defineRule } from "#/entities/rule/index.ts";
-export { diagnosticDetail, format } from "./format.ts";
+export { diagnosticDetail, formatDiagnostic as format } from "@masseater.dev/lint-host";
 export { lint } from "./lint.ts";
 export { tokenize, morphemesOf } from "#/features/split-morphemes/index.ts";
 export { markdownPathspecs, y8Section } from "./section.ts";

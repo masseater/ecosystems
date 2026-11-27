@@ -1,4 +1,12 @@
-import { STRING_WORDS, WORD, aligned, spanText, wordAt, wordsOf } from "@masseater.dev/lint-host";
+import {
+  STRING_WORDS,
+  WORD,
+  aligned,
+  fieldsOf,
+  spanText,
+  wordAt,
+  wordsOf,
+} from "@masseater.dev/lint-host";
 import { Option } from "effect";
 
 const EMPTY = 0;
@@ -76,15 +84,14 @@ interface Layout {
 }
 
 const layoutOf = (header: Uint32Array): Layout => {
-  const semanticCount = wordAt(header)(HEADER.semanticCount);
-  const concreteCount = wordAt(header)(HEADER.concreteCount);
-  const errorCount = wordAt(header)(HEADER.errorCount);
+  const fields = fieldsOf(header)(HEADER);
+  const { semanticCount, concreteCount, errorCount } = fields;
   const semanticAt = HEADER_WORDS;
   const concreteAt = semanticAt + semanticCount * SEMANTIC_WORDS;
   const childAt = concreteAt + concreteCount * CONCRETE_WORDS;
-  const errorAt = childAt + wordAt(header)(HEADER.childCount);
+  const errorAt = childAt + fields.childCount;
   const spanAt = errorAt + errorCount * ERROR_WORDS;
-  const blobAt = (spanAt + wordAt(header)(HEADER.stringCount) * STRING_WORDS) * WORD;
+  const blobAt = (spanAt + fields.stringCount * STRING_WORDS) * WORD;
   return {
     semanticCount,
     concreteCount,

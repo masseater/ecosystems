@@ -1,5 +1,6 @@
+import { sortedRecord } from "@masseater.dev/lint-host/records";
 import type { Position, YamlNode } from "@r_masseater/fu4";
-import { Array as Arr, Option, Order, Record as Rec, String as Str, pipe } from "effect";
+import { Array as Arr, Option, Record as Rec, String as Str, pipe } from "effect";
 
 import { quote } from "#/shared/text/index.ts";
 import { describePosition, pairsOf } from "#/shared/yaml/index.ts";
@@ -115,16 +116,6 @@ export const parseSection =
   (sink: Sink) =>
   (input: SectionInput): readonly Entry[] =>
     parseMapping(sink)({ ...input, place: `${quote(input.section)} section` });
-
-export const sortedRecord = <Value>(
-  entries: readonly (readonly [string, Value])[],
-): Readonly<Record<string, Value>> =>
-  Rec.fromEntries(
-    Arr.sort(
-      entries,
-      Order.mapInput(Order.String, ([key]: readonly [string, Value]) => key),
-    ),
-  );
 
 export const entryRecord =
   <Value>(parse: (entry: Entry) => Value) =>

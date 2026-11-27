@@ -1,4 +1,4 @@
-import { STRING_WORDS, WORD, aligned, spanText, wordAt, wordsOf } from "@masseater.dev/lint-host";
+import { STRING_WORDS, WORD, aligned, fieldsOf, spanText, wordsOf } from "@masseater.dev/lint-host";
 
 import type { NodeType } from "./index.ts";
 
@@ -6,7 +6,7 @@ const EMPTY = 0;
 const BYTE = 1;
 const UTF8 = "utf8";
 const HEADER_WORDS = 5;
-const HEADER = { nodes: 0, strings: 1, lines: 2, text: 3 } as const;
+const HEADER = { nodeCount: 0, stringCount: 1, lineCount: 2, textLength: 3 } as const;
 export const NODE_WORDS = 8;
 
 export const FIELD = {
@@ -69,24 +69,12 @@ const padded = (length: number): number => Math.ceil(length / WORD) * WORD;
 const decode = (from: Uint8Array, start: number, end: number): string =>
   decoder.decode(from.subarray(start, end));
 
-interface Layout {
-  readonly nodeCount: number;
-  readonly stringCount: number;
-  readonly lineCount: number;
-  readonly textLength: number;
-}
-
-const layoutOf = (header: Uint32Array): Layout => ({
-  nodeCount: wordAt(header)(HEADER.nodes),
-  stringCount: wordAt(header)(HEADER.strings),
-  lineCount: wordAt(header)(HEADER.lines),
-  textLength: wordAt(header)(HEADER.text),
-});
-
 export const sourceView = (raw: Uint8Array): SourceView => {
   const buffer = aligned(raw);
   const words = wordsOf(buffer);
-  const { nodeCount, stringCount, lineCount, textLength } = layoutOf(words(EMPTY, HEADER_WORDS));
+  const { nodeCount, stringCount, lineCount, textLength } = fieldsOf(words(EMPTY, HEADER_WORDS))(
+    HEADER,
+  );
   const stringsAt = HEADER_WORDS + nodeCount * NODE_WORDS;
   const linesAt = stringsAt + stringCount * STRING_WORDS;
   const textAt = (linesAt + lineCount) * WORD;

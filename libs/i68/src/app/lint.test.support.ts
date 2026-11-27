@@ -1,10 +1,10 @@
+import { formatDiagnostic as format } from "@masseater.dev/lint-host";
 import { Array as Arr, Effect, Option, Predicate, pipe } from "effect";
 
 import { definePlugin, defineRule } from "#/entities/rule/index.ts";
 import type { I68Config, Rule } from "#/shared/config/index.ts";
 import type { I68Error } from "#/shared/lib/errors.ts";
 
-import { format } from "./format.ts";
 import { lintText } from "./lint.ts";
 
 const HIGH = 72;

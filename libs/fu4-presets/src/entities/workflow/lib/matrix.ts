@@ -1,3 +1,4 @@
+import { sortedRecord } from "@masseater.dev/lint-host/records";
 import type { Position, YamlNode } from "@r_masseater/fu4";
 import { Option, Record as Rec } from "effect";
 
@@ -6,7 +7,7 @@ import { optional } from "#/shared/record/index.ts";
 
 import { foldEntries, setters } from "./fold.ts";
 import type { Handler } from "./fold.ts";
-import { parseSection, sortedRecord } from "./mapping.ts";
+import { parseSection } from "./mapping.ts";
 import { combinations, row } from "./matrix-values.ts";
 import { parseExpression } from "./scalar.ts";
 import type { Sink } from "./sink.ts";

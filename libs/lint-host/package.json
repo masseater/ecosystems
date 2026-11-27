@@ -15,6 +15,7 @@
   "exports": {
     ".": "./src/app/index.ts",
     "./vite": "./src/app/vite.ts",
+    "./records": "./src/app/records.ts",
     "./package.json": "./package.json"
   },
   "dependencies": {

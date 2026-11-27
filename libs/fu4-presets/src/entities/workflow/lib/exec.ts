@@ -1,3 +1,4 @@
+import { sortedRecord } from "@masseater.dev/lint-host/records";
 import { Array as Arr, pipe } from "effect";
 
 import type { ExecAction, ExecRun, Input } from "#/entities/workflow/model/job-types.ts";
@@ -5,7 +6,7 @@ import type { Text } from "#/shared/yaml/index.ts";
 
 import { foldEntries, keep, rejecting, setters } from "./fold.ts";
 import type { Handler, Handlers } from "./fold.ts";
-import { parseSection, sortedRecord } from "./mapping.ts";
+import { parseSection } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { parseString } from "./scalar.ts";
 import type { Sink } from "./sink.ts";

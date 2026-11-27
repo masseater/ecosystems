@@ -1,4 +1,4 @@
-import { Option } from "effect";
+import { Option, Record as Rec, pipe } from "effect";
 
 export const WORD = 4;
 export const STRING_WORDS = 2;
@@ -18,6 +18,14 @@ export const wordAt =
   (words: Uint32Array) =>
   (index: number): number =>
     words[index] ?? EMPTY;
+
+export const fieldsOf =
+  (header: Uint32Array) =>
+  <Name extends string>(fields: Readonly<Record<Name, number>>): Readonly<Record<Name, number>> =>
+    pipe(
+      fields,
+      Rec.map((index) => wordAt(header)(index)),
+    );
 
 export const wordsOf =
   (buffer: Uint8Array) =>

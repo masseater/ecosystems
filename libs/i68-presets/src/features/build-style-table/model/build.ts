@@ -1,3 +1,4 @@
+import { sortedRecord } from "@masseater.dev/lint-host/records";
 import { readSong } from "@r_masseater/fumx-parser";
 import { soundingsOf } from "@r_masseater/fumx-parser/analysis";
 import { midiToFumx } from "@r_masseater/song-format/convert-midi";
@@ -6,7 +7,6 @@ import { VerovioToolkit } from "verovio/esm";
 import createVerovioModule from "verovio/wasm-hum";
 
 import { progressionOf } from "#/shared/lib/degrees.ts";
-import { sortedRecord } from "#/shared/lib/sorted-record.ts";
 import type { StyleTable, Transitions } from "#/shared/lib/style-table.ts";
 
 import { BACH_SOURCE, bachChorales } from "./corpus.ts";
