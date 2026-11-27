@@ -18,8 +18,8 @@
   },
   "dependencies": {
     "@effect/platform-node-shared": "catalog:",
-    "@masseater.dev/node-main": "workspace:*",
     "@r_masseater/fumx-parser": "workspace:*",
+    "@r_masseater/node-main": "workspace:*",
     "effect": "catalog:stack",
     "langium": "catalog:",
     "mapped-import": "workspace:*",

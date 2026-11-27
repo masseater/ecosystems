@@ -1,20 +1,62 @@
 {
-  "name": "@masseater.dev/node-main",
-  "version": "0.0.0",
-  "private": true,
-  "description": "Runs Effect Node.js programs with tracing set up.",
+  "name": "@r_masseater/node-main",
+  "version": "0.1.0",
+  "description": "Runs an Effect program as a Node.js entry point with the Node services, an HTTP client and OTLP tracing already provided.",
+  "keywords": [
+    "effect",
+    "node",
+    "opentelemetry",
+    "tanstack-intent",
+    "tracing"
+  ],
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/node-main#readme",
+  "bugs": {
+    "url": "https://github.com/masseater/ecosystems/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
+    "directory": "libs/node-main"
+  },
+  "files": [
+    "LICENSE",
+    "dist",
+    "skills/run-effect-main"
+  ],
   "type": "module",
   "imports": {
     "#/*": "./src/*"
   },
   "exports": {
-    ".": "./src/app/index.ts"
+    ".": "./src/app/index.ts",
+    "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "./package.json": "./package.json"
+    },
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "prepublishOnly": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm/')) { console.error('npm publish leaves catalog: in dependencies. Publish the tarball from vp pm pack instead.'); process.exit(1) }\" && vp run build"
   },
   "dependencies": {
-    "@effect/platform-node": "catalog:",
-    "effect": "catalog:stack"
+    "@effect/platform-node": "catalog:"
   },
   "devDependencies": {
+    "effect": "catalog:stack",
     "vite-plus": "catalog:stack"
+  },
+  "peerDependencies": {
+    "effect": "^4.1.2"
+  },
+  "engines": {
+    "node": "v26.13.1"
   }
 }

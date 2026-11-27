@@ -12,8 +12,8 @@
     "#package.json": "./package.json"
   },
   "dependencies": {
-    "@masseater.dev/node-main": "workspace:*",
     "@r_masseater/h56m-presets": "workspace:*",
+    "@r_masseater/node-main": "workspace:*",
     "effect": "catalog:stack"
   },
   "devDependencies": {
