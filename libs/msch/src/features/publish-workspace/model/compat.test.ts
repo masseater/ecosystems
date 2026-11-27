@@ -73,19 +73,16 @@ describe("compat cases with a vite peer", () => {
 
 describe("the vite that vite-plus brings in", () => {
   test("is installed at the top of the consumer under the name vite, as vite-plus-adopt does", () => {
-    const manifest = JSON.stringify({
-      dependencies: { vite: "npm:@voidzero-dev/vite-plus-core@8.3.8001", oxlint: "=1.94.0" },
-    });
-    expect(viteAliasOf(manifest)).toStrictEqual(
+    const text =
+      '{"dependencies":{"vite":"npm:@voidzero-dev/vite-plus-core@8.3.8001","oxlint":"=1.94.0"}}';
+    expect(viteAliasOf(text)).toStrictEqual(
       Option.some("vite@npm:@voidzero-dev/vite-plus-core@8.3.8001"),
     );
   });
 
   test("is left alone when vite-plus declares no vite", () => {
-    expect(viteAliasOf(JSON.stringify({ dependencies: { oxlint: "=1.94.0" } }))).toStrictEqual(
-      Option.none(),
-    );
-    expect(viteAliasOf(JSON.stringify({ name: "vite-plus" }))).toStrictEqual(Option.none());
+    expect(viteAliasOf('{"dependencies":{"oxlint":"=1.94.0"}}')).toStrictEqual(Option.none());
+    expect(viteAliasOf('{"name":"vite-plus"}')).toStrictEqual(Option.none());
   });
 
   test("is left alone when the manifest cannot be read", () => {

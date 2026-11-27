@@ -129,7 +129,7 @@ const withoutViteOfVitePlus = (
 /** @internal */
 export const viteAliasOf = (vitePlusManifest: string): Option.Option<string> =>
   pipe(
-    Schema.decodeUnknownOption(VitePlusManifestJson)(vitePlusManifest),
+    Schema.decodeOption(VitePlusManifestJson)(vitePlusManifest),
     Option.flatMapNullishOr(({ dependencies }) => dependencies),
     Option.flatMap(Rec.get(VITE)),
     Option.map((spec) => `${VITE}@${spec}`),
