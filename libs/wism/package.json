@@ -10,14 +10,14 @@
     "tanstack-intent",
     "vite-plus"
   ],
-  "homepage": "https://github.com/masseater/masseater.dev/tree/main/libs/wism#readme",
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/wism#readme",
   "bugs": {
-    "url": "https://github.com/masseater/masseater.dev/issues"
+    "url": "https://github.com/masseater/ecosystems/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masseater/masseater.dev.git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
     "directory": "libs/wism"
   },
   "bin": {

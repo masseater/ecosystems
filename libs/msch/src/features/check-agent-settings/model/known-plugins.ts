@@ -1,15 +1,13 @@
-import { Array as Arr, Effect, Option, Record as Rec, Schema, String as Str, pipe } from "effect";
+import { Array as Arr, Effect, Option, Record as Rec, Schema, pipe } from "effect";
 
 import marketplace from "#/shared/config/masseater-marketplace.json" with { type: "json" };
 import { problemInFile } from "#/shared/lib/problem.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
-import manifest from "#package.json" with { type: "json" };
 
 const RULE: RuleName = "known-plugins";
 const SETTINGS_FILE = ".claude/settings.json";
 const GITHUB = "github";
-const REPOSITORY = /github\.com\/(?<repository>[\w.-]+\/[\w.-]+?)(?:\.git)?$/u;
 
 const Source = Schema.Struct({ source: Schema.String, repo: Schema.optionalKey(Schema.String) });
 const KnownMarketplace = Schema.Struct({ source: Source });
@@ -23,15 +21,7 @@ const decodeSettings = Schema.decodeUnknownOption(Schema.fromJsonString(Settings
 
 type Settings = typeof SettingsSchema.Type;
 
-const repositoryOf = (url: string): string =>
-  pipe(
-    Str.match(REPOSITORY)(url),
-    Option.flatMapNullishOr((found) => found.groups),
-    Option.flatMap(Rec.get("repository")),
-    Option.getOrElse(() => url),
-  );
-
-const REPOSITORY_NAME = repositoryOf(manifest.repository.url);
+const REPOSITORY_NAME = "masseater/masseater.dev";
 const MARKETPLACE = marketplace.name;
 const PLUGINS = pipe(
   marketplace.plugins,

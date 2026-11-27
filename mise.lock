@@ -2,11 +2,6 @@
 
 lockfile_version = 4
 
-[[tools.dotnet]]
-version = "11.0.100"
-backend = "core:dotnet"
-specifiers = ["11.0.100"]
-
 [[tools."github:open-telemetry/opentelemetry-collector-releases"]]
 version = "0.165.0"
 backend = "github:open-telemetry/opentelemetry-collector-releases"

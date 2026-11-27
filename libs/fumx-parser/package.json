@@ -10,14 +10,14 @@
     "parser",
     "tanstack-intent"
   ],
-  "homepage": "https://github.com/masseater/masseater.dev/tree/main/libs/fumx-parser#readme",
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/fumx-parser#readme",
   "bugs": {
-    "url": "https://github.com/masseater/masseater.dev/issues"
+    "url": "https://github.com/masseater/ecosystems/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masseater/masseater.dev.git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
     "directory": "libs/fumx-parser"
   },
   "files": [

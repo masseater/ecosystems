@@ -8,11 +8,8 @@
     "#/*": "./src/*"
   },
   "dependencies": {
-    "@alchemy.run/cloudflare": "catalog:stack",
-    "@distilled.cloud/cloudflare": "catalog:stack",
     "@effect/platform-node": "catalog:",
     "@yarnpkg/parsers": "catalog:",
-    "alchemy": "catalog:stack",
     "effect": "catalog:stack"
   },
   "devDependencies": {

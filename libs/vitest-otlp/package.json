@@ -11,14 +11,14 @@
     "vitest",
     "vitest-plugin"
   ],
-  "homepage": "https://github.com/masseater/masseater.dev/tree/main/libs/vitest-otlp#readme",
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/vitest-otlp#readme",
   "bugs": {
-    "url": "https://github.com/masseater/masseater.dev/issues"
+    "url": "https://github.com/masseater/ecosystems/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masseater/masseater.dev.git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
     "directory": "libs/vitest-otlp"
   },
   "files": [

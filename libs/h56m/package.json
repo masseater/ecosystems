@@ -10,14 +10,14 @@
     "tanstack-intent",
     "vite-plus"
   ],
-  "homepage": "https://github.com/masseater/masseater.dev/tree/main/libs/h56m#readme",
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/h56m#readme",
   "bugs": {
-    "url": "https://github.com/masseater/masseater.dev/issues"
+    "url": "https://github.com/masseater/ecosystems/issues"
   },
   "license": "MIT AND CC-BY-SA-4.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masseater/masseater.dev.git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
     "directory": "libs/h56m"
   },
   "bin": {

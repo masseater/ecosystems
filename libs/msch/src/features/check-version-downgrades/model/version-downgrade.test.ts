@@ -95,7 +95,7 @@ const acceptsPreset = Effect.gen(function* acceptsPreset() {
   const root = yield* gitRepositoryWith({
     "renovate.json": lines([
       "{",
-      '  "extends": ["github>masseater/masseater.dev//libs/msch/renovate"]',
+      '  "extends": ["github>masseater/ecosystems//libs/msch/renovate"]',
       "}",
     ]),
   });

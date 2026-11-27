@@ -51,7 +51,7 @@ parsed source, can parse a `run:` script with `parseScript`, and reports positio
 
 ## Comparison
 
-Measured on 2026-11-19 on linux x64, 4 CPUs with [lint-bench](https://github.com/masseater/masseater.dev/tree/main/tools/lint-bench), which keeps the full results in [results.md](https://github.com/masseater/masseater.dev/blob/main/tools/lint-bench/results/results.md). Cold runs drop the page cache and the tools' caches first. "Same as ours", "Only ours" and "Only theirs" compare findings by file, line and rule where both tools use the same rules.
+Measured on 2026-11-19 on linux x64, 4 CPUs with [lint-bench](https://github.com/masseater/ecosystems/tree/main/tools/lint-bench), which keeps the full results in [results.md](https://github.com/masseater/ecosystems/blob/main/tools/lint-bench/results/results.md). Cold runs drop the page cache and the tools' caches first. "Same as ours", "Only ours" and "Only theirs" compare findings by file, line and rule where both tools use the same rules.
 
 On the same files in nodejs/node, fu4 reports 74 of the 86 findings of actionlint and zizmor together and none of its own. The other 12 are actionlint 1.7.12 errors on `$/` paths in `uses:`, GitHub's syntax for an action or reusable workflow in the same repository, which actionlint does not accept yet. fu4 is slower, mostly in starting Node and loading the presets.
 

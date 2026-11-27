@@ -12,16 +12,19 @@ import type { ModuleResolver } from "typescript/sync";
 
 import { toJson } from "#/shared/lib/json.ts";
 
-interface ResolutionHost {
+/** @internal */
+export interface ResolutionHost {
   readonly fileExists: (fileName: string) => boolean;
   readonly directoryExists?: ((directoryName: string) => boolean) | undefined;
 }
 
-interface Resolution {
+/** @internal */
+export interface Resolution {
   readonly resolvedModule: { readonly resolvedFileName: string } | undefined;
 }
 
-type ResolveArguments = readonly [
+/** @internal */
+export type ResolveArguments = readonly [
   moduleName: string,
   containingFile: string,
   compilerOptions: object,

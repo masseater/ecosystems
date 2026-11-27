@@ -11,14 +11,14 @@
     "security",
     "tanstack-intent"
   ],
-  "homepage": "https://github.com/masseater/masseater.dev/tree/main/libs/h56m-presets#readme",
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/h56m-presets#readme",
   "bugs": {
-    "url": "https://github.com/masseater/masseater.dev/issues"
+    "url": "https://github.com/masseater/ecosystems/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masseater/masseater.dev.git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
     "directory": "libs/h56m-presets"
   },
   "files": [

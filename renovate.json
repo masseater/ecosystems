@@ -5,8 +5,8 @@
     "security:minimumReleaseAgeNpm",
     ":semanticCommits",
     "group:allNonMajor",
-    "github>masseater/masseater.dev//libs/vite-plus-adopt/renovate",
-    "github>masseater/masseater.dev//libs/msch/renovate"
+    "github>masseater/ecosystems//libs/vite-plus-adopt/renovate",
+    "github>masseater/ecosystems//libs/msch/renovate"
   ],
   "automerge": true,
   "configMigration": true,
@@ -14,25 +14,13 @@
   "minimumReleaseAge": "3 days",
   "packageRules": [
     {
-      "matchPackageNames": [
-        "effect",
-        "@effect/**",
-        "!@effect/tsgo",
-        "alchemy",
-        "@alchemy.run/**",
-        "@distilled.cloud/**"
-      ],
-      "groupName": "effect and alchemy"
+      "matchPackageNames": ["effect", "@effect/**", "!@effect/tsgo"],
+      "groupName": "effect"
     },
     {
       "description": "textlint と @textlint/* は同じ版の型を互いに渡す。1 つずつ上げると型が合わずに check が落ちる（#1421・#1422）。",
       "matchPackageNames": ["textlint", "@textlint/**"],
       "groupName": "textlint"
-    },
-    {
-      "description": "@better-auth/* は ^ の peer で最新の @better-auth/core を取り、better-auth は自分の版の core に固定する。1 つずつ上げると core が 2 つ入り、OwnerAuthOptions が BetterAuthOptions に合わずに check が落ちる (#1482)。",
-      "matchPackageNames": ["better-auth", "@better-auth/**", "auth"],
-      "groupName": "better-auth"
     },
     {
       "description": "vite-plus は oxlint と tsrs の版を固定し、@effect/tsgo は対応している版の oxlint と oxlint-tsgolint にしかパッチを当てられない。合わないと prepare が落ちて vp install が失敗する。vite-plus は vitest の版も固定し、@vitest/* だけが上がると vitest が 2 つ入って @effect/vitest のテストが suite を見つけられずに落ちる (#1479)。組で上げ、up-to-date の install が通ったときだけマージする。",
@@ -64,27 +52,9 @@
       "enabled": false
     },
     {
-      "matchPackageNames": ["@bufbuild/protobuf", "@bufbuild/protoc-gen-es"],
-      "groupName": "protobuf-es"
-    },
-    {
       "description": "gungraun は同じ版の gungraun-runner でしか動かない。runner は tools/cargo-tools で別の Cargo.lock に固定しているので、組で上げる。",
       "matchPackageNames": ["gungraun", "gungraun-runner"],
       "groupName": "gungraun"
-    },
-    {
-      "matchPackageNames": ["@paper-design/**"],
-      "groupName": "paper shaders"
-    },
-    {
-      "matchPackageNames": ["typescript"],
-      "matchDepNames": ["!typescript-wasm"],
-      "allowedVersions": "/^(?:[7-9]|[1-9][0-9]+)\\.[0-9]+\\.[0-9]+(?:-(?:beta|rc)[0-9.]*)?$/"
-    },
-    {
-      "matchDepNames": ["typescript-wasm", "@typescript/typescript-wasip1-wasm"],
-      "followTag": "next",
-      "groupName": "typescript wasm"
     },
     {
       "matchManagers": ["github-actions"],
@@ -130,13 +100,6 @@
       "currentValueTemplate": "main",
       "packageNameTemplate": "https://github.com/{{depName}}",
       "datasourceTemplate": "git-refs"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["/^libs/tsrs-effect/package\\.json$/"],
-      "matchStrings": ["\"effect\": \"@effect/tsgo@(?<currentValue>[0-9.]+)\""],
-      "depNameTemplate": "@effect/tsgo",
-      "datasourceTemplate": "npm"
     },
     {
       "customType": "regex",

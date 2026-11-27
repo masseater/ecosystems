@@ -1,13 +1,11 @@
-# masseater.dev
+# ecosystems
 
-このモノレポには、masseater の個人サイト [masseater.dev](https://masseater.dev) と、そこで公開しているものがある。masseater はこのサイトに、自作したものや執筆したものを投稿している。
+The toolchain behind masseater's repositories, published to npm as `@r_masseater/*`.
 
-masseater が作成したものの一覧は [masseater.dev/projects](https://masseater.dev/projects) にある。配布されている各アプリやパッケージのインストール手順は、そのディレクトリの README.md に記載されている。
+It holds the repository checks and the linters with their presets, the parser for the `.fumx` text music format, and the lint plugins and test plugins they need. Each package has a README in its own directory under `libs/`.
 
-## 検査
+Every check of this repository runs through one command: `vp run verify`.
 
-このリポジトリのすべての検査は [msch](libs/msch) で実行される。msch は masseater の他のリポジトリにも同様の検査を持ち込む。
+## License
 
-## ライセンス
-
-[AGPL-3.0](LICENSE)
+[AGPL-3.0](LICENSE) for the repository. Each package states its own license in its own directory.

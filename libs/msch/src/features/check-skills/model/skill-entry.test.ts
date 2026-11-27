@@ -11,8 +11,7 @@ import { checkSkillEntry } from "./skill-entry.ts";
 const CONFIG = "vite.config.ts";
 const RENOVATE = "renovate.json";
 const COMMIT = "0123456789abcdef0123456789abcdef01234567";
-const EXTENDS =
-  '{ "extends": ["github>masseater/masseater.dev//libs/vite-plus-adopt/renovate"] }\n';
+const EXTENDS = '{ "extends": ["github>masseater/ecosystems//libs/vite-plus-adopt/renovate"] }\n';
 
 const configWith = (sources: readonly string[]): string =>
   pipe(["export default {", "  skills: {", ...sources, "  },", "};", ""], Arr.join("\n"));

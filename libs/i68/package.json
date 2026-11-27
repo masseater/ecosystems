@@ -11,14 +11,14 @@
     "vite-plus",
     "voicing"
   ],
-  "homepage": "https://github.com/masseater/masseater.dev/tree/main/libs/i68#readme",
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/i68#readme",
   "bugs": {
-    "url": "https://github.com/masseater/masseater.dev/issues"
+    "url": "https://github.com/masseater/ecosystems/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masseater/masseater.dev.git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
     "directory": "libs/i68"
   },
   "bin": {

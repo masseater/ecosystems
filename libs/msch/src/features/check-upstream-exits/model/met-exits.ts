@@ -22,7 +22,7 @@ import type { Closed, Declares, ExitCondition, Published } from "./exit-conditio
 const NPM = "https://registry.npmjs.org/";
 const CRATES = "https://crates.io/api/v1/crates/";
 const GITHUB = "https://api.github.com/repos/";
-const USER_AGENT = "msch-exits (https://github.com/masseater/masseater.dev/tree/main/libs/msch)";
+const USER_AGENT = "msch-exits (https://github.com/masseater/ecosystems/tree/main/libs/msch)";
 const LOOKUP_CONCURRENCY = 4;
 const RANGE_OPTIONS = { includePrerelease: true } as const;
 

@@ -51,7 +51,7 @@ into the addon. `@r_masseater/y8/kuromojin` has the same exports as
 
 ## Comparison
 
-Measured on 2026-11-19 on linux x64, 4 CPUs with [lint-bench](https://github.com/masseater/masseater.dev/tree/main/tools/lint-bench), which keeps the full results in [results.md](https://github.com/masseater/masseater.dev/blob/main/tools/lint-bench/results/results.md). Cold runs drop the page cache and the tools' caches first. "Same as ours", "Only ours" and "Only theirs" compare findings by file, line and rule where both tools use the same rules.
+Measured on 2026-11-19 on linux x64, 4 CPUs with [lint-bench](https://github.com/masseater/ecosystems/tree/main/tools/lint-bench), which keeps the full results in [results.md](https://github.com/masseater/ecosystems/blob/main/tools/lint-bench/results/results.md). Cold runs drop the page cache and the tools' caches first. "Same as ours", "Only ours" and "Only theirs" compare findings by file, line and rule where both tools use the same rules.
 
 y8 reports the same findings as markdownlint-cli2 apart from a few lines, and runs 5 to 26 times faster. rumdl is faster still; its defaults differ from markdownlint (it adds MD043, MD057 and MD067 findings and drops MD060), so its findings overlap only in part.
 
