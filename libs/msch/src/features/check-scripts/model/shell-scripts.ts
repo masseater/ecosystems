@@ -1,6 +1,6 @@
+import { baseName } from "@masseater.dev/path-kit";
 import { Array as Arr, Effect, Option, Schema, String as Str, pipe } from "effect";
 
-import { baseName } from "#/shared/lib/path-segments.ts";
 import { problemInFile } from "#/shared/lib/problem.ts";
 import type { RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";

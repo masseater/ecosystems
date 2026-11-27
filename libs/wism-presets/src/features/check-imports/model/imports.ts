@@ -1,3 +1,4 @@
+import { baseName, below } from "@masseater.dev/path-kit";
 import type { GraphEdge } from "@r_masseater/wism";
 import { Array as Arr, Equal, Option, String as Str, pipe } from "effect";
 
@@ -6,7 +7,6 @@ import type { Layers } from "#/entities/kind/index.ts";
 import { asLayer } from "#/entities/layout/index.ts";
 import type { Instance, LayerPosition, Layout, Located } from "#/entities/layout/index.ts";
 import type { Finding } from "#/shared/lib/finding.ts";
-import { baseName, inside } from "#/shared/lib/path.ts";
 
 export const LAYER_IMPORT = "layer-import";
 export const CROSS_SLICE = "cross-slice";
@@ -124,7 +124,7 @@ const wildcardFinding = (
 const restOf = (layout: Layout, layers: Layers, { instance, target }: Reach): string =>
   pipe(
     layout.inner(instance)(target),
-    Option.flatMap(inside(layers.dir)),
+    Option.flatMap(below(layers.dir)),
     Option.getOrElse(() => ""),
   );
 

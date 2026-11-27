@@ -1,12 +1,11 @@
+import { below, join, matcher } from "@masseater.dev/path-kit";
+import type { Matcher } from "@masseater.dev/path-kit";
 import { Array as Arr, Option, pipe } from "effect";
 
 import type { Kind } from "#/entities/kind/index.ts";
 import type { Layout, Located } from "#/entities/layout/index.ts";
 import { atFile } from "#/shared/lib/finding.ts";
 import type { Finding } from "#/shared/lib/finding.ts";
-import { matcher } from "#/shared/lib/glob.ts";
-import type { Matcher } from "#/shared/lib/glob.ts";
-import { inside, join } from "#/shared/lib/path.ts";
 
 export const PLACEMENT = "placement";
 export const LOOSE_FILE = "loose-file";
@@ -64,7 +63,7 @@ const positionFindings = (path: string, { instance, position }: Located): readon
     return [];
   }
   const base = join(instance.dir)(join(layersDir(kind))(position.layer));
-  const reported = Option.match(inside(base)(path), { onNone: () => path, onSome: () => base });
+  const reported = Option.match(below(base)(path), { onNone: () => path, onSome: () => base });
   return [atFile({ path: reported, rule: LAYER_NAME, message: layerMessage(kind) })];
 };
 

@@ -1,11 +1,12 @@
-import { Array as Arr, Effect, Exit, FileSystem, Path, String as Str, pipe } from "effect";
+import { isInside, below } from "@masseater.dev/path-kit";
+import { Array as Arr, Effect, Exit, FileSystem, Option, Path, String as Str, pipe } from "effect";
 import type { PlatformError } from "effect";
 
 import type { VpToolsError } from "#/shared/lib/errors.ts";
 import { toJson } from "#/shared/lib/json.ts";
 import type { TarEntry } from "#/shared/lib/tar-gz.ts";
 
-import { SEPARATOR, isUnder, relativeTo } from "./archive.ts";
+import { SEPARATOR } from "./archive.ts";
 import type { FoundSkill } from "./archive.ts";
 
 /** @internal */
@@ -65,7 +66,7 @@ const writeEntry =
     Effect.gen(function* writeFile() {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const relative = relativeTo(skill.directory)(header.path);
+      const relative = Option.getOrElse(below(skill.directory)(header.path), () => header.path);
       const file = path.join(staging, ...Str.split(SEPARATOR)(relative));
       yield* fs.makeDirectory(path.dirname(file), { recursive: true });
       yield* fs.writeFile(file, bytes);
@@ -87,7 +88,7 @@ export const extractSkill =
         pipe(
           entries,
           Arr.filter(
-            ({ header }) => header.type === "File" && isUnder(skill.directory)(header.path),
+            ({ header }) => header.type === "File" && isInside(skill.directory)(header.path),
           ),
         ),
         writeEntry(staging, skill),

@@ -1,3 +1,4 @@
+import { baseName } from "@masseater.dev/path-kit";
 import {
   Array as Arr,
   Option,
@@ -7,8 +8,6 @@ import {
   String as Str,
   pipe,
 } from "effect";
-
-import { baseName } from "#/shared/lib/path-segments.ts";
 
 import type { PackEntrySource } from "./published.ts";
 

@@ -1,9 +1,8 @@
-import { Array as Arr, Function as Fn, Option, Record as Rec, String as Str, pipe } from "effect";
-import { minimatch } from "minimatch";
+import { selects } from "@masseater.dev/path-kit";
+import { Array as Arr, Function as Fn, Option, Record as Rec, pipe } from "effect";
 
 import type { Override, RuleEntry, Y8Config } from "#/shared/config/index.ts";
 
-const NEGATION = "!";
 const KEY_SEPARATOR = ",";
 const DATA_FIRST_ARITY = 2;
 
@@ -19,26 +18,10 @@ interface Member {
   readonly indexes: readonly number[];
 }
 
-const isNegated = Str.startsWith(NEGATION);
-
-const isIncluded = (pattern: string): boolean => !isNegated(pattern);
-
-const matchesAny =
-  (path: string) =>
-  (patterns: readonly string[]): boolean =>
-    pipe(
-      patterns,
-      Arr.some((pattern) => minimatch(path, pattern, { dot: true })),
-    );
-
-const excludedOf = (override: Override): readonly string[] =>
-  pipe(override.files, Arr.filter(isNegated), Arr.map(Str.slice(NEGATION.length)));
-
 const applies =
   (path: string) =>
   (override: Override): boolean =>
-    pipe(override.files, Arr.filter(isIncluded), matchesAny(path)) &&
-    !matchesAny(path)(excludedOf(override));
+    selects(override.files)(path);
 
 const matchingIndexes = (config: Y8Config, path: string): readonly number[] =>
   pipe(

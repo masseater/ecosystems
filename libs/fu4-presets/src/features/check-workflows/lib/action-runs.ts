@@ -1,3 +1,4 @@
+import { baseName } from "@masseater.dev/path-kit";
 import type { Project } from "@r_masseater/fu4";
 import { Array as Arr, Option, Order, String as Str, pipe } from "effect";
 
@@ -5,7 +6,7 @@ import { cleanJoin, joinPath } from "#/entities/action/index.ts";
 import type { ActionRuns, LocalAction } from "#/entities/action/index.ts";
 import type { Fail } from "#/features/check-workflows/lib/workflow-rule.ts";
 import data from "#/shared/data/action.json" with { type: "json" };
-import { baseName, quote } from "#/shared/text/index.ts";
+import { quote } from "#/shared/text/index.ts";
 import type { Text } from "#/shared/yaml/index.ts";
 
 export const DOCS =

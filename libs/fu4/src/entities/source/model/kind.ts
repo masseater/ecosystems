@@ -1,20 +1,13 @@
-import { Array as Arr, Option, String as Str, pipe } from "effect";
+import { baseName } from "@masseater.dev/path-kit";
+import { Option, String as Str } from "effect";
 
 import type { InputKind } from "#/shared/config/index.ts";
 
-const SEPARATOR = "/";
 const WORKFLOWS = ".github/workflows/";
 const YAML = /\.ya?ml$/u;
 const ACTION = /^action\.ya?ml$/u;
 const DEPENDABOT = /^\.github\/dependabot\.ya?ml$/u;
 const PRE_COMMIT = /^\.pre-commit-(?:config|hooks)\.yaml$/u;
-
-const baseName = (path: string): string =>
-  pipe(
-    Str.split(SEPARATOR)(path),
-    Arr.last,
-    Option.getOrElse(() => path),
-  );
 
 export const kindOf = (path: string): Option.Option<InputKind> => {
   if (DEPENDABOT.test(path)) {

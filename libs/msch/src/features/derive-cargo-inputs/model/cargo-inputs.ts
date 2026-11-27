@@ -1,6 +1,5 @@
+import { SEPARATOR, isWithin, relativeTo } from "@masseater.dev/path-kit";
 import { Array as Arr, Option, String as Str, pipe } from "effect";
-
-import { SEPARATOR, isWithin } from "#/shared/lib/path-segments.ts";
 
 import {
   LOCK_FILE,
@@ -9,7 +8,6 @@ import {
   closureOf,
   directoryOf,
   isLocal,
-  relativeTo,
 } from "./cargo-metadata.ts";
 import type { CargoMetadata, CargoPackage, CargoWorkspace } from "./cargo-metadata.ts";
 import { manifestFor } from "./root-manifest.ts";

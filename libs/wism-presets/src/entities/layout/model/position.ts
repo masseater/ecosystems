@@ -1,10 +1,9 @@
+import { joinAll, matcher, segments, stem } from "@masseater.dev/path-kit";
+import type { Matcher } from "@masseater.dev/path-kit";
 import { Array as Arr, Option, pipe } from "effect";
 
 import { isLayer, isParted } from "#/entities/kind/@x/layout.ts";
 import type { Layers } from "#/entities/kind/@x/layout.ts";
-import { matcher } from "#/shared/lib/glob.ts";
-import type { Matcher } from "#/shared/lib/glob.ts";
-import { joinAll, segments, stem } from "#/shared/lib/path.ts";
 
 export type Position =
   | { readonly type: "ignored" }

@@ -1,10 +1,9 @@
-import { Array as Arr, Option, pipe, String as Str } from "effect";
+import { Array as Arr, Function as Fn, Option, pipe, String as Str } from "effect";
 import type { Node, SourceFile } from "typescript/ast";
 import type { Checker, CompilerOptions, Program as NativeProgram, Project } from "typescript/sync";
 
 import { CompatSymbol } from "./compat-symbol.ts";
 import { CompatType } from "./compat-type.ts";
-import { memoizeByKey } from "./memo.ts";
 
 export interface CompatChecker {
   readonly getSymbolAtLocation: (node: Node) => CompatSymbol | undefined;
@@ -40,7 +39,7 @@ const compatChecker = (project: Project, checker: Checker): CompatChecker => ({
 const isOwnSourceFile = (fileName: string): boolean =>
   !Str.includes("/node_modules/")(fileName) && !Str.endsWith(".d.ts")(fileName);
 
-const ownSourceFiles = memoizeByKey((program: NativeProgram): readonly SourceFile[] =>
+const ownSourceFiles = Fn.memoize((program: NativeProgram): readonly SourceFile[] =>
   pipe(
     program.getSourceFileNames(),
     Arr.filter(isOwnSourceFile),

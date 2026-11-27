@@ -1,7 +1,6 @@
+import { baseName } from "@masseater.dev/path-kit";
 import { Array as Arr, Option, Record as Rec, pipe } from "effect";
 import type { Context, ESTree, Rule } from "vite-plus/lint/plugins";
-
-import { baseName } from "#/shared/lib/path-segments.ts";
 
 type Format = "json" | "toml" | "typescript" | "yaml";
 

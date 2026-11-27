@@ -1,3 +1,4 @@
+import { isInside } from "@masseater.dev/path-kit";
 import { Array as Arr, Effect, Option, Predicate, Schema, String as Str, pipe } from "effect";
 
 import { MANIFEST_FILE } from "#/entities/package/index.ts";
@@ -13,7 +14,6 @@ import {
   workspaceLinks,
 } from "#/entities/workspace/index.ts";
 import type { WorkspaceLink } from "#/entities/workspace/index.ts";
-import { isInside } from "#/shared/lib/path-segments.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
