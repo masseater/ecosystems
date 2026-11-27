@@ -25,6 +25,5 @@ test("a failed result becomes the fallback with one diagnostic per issue", () =>
     },
   });
   expect(output.text).toBe("export {};");
-  expect(output.diagnostics).toHaveLength(1);
-  expect(output.diagnostics?.[0]?.messageText).toBe("bad word");
+  expect(output.diagnostics).toMatchObject([{ messageText: "bad word" }]);
 });
