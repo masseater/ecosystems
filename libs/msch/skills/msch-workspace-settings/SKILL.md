@@ -1,5 +1,5 @@
 ---
-name: workspace-settings
+name: msch-workspace-settings
 description: >
   Use when one workspace of a repository that uses @r_masseater/msch needs its own lint override,
   ignore pattern, test-only dependency, install size limit, extra verify step, or a test or build
@@ -17,7 +17,7 @@ sources:
   - src/entities/workspace/**
 ---
 
-# workspace-settings
+# msch-workspace-settings
 
 Vite+ ignores the `lint` section of a workspace's `vite.config.ts`. A setting that applies to one workspace goes in the `msch` block of that workspace's `vite.config.ts`. The root reads it with `workspaceSettings` without running the file, so every value in the block is a literal.
 

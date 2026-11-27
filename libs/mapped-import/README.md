@@ -60,7 +60,7 @@ export const plugin = contentImport({
 
 ## Agent skills
 
-The package ships TanStack Intent skills for coding agents. Load one with `vp exec intent load @r_masseater/mapped-import#<skill>`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/mapped-import": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.
 
 ## License
 

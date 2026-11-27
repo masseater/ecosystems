@@ -44,9 +44,7 @@ const flagsPublishedPackagesWithoutSkills = Effect.gen(
       "libs/private/package.json": '{ "name": "private", "private": true }',
     });
     expect(findings).toStrictEqual([
-      expect.stringMatching(
-        /^libs\/bare\/package\.json is published without TanStack Intent skills/u,
-      ),
+      expect.stringMatching(/^libs\/bare\/package\.json is published without agent skills/u),
     ]);
   },
 );
@@ -82,7 +80,7 @@ const flagsInvalidSkills = Effect.gen(function* flagsInvalidSkills() {
 });
 
 layer(Layer.merge(fixtureLayer, nodeServicesLayer))(
-  "published packages ship TanStack Intent skills",
+  "published packages ship agent skills",
   (it) => {
     it.effect(
       "flags a published package without skills",

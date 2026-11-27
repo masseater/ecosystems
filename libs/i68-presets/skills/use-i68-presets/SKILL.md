@@ -1,5 +1,5 @@
 ---
-name: use-presets
+name: use-i68-presets
 description: >
   Use when choosing which @r_masseater/i68-presets presets a project extends, setting their
   options, explaining a pop/, harmony/, classical/, progressions/ or bach/ finding in plain words, or adding a preset
@@ -17,7 +17,7 @@ sources:
   - src/features/check-style/model/preset.ts
 ---
 
-# use-presets
+# use-i68-presets
 
 Each preset returns an i68 config for one concern. List the ones you want in `extends`.
 

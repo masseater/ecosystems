@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/y8-presets",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "The official y8 rule presets, one per concern: README.md, AGENTS.md, SKILL.md, shared document checks, Markdown style and agent config.",
   "keywords": [
     "agents-md",
@@ -24,7 +24,7 @@
   "files": [
     "LICENSE",
     "dist",
-    "skills/apply-presets"
+    "skills/apply-y8-presets"
   ],
   "type": "module",
   "imports": {

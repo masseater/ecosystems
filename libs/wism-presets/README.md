@@ -34,4 +34,4 @@ no per-OS builds.
 
 ## Agent skills
 
-The package ships TanStack Intent skills for coding agents. Load one with `vp exec intent load @r_masseater/wism-presets#<skill>`.
+The package ships agent skills in `skills/`. Add `permissions: { "@r_masseater/wism-presets": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links them into the skill directories of your agents.
