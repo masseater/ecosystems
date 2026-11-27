@@ -105,27 +105,15 @@ const layoutOf = (header: Uint32Array): Layout => {
   };
 };
 
-const stringsOf = (
-  words: Uint32Array,
-  blob: Uint8Array,
-  spansAt: number,
-): ((index: number) => string) => {
-  const cache = new Map<number, string>();
-  const decode = spanText(words)(blob, UTF16)(spansAt, STRING_WORDS);
-  const store = (index: number): string => {
-    const value = decode(index);
-    cache.set(index, value);
-    return value;
-  };
-  return (index) => Option.getOrElse(Option.fromNullishOr(cache.get(index)), () => store(index));
-};
-
 export const sourceView = (raw: Uint8Array): SourceView => {
   const buffer = aligned(raw);
   const header = wordsOf(buffer)(START, HEADER_WORDS);
   const layout = layoutOf(header);
   const words = wordsOf(buffer)(START, layout.blobAt / WORD);
-  const stringAt = stringsOf(words, buffer.subarray(layout.blobAt), layout.spanAt);
+  const stringAt = spanText(words)(buffer.subarray(layout.blobAt), UTF16)(
+    layout.spanAt,
+    STRING_WORDS,
+  );
   return {
     semanticCount: layout.semanticCount,
     semanticRoot: rootOf(wordAt(header)(HEADER.semanticRoot)),
