@@ -1,7 +1,7 @@
 import { Array as Arr, Order } from "effect";
 import type { Option } from "effect";
 
-import type { Controller } from "#/entities/song/@x/timeline.ts";
+import type { Controller, MixerParameter } from "#/entities/song/@x/timeline.ts";
 
 export interface Timed {
   readonly tick: number;
@@ -43,6 +43,46 @@ export interface TempoChange extends Timed {
   readonly target: Option.Option<number>;
 }
 
+export interface Level {
+  readonly decibels: number;
+  readonly pan: number;
+  readonly muted: boolean;
+}
+
+export interface TrackSend {
+  readonly bus: number;
+  readonly amount: number;
+}
+
+export type MixParameter = MixerParameter;
+
+export interface MixPoint extends Timed {
+  readonly value: number;
+}
+
+export interface Envelope {
+  readonly parameter: MixParameter;
+  readonly points: readonly MixPoint[];
+}
+
+export interface TrackMix {
+  readonly level: Level;
+  readonly sends: readonly TrackSend[];
+  readonly envelopes: readonly Envelope[];
+}
+
+export interface BusMix {
+  readonly name: Option.Option<string>;
+  readonly level: Level;
+}
+
+export interface Mix {
+  readonly tracks: ReadonlyMap<number, TrackMix>;
+  readonly buses: readonly BusMix[];
+}
+
+export const NO_MIX: Mix = { tracks: new Map(), buses: [] };
+
 export interface Timeline {
   readonly title: Option.Option<string>;
   readonly end: number;
@@ -51,6 +91,7 @@ export interface Timeline {
   readonly meters: readonly Meter[];
   readonly markers: readonly Text[];
   readonly parts: readonly Part[];
+  readonly mix: Mix;
 }
 
 const byTick = Order.mapInput(Order.Number, (timed: Timed) => timed.tick);

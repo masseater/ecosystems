@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/i68",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A linter for .fumx songs that checks musical rules such as notes outside the key, part ranges, voicing clashes and parallel fifths, configured from vite.config.ts with rules written in TypeScript.",
   "keywords": [
     "fumx",
@@ -39,6 +39,7 @@
   "exports": {
     ".": "./src/app/index.ts",
     "./presets": "./src/app/presets.ts",
+    "./habits": "./src/app/habits.ts",
     "./vite": {
       "types": "./src/app/vite.ts"
     },
@@ -56,6 +57,10 @@
       "./presets": {
         "types": "./dist/presets.d.mts",
         "default": "./dist/presets.mjs"
+      },
+      "./habits": {
+        "types": "./dist/habits.d.mts",
+        "default": "./dist/habits.mjs"
       },
       "./vite": {
         "types": "./dist/vite.d.mts",

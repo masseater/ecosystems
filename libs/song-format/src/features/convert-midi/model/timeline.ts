@@ -1,7 +1,7 @@
 import { Array as Arr, Match, Option, Order, Record as Rec, pipe } from "effect";
 import type { MidiData, MidiEvent } from "midi-file";
 
-import { sortedByTick } from "#/entities/timeline/index.ts";
+import { NO_MIX, sortedByTick } from "#/entities/timeline/index.ts";
 import type { Meter, Part, TempoChange, Text, Timed, Timeline } from "#/entities/timeline/index.ts";
 import type { From } from "#/shared/lib/from.ts";
 import { TICKS_PER_WHOLE } from "#/shared/lib/ticks.ts";
@@ -212,5 +212,6 @@ export const timelineOf: From<MidiData, Timeline> = (midi) => {
       reads,
       Arr.flatMap((read, index) => partsOf(read, index)),
     ),
+    mix: NO_MIX,
   };
 };

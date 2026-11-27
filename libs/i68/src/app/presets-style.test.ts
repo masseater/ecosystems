@@ -6,8 +6,8 @@ import { lintText } from "#/app/lint.ts";
 import type { I68Config } from "#/shared/config/index.ts";
 import type { I68Error } from "#/shared/lib/errors.ts";
 
-import { bach, progressions, stylePluginOf } from "./presets.ts";
-import type { StyleTable } from "./presets.ts";
+import { bach, progressions, styleRules, stylePluginOf } from "./presets.ts";
+import type { StyleRules, StyleTable } from "./presets.ts";
 
 const PATH = "/song.fumx";
 
@@ -102,5 +102,52 @@ it.effect("bach leaves a plain cadence alone", () =>
   Effect.gen(function* cadence() {
     const found = yield* messagesOf(song(["C3 E3 G3", "F3 A3 C4", "G3 B3 D4", "C3 E3 G3"]), bach());
     expect(found).toStrictEqual([]);
+  }),
+);
+
+const RULES: StyleRules = {
+  name: "test style",
+  habits: [
+    {
+      habit: { type: "chord", context: "I", next: "IV" },
+      kind: "keep",
+      aim: "softer turns",
+      reason: "warm",
+    },
+    { habit: { type: "chord", context: "IV", next: "V" }, kind: "fix", aim: "fewer cadences" },
+    {
+      habit: { type: "chord", context: "V", next: "VIm" },
+      kind: "suggest",
+      aim: "deceptive turns",
+    },
+  ],
+};
+
+const HABITS: I68Config = styleRules({ plugin: "mine", rules: RULES });
+
+it.effect("style rules flag a kept habit the song skips and name the aim", () =>
+  Effect.gen(function* kept() {
+    const text = song(["C3 E3 G3", "F3 A3 C4", "C3 E3 G3", "G3 B3 D4", "C3 E3 G3"]);
+    const found = yield* pipe(
+      lintText({ path: PATH, text, config: HABITS }),
+      Effect.map(Arr.map(format)),
+    );
+    expect(found).toStrictEqual([
+      "/song.fumx:18:9 warn mine/keep test style keeps I → IV here [softer turns: warm]",
+      "/song.fumx:21:9 warn mine/suggest V → VIm would fit test style here [deceptive turns]",
+    ]);
+  }),
+);
+
+it.effect("style rules flag a habit being fixed and leave the kept ones alone", () =>
+  Effect.gen(function* fixed() {
+    const text = song(["C3 E3 G3", "F3 A3 C4", "G3 B3 D4", "A3 C4 E4"]);
+    const found = yield* pipe(
+      lintText({ path: PATH, text, config: HABITS }),
+      Effect.map(Arr.map(format)),
+    );
+    expect(found).toStrictEqual([
+      "/song.fumx:15:9 error mine/fix IV → V is a habit test style is fixing [fewer cadences]",
+    ]);
   }),
 );

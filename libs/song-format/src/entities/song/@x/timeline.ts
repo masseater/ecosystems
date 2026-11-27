@@ -1,1 +1,1 @@
-export type { Controller, Song } from "#/entities/song/model/song.ts";
+export type { Controller, MixerParameter, Song } from "#/entities/song/model/song.ts";
