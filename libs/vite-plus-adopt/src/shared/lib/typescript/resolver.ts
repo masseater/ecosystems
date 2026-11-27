@@ -8,6 +8,7 @@ import { getDirectoryPath, isExternalModuleNameRelative } from "./paths.ts";
 import type {
   Features,
   NestedResolution,
+  ResolutionCacheKey,
   ResolutionMode,
   ResolutionResult,
   ResolutionState,
@@ -173,14 +174,19 @@ export const resolveInDirectory: {
     ),
 );
 
+const cacheKeyOf = (request: ResolveModuleNameRequest): ResolutionCacheKey => ({
+  name: request.moduleName,
+  mode: request.mode,
+  directory: getDirectoryPath(request.containingFile),
+});
+
 const resolveUncached = (
   request: ResolveModuleNameRequest,
   context: WorkerContext,
 ): ResolutionResult => {
-  const containingDirectory = getDirectoryPath(request.containingFile);
+  const key = cacheKeyOf(request);
   traceMessage(context, Messages.explicitResolutionKind, request.options.moduleResolution);
-  const result = resolveInDirectory({ ...request, containingDirectory }, context);
-  const key = { name: request.moduleName, mode: request.mode, directory: containingDirectory };
+  const result = resolveInDirectory({ ...request, containingDirectory: key.directory }, context);
   for (const cache of Option.toArray(context.cache)) {
     cache.setForDirectory(key, result);
     if (!isExternalModuleNameRelative(request.moduleName)) {
@@ -222,13 +228,11 @@ const reuseCachedWithTrace = (
   request: ResolveModuleNameRequest,
   context: WorkerContext,
 ): Option.Option<ResolutionResult> => {
-  const directory = getDirectoryPath(request.containingFile);
+  const key = cacheKeyOf(request);
   return context.cache.pipe(
-    Option.flatMap((cache) =>
-      cache.getFromDirectory({ name: request.moduleName, mode: request.mode, directory }),
-    ),
+    Option.flatMap((cache) => cache.getFromDirectory(key)),
     Option.map((cached) => {
-      traceMessage(context, Messages.resolutionFoundInCache, request.moduleName, directory);
+      traceMessage(context, Messages.resolutionFoundInCache, request.moduleName, key.directory);
       return cached;
     }),
   );

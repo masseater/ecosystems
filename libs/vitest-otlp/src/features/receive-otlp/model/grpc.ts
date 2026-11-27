@@ -7,7 +7,7 @@ import { Array, Effect, Option } from "effect";
 import type { HttpServerError } from "effect/http";
 import { HttpServerRequest, HttpServerResponse } from "effect/http";
 
-import type { Endpoint, MalformedExport, Store } from "./protocol.ts";
+import type { Endpoint, Store } from "./protocol.ts";
 import {
   ENDPOINTS,
   emptyResponse,
@@ -37,13 +37,6 @@ export const frame = (message: Uint8Array): Uint8Array => {
   return framed;
 };
 
-const unframe =
-  (request: HttpServerRequest.HttpServerRequest) =>
-  (framed: Uint8Array): Effect.Effect<Uint8Array, MalformedExport> =>
-    gunzipWhen(
-      framed[FIRST_BYTE] === COMPRESSED_FLAG && request.headers["grpc-encoding"] === "gzip",
-    )(framed.subarray(FRAME_HEADER_BYTES));
-
 const reply =
   (request: HttpServerRequest.HttpServerRequest) =>
   (status: string, message: Uint8Array): HttpServerResponse.HttpServerResponse => {
@@ -68,7 +61,11 @@ const receive =
   ): Effect.Effect<HttpServerResponse.HttpServerResponse, HttpServerError.HttpServerError> =>
     request.arrayBuffer.pipe(
       Effect.map((buffer) => new Uint8Array(buffer)),
-      Effect.flatMap(unframe(request)),
+      Effect.flatMap((framed) =>
+        gunzipWhen(
+          framed[FIRST_BYTE] === COMPRESSED_FLAG && request.headers["grpc-encoding"] === "gzip",
+        )(framed.subarray(FRAME_HEADER_BYTES)),
+      ),
       Effect.flatMap(fromProtobuf(endpoint)),
       Effect.flatMap(store(endpoint)),
       Effect.map(accepted(request, endpoint)),
