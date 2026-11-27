@@ -7,7 +7,7 @@ import { loadLanguage, readTree } from "#/shared/lib/tree-sitter.ts";
 import type { Language } from "#/shared/lib/tree-sitter.ts";
 
 import { dockerfileComments, sqlComments, tomlComments, yamlComments } from "./config-comments.ts";
-import { trimmed, unreadable } from "./found-comment.ts";
+import { commentsFrom, unreadable } from "./found-comment.ts";
 import type { CommentsUnreadable, Found, FoundComment } from "./found-comment.ts";
 
 const GRAMMARS = [
@@ -67,7 +67,7 @@ const commentNodesIn = (language: Language, source: string): readonly FoundComme
         pipe(
           root.descendantsOfType(COMMENT_NODES),
           Arr.flatMap((node) => Option.toArray(Option.fromNullishOr(node))),
-          Arr.map((node) => trimmed({ index: node.startIndex, text: node.text })),
+          Arr.map((node) => ({ index: node.startIndex, text: node.text })),
         ),
     }),
     Option.getOrElse(() => NONE),
@@ -78,8 +78,7 @@ const syntaxComments =
   (source: string): Found =>
     Option.match(grammars(grammar), {
       onNone: () => Effect.fail(unreadable(grammar)("the grammar is not loaded")),
-      onSome: (language) =>
-        Effect.try({ try: () => commentNodesIn(language, source), catch: unreadable(grammar) }),
+      onSome: (language) => commentsFrom(grammar)((text) => commentNodesIn(language, text))(source),
     });
 
 const SCRIPT_TYPE = /^(?:|module|text\/javascript|application\/javascript)$/iu;

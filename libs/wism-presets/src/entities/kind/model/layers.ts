@@ -2,17 +2,19 @@ import { Array as Arr } from "effect";
 
 import type { Layers } from "./types.ts";
 
-export const isSliced =
+const listed =
+  (pick: (layers: Layers) => readonly string[] | undefined) =>
   (layers: Layers) =>
   (layer: string): boolean =>
-    Arr.contains(layers.sliced ?? [], layer);
+    Arr.contains(pick(layers) ?? [], layer);
+
+export const isSliced = listed((layers) => layers.sliced);
+
+const isSegmented = listed((layers) => layers.segmented);
 
 export const isParted =
   (layers: Layers) =>
   (layer: string): boolean =>
-    isSliced(layers)(layer) || Arr.contains(layers.segmented ?? [], layer);
+    isSliced(layers)(layer) || isSegmented(layers)(layer);
 
-export const isLayer =
-  (layers: Layers) =>
-  (layer: string): boolean =>
-    Arr.contains(layers.order, layer);
+export const isLayer = listed((layers) => layers.order);
