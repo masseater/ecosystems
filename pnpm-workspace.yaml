@@ -36,7 +36,7 @@ catalog:
   "@r_masseater/oxlint-typed-rules": 0.4.3
   "@r_masseater/vite-plus-adopt": 0.12.0
   oxlint-plugin-eslint: 1.95.0
-  "@cloudflare/workers-types": 5.20261123.1
+  "@cloudflare/workers-types": 5.20261124.1
   "@effect/platform-node": 4.1.5
   "@effect/platform-node-shared": 4.1.5
   "@effect/vitest": 4.1.5
@@ -119,7 +119,7 @@ catalogs:
     fallow: 3.48.0
     fallow-type-aware: 3.48.0
     fallow-similar-code: 3.48.0
-    typescript: 7.1.0-beta
+    typescript: 7.1.0-dev.20261124.1
     vite-plus: 1.8.0
 overrides:
   "langium>vscode-languageserver": "catalog:" # exit: npm:langium allows vscode-languageserver@>=11
