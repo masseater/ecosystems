@@ -39,16 +39,26 @@ describe("compat cases", () => {
     });
   });
 
-  test("a vite peer is left to the vite that vite-plus brings in, as it is in a repository set up by vite-plus-adopt", () => {
-    const cases = compatCasesOf(
-      manifest({
-        engines: { node: ">=26.0.0" },
-        peerDependencies: { vite: "*", "vite-plus": "^1.8.0" },
-      }),
+  test("a peer range that semver cannot read is left out of the floor case", () => {
+    const [floor] = compatCasesOf(
+      manifest({ engines: { node: ">=26" }, peerDependencies: { odd: "workspace:^" } }),
     );
-    expect(cases.map(({ peers }) => peers)).toStrictEqual([
-      { "vite-plus": "~1.8.0" },
-      { "vite-plus": "^1.8.0" },
+    expect(floor).toStrictEqual({ label: "floor", node: "~26.0.0", peers: {} });
+  });
+});
+
+describe("compat cases with a vite peer", () => {
+  test("a vite peer is left to the vite that vite-plus brings in, as in a repository set up by vite-plus-adopt", () => {
+    expect(
+      compatCasesOf(
+        manifest({
+          engines: { node: ">=26.0.0" },
+          peerDependencies: { vite: "*", "vite-plus": "^1.8.0" },
+        }),
+      ),
+    ).toStrictEqual([
+      { label: "floor", node: "~26.0.0", peers: { "vite-plus": "~1.8.0" } },
+      { label: "latest", node: "^26", peers: { "vite-plus": "^1.8.0" } },
     ]);
   });
 
@@ -56,14 +66,7 @@ describe("compat cases", () => {
     const [, latest] = compatCasesOf(
       manifest({ engines: { node: ">=26.0.0" }, peerDependencies: { vite: "^8.0.0" } }),
     );
-    expect(latest?.peers).toStrictEqual({ vite: "^8.0.0" });
-  });
-
-  test("a peer range that semver cannot read is left out of the floor case", () => {
-    const [floor] = compatCasesOf(
-      manifest({ engines: { node: ">=26" }, peerDependencies: { odd: "workspace:^" } }),
-    );
-    expect(floor).toStrictEqual({ label: "floor", node: "~26.0.0", peers: {} });
+    expect(latest).toStrictEqual({ label: "latest", node: "^26", peers: { vite: "^8.0.0" } });
   });
 });
 
