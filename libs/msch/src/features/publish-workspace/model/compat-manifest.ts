@@ -16,6 +16,8 @@ const PACKAGE_JSON_EXPORT = "./package.json";
 const PATTERN = "*";
 const ROOT_EXPORT = ".";
 const UNVERSIONED = "0.0.0";
+const VITE = "vite";
+const VITE_PLUS = "vite-plus";
 const TYPES = "types";
 
 const taggedError = Schema.TaggedError;
@@ -109,8 +111,17 @@ const nodeFloorOf = (manifest: CompatManifest): Option.Option<string> =>
     Option.flatMap(lowestOf),
   );
 
+const withoutViteOfVitePlus = (
+  peers: Readonly<Record<string, string>>,
+): Readonly<Record<string, string>> => {
+  if (Rec.has(peers, VITE_PLUS)) {
+    return Rec.remove(peers, VITE);
+  }
+  return peers;
+};
+
 const casesOf = (manifest: CompatManifest, floor: string): readonly CompatCase[] => {
-  const declared = manifest.peerDependencies ?? {};
+  const declared = withoutViteOfVitePlus(manifest.peerDependencies ?? {});
   return [
     { label: "floor", node: floorOf(floor), peers: floorPeers(declared) },
     { label: "latest", node: `^${String(semver.major(floor))}`, peers: declared },
