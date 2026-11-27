@@ -17,19 +17,15 @@ import {
 } from "#/features/audit-workflows/lib/uses-targets.ts";
 import type { UsesTarget } from "#/features/audit-workflows/lib/uses-targets.ts";
 import { commitRef } from "#/features/audit-workflows/lib/uses.ts";
-import type {
-  Audit,
-  AuditContext,
-  Drafts,
-  Produced,
-} from "#/features/audit-workflows/model/audit.ts";
+import type { Audit, AuditContext, Produced } from "#/features/audit-workflows/model/audit.ts";
+import type { FindingDraft } from "#/features/audit-workflows/model/finding.ts";
 
 const meta = {
   ident: "stale-action-refs",
   desc: "commit hash does not point to a Git tag",
 } as const;
 
-const draft = (target: UsesTarget) => (): Drafts => [
+const draft = (target: UsesTarget): FindingDraft =>
   pipe(
     finding(meta),
     confidence("high"),
@@ -37,8 +33,7 @@ const draft = (target: UsesTarget) => (): Drafts => [
     persona("pedantic"),
     at(hidden(target.location)),
     atPath(target.location, primary, withKeys("uses"), withinText(target.raw)),
-  ),
-];
+  );
 
 const check = (target: UsesTarget, context: AuditContext): Produced =>
   Option.match(commitRef(target.ref), {

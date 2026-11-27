@@ -16,8 +16,8 @@ import {
 } from "#/features/audit-workflows/lib/uses-targets.ts";
 import type { UsesTarget } from "#/features/audit-workflows/lib/uses-targets.ts";
 import { commitRef, refSlug } from "#/features/audit-workflows/lib/uses.ts";
-import type { Audit, Drafts } from "#/features/audit-workflows/model/audit.ts";
-import type { SymbolicLocation } from "#/features/audit-workflows/model/finding.ts";
+import type { Audit } from "#/features/audit-workflows/model/audit.ts";
+import type { FindingDraft, SymbolicLocation } from "#/features/audit-workflows/model/finding.ts";
 
 const meta = {
   ident: "impostor-commit",
@@ -39,9 +39,8 @@ const flagged = (target: UsesTarget): SymbolicLocation => {
   );
 };
 
-const draft = (target: UsesTarget) => (): Drafts => [
-  pipe(finding(meta), severity("high"), confidence("high"), at(target.grip), at(flagged(target))),
-];
+const draft = (target: UsesTarget): FindingDraft =>
+  pipe(finding(meta), severity("high"), confidence("high"), at(target.grip), at(flagged(target)));
 
 const check = onlineCheck((target) => Option.all([refSlug(target.ref), commitRef(target.ref)]))(
   ({ client, found: [slug, sha], target }) =>

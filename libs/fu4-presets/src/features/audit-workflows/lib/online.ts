@@ -1,6 +1,7 @@
 import { Effect, Option } from "effect";
 
 import type { AuditContext, Drafts, Produced } from "#/features/audit-workflows/model/audit.ts";
+import type { FindingDraft } from "#/features/audit-workflows/model/finding.ts";
 import type { GitHubClient, GitHubEffect } from "#/features/audit-workflows/model/github.ts";
 
 import type { UsesTarget } from "./uses-targets.ts";
@@ -41,10 +42,10 @@ export const onlineCheck =
     });
 
 export const draftsIf =
-  (draft: () => Drafts) =>
+  (draft: FindingDraft) =>
   (condition: boolean): Drafts => {
     if (condition) {
-      return draft();
+      return [draft];
     }
     return [];
   };

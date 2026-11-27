@@ -15,8 +15,8 @@ import {
 } from "#/features/audit-workflows/lib/uses-targets.ts";
 import type { UsesTarget } from "#/features/audit-workflows/lib/uses-targets.ts";
 import { refSlug, symbolicRef } from "#/features/audit-workflows/lib/uses.ts";
-import type { Audit, Drafts } from "#/features/audit-workflows/model/audit.ts";
-import type { SymbolicLocation } from "#/features/audit-workflows/model/finding.ts";
+import type { Audit } from "#/features/audit-workflows/model/audit.ts";
+import type { FindingDraft, SymbolicLocation } from "#/features/audit-workflows/model/finding.ts";
 import type { NamedRef } from "#/features/audit-workflows/model/github.ts";
 
 const meta = {
@@ -45,9 +45,8 @@ const locations = (target: UsesTarget): readonly SymbolicLocation[] => {
   return [pipe(target.location, primary, withKeys("uses"), annotated(ANNOTATION))];
 };
 
-const draft = (target: UsesTarget) => (): Drafts => [
-  pipe(finding(meta), severity("medium"), confidence("high"), at(...locations(target))),
-];
+const draft = (target: UsesTarget): FindingDraft =>
+  pipe(finding(meta), severity("medium"), confidence("high"), at(...locations(target)));
 
 const named =
   (name: string) =>
