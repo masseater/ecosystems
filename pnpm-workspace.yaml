@@ -127,6 +127,7 @@ catalogs:
     typescript: 7.1.0-dev.20261124.1
     vite-plus: 1.8.0
 overrides:
+  "@r_masseater/vite-plus-adopt>@r_masseater/h56m": "workspace:*" # exit: npm:@r_masseater/vite-plus-adopt allows @r_masseater/h56m@>=0.3.0
   "langium>vscode-languageserver": "catalog:" # exit: npm:langium allows vscode-languageserver@>=11
   "@remotion/eslint-plugin>@typescript-eslint/utils": "-" # exit: npm:@remotion/eslint-plugin allows @typescript-eslint/utils@>=8
   "@remotion/eslint-plugin>typescript": "-" # exit: npm:@remotion/eslint-plugin drops typescript || npm:@remotion/eslint-plugin allows typescript@>=7
