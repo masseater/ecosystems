@@ -1,5 +1,5 @@
 diff --git a/dist/tsdown/dist-Bgp1Qexk.js b/dist/tsdown/dist-Bgp1Qexk.js
-index 9dd16ed..0ceee9b 100644
+index 9dd16edb53305f1c14385478e0f4061bb8f05f71..c2fdddf94822141ff4208ed31c57a52810a0ce3e 100644
 --- a/dist/tsdown/dist-Bgp1Qexk.js
 +++ b/dist/tsdown/dist-Bgp1Qexk.js
 @@ -55,7 +55,7 @@ function tryResolve(id) {
@@ -11,7 +11,21 @@ index 9dd16ed..0ceee9b 100644
  }
  function requireTSApi(mode = "tsc", message = ".") {
  	if (_ts) return _ts;
-@@ -4830,7 +4830,7 @@ function createGenerator({ generator, tsconfig, tsconfigRaw, build, incremental,
+@@ -4750,7 +4750,12 @@ function resolveTsgoPath(logger) {
+ 	const { version } = require(pkgJsonPath);
+ 	logger.info(`Emit types with ${styleText("underline", `${pkgName}@${version}`)}`);
+ 	const getExePath = require(path.join(path.dirname(pkgJsonPath), "lib/getExePath.js"));
+-	return tsgoPathCache = (typeof getExePath === "function" ? getExePath : getExePath.default)();
++	return tsgoPathCache = (typeof getExePath === "function" ? getExePath : getExePath.default)({
++		fs: require("node:fs"),
++		module: require("node:module"),
++		path,
++		url: require("node:url")
++	});
+ }
+ var TsgoGenerator = class {
+ 	options;
+@@ -4830,7 +4835,7 @@ function createGenerator({ generator, tsconfig, tsconfigRaw, build, incremental,
  	if (generator === "oxc") return new OxcGenerator(oxc, languageContext);
  	if (generator === "tsgo") return new TsgoGenerator({
  		tsgoPath: tsgo.path,
