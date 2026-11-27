@@ -42,19 +42,22 @@ const noteOf = (char: Option.Option<string>): string => {
   return "";
 };
 
+export const failedAt =
+  (scan: Scan) =>
+  (at: Cursor, message: string): Lexed => ({
+    token: eof(scan),
+    end: at,
+    error: { message, line: at.line, column: at.column },
+  });
+
 export const unexpected =
   (scan: Scan) =>
   ({ at, place, expected }: Unexpected): Lexed => {
     const char = peek(scan.src)(at);
-    return {
-      token: eof(scan),
-      end: at,
-      error: {
-        message: `got unexpected ${describe(char)} while lexing ${place}, expecting ${expected}${noteOf(char)}`,
-        line: at.line,
-        column: at.column,
-      },
-    };
+    return failedAt(scan)(
+      at,
+      `got unexpected ${describe(char)} while lexing ${place}, expecting ${expected}${noteOf(char)}`,
+    );
   };
 
 export const finished =

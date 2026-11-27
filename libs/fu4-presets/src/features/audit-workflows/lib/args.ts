@@ -58,12 +58,18 @@ export const passes =
       onNonEmpty: (head, tail) => pipe(rest, after(head), passes(...tail)),
     });
 
+const through =
+  (...predicates: readonly Predicate[]) =>
+  (args: readonly string[]): Rest =>
+    passes(...predicates)(Option.some(args));
+
 export const reaches =
   (...predicates: readonly Predicate[]) =>
   (args: readonly string[]): boolean =>
-    Option.some(args).pipe(passes(...predicates), Option.isSome);
+    Option.isSome(through(...predicates)(args));
 
-export const thenEvery =
-  (predicate: Predicate) =>
-  (rest: Option.Option<readonly string[]>): boolean =>
-    Option.exists(rest, Arr.every(predicate));
+export const reachesWithout =
+  (forbidden: Predicate) =>
+  (...predicates: readonly Predicate[]) =>
+  (args: readonly string[]): boolean =>
+    Option.exists(through(...predicates)(args), Arr.every(forbidden));
