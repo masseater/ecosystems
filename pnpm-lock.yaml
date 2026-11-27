@@ -1214,6 +1214,9 @@ importers:
       '@r_masseater/node-main':
         specifier: workspace:*
         version: link:../node-main
+      '@r_masseater/song-format':
+        specifier: workspace:*
+        version: 'link:'
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
