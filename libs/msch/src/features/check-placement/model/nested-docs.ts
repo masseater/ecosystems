@@ -74,14 +74,24 @@ const readmeProblem = (
   return Option.some(problemFor(file, `${base} ${README_MESSAGE}`));
 };
 
-const missingProblems = (
-  directories: readonly string[],
-  present: HashSet.HashSet<string>,
-  join: (...parts: readonly string[]) => string,
-): readonly Problem[] =>
+interface Workspaces {
+  readonly required: boolean;
+  readonly directories: readonly string[];
+  readonly present: HashSet.HashSet<string>;
+  readonly join: (...parts: readonly string[]) => string;
+}
+
+const missingProblems = ({
+  required,
+  directories,
+  present,
+  join,
+}: Workspaces): readonly Problem[] =>
   pipe(
     directories,
-    Arr.filter((directory) => !HashSet.has(present, join(directory, WORKSPACE_AGENT_DOC))),
+    Arr.filter(
+      (directory) => required && !HashSet.has(present, join(directory, WORKSPACE_AGENT_DOC)),
+    ),
     Arr.map((directory) => problemInFile(MISSING_RULE)(join(directory, MANIFEST), MISSING_MESSAGE)),
   );
 
@@ -135,19 +145,18 @@ export const checkNestedDocs = Effect.fn("checkNestedDocs")(function* checkNeste
   const found = yield* Effect.forEach(nested, (name) => problemIn(root, allowed, name), {
     concurrency: READ_CONCURRENCY,
   });
-  const missing = workspaceAgentDocs
-    ? missingProblems(
-        pipe(
-          directories,
-          Arr.map((directory) => files.join(root, directory)),
-        ),
-        pipe(
-          names,
-          Arr.map((name) => files.join(root, name)),
-          HashSet.fromIterable,
-        ),
-        files.join,
-      )
-    : [];
+  const missing = missingProblems({
+    required: workspaceAgentDocs,
+    directories: pipe(
+      directories,
+      Arr.map((directory) => files.join(root, directory)),
+    ),
+    present: pipe(
+      names,
+      Arr.map((name) => files.join(root, name)),
+      HashSet.fromIterable,
+    ),
+    join: files.join,
+  });
   return [...Arr.getSomes(found), ...missing];
 });

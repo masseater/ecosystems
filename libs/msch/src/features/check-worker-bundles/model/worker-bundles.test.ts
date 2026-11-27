@@ -36,7 +36,12 @@ const reportsOnlyWorkersThatFailToBundle = Effect.gen(
         Arr.map(({ file, rule }) => `${files.relative(root, file)} ${rule}`),
       ),
     ).toStrictEqual(["apps/broken/src/app/broken.ts worker-bundle"]);
-    expect(problems[0]?.message).toContain("#entry");
+    expect(
+      pipe(
+        problems,
+        Arr.map(({ message }) => message),
+      ),
+    ).toStrictEqual([expect.stringContaining("#entry")]);
   },
 );
 
