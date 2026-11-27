@@ -63,11 +63,6 @@ const ancestorMatching = (
   return ancestorMatching(Option.fromNullishOr(node.value.parent), judge);
 };
 
-const findAncestor = (
-  node: Node | undefined,
-  judge: (candidate: Node) => AncestorVerdict,
-): Node | undefined => Option.getOrUndefined(ancestorMatching(Option.fromNullishOr(node), judge));
-
 const getNameOfAccessExpression = (node: AccessExpression): Node => {
   if (isPropertyAccessExpression(node)) {
     return node.name;
@@ -76,7 +71,10 @@ const getNameOfAccessExpression = (node: AccessExpression): Node => {
 };
 
 export const nodeFunctions = {
-  findAncestor,
+  findAncestor: (
+    node: Node | undefined,
+    judge: (candidate: Node) => AncestorVerdict,
+  ): Node | undefined => Option.getOrUndefined(ancestorMatching(Option.fromNullishOr(node), judge)),
   forEachChild: (node: Node, visit: (child: Node) => unknown): unknown => node.forEachChild(visit),
   getNameOfAccessExpression,
   isAccessExpression: toleratingAbsence(isAccessExpression),

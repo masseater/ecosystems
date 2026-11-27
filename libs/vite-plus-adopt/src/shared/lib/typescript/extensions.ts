@@ -145,18 +145,19 @@ export const hasJSFileExtension = (fileName: string): boolean =>
 
 const ARBITRARY_DECLARATION = ".d.";
 
-const getArbitraryDeclarationExtension = (fileName: string): Option.Option<string> =>
-  Option.liftPredicate(fileName, (name) => fileExtensionIs(name, Extension.Ts)).pipe(
-    Option.flatMap((name) =>
-      Str.lastIndexOf(ARBITRARY_DECLARATION)(getBaseFileName(name)).pipe(
-        Option.map((index) => Str.slice(name.length - getBaseFileName(name).length + index)(name)),
-      ),
-    ),
-  );
-
 const getDeclarationFileExtension = (fileName: string): Option.Option<string> =>
   Arr.findFirst(SUPPORTED_DECLARATION, (extension) => Str.endsWith(extension)(fileName)).pipe(
-    Option.orElse(() => getArbitraryDeclarationExtension(fileName)),
+    Option.orElse(() =>
+      Option.liftPredicate(fileName, (name) => fileExtensionIs(name, Extension.Ts)).pipe(
+        Option.flatMap((name) =>
+          Str.lastIndexOf(ARBITRARY_DECLARATION)(getBaseFileName(name)).pipe(
+            Option.map((index) =>
+              Str.slice(name.length - getBaseFileName(name).length + index)(name),
+            ),
+          ),
+        ),
+      ),
+    ),
   );
 
 export const isDeclarationFileName = (fileName: string): boolean =>

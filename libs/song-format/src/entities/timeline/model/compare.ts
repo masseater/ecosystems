@@ -6,13 +6,13 @@ import type { From } from "#/shared/lib/from.ts";
 import type { LaidBar } from "./layout.ts";
 import { controllerKeyOf } from "./plan.ts";
 import type { Plan } from "./plan.ts";
+import { microsecondsOf } from "./tempo-units.ts";
 
 const NONE = 0;
 const NEXT = 1;
 const UNKNOWN = -1;
 const FULL = 127;
 const DEFAULT_RELEASE = 64;
-const MICROSECONDS_PER_MINUTE = 60_000_000;
 const DECIMALS = 9;
 const SHOWN = 20;
 
@@ -205,8 +205,6 @@ const expectedTempoOf: From<readonly LaidBar[], readonly string[]> = (bars) =>
       ),
     ),
   );
-
-const microsecondsOf: From<number, number> = (bpm) => Math.round(MICROSECONDS_PER_MINUTE / bpm);
 
 const barPointsOf: From<Song["bars"][number], readonly TempoPoint[]> = (bar) => {
   if (Arr.isReadonlyArrayNonEmpty(bar.tempoSteps)) {

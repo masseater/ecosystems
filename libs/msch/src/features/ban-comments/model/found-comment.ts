@@ -1,5 +1,4 @@
-import { Schema, String as Str } from "effect";
-import type { Effect } from "effect";
+import { Array as Arr, Effect, Schema, String as Str, pipe } from "effect";
 
 export interface FoundComment {
   readonly index: number;
@@ -20,7 +19,16 @@ export const unreadable =
   (cause: unknown): CommentsUnreadable =>
     CommentsUnreadable.make({ reader, message: String(cause) });
 
-export const trimmed = ({ index, text }: FoundComment): FoundComment => ({
+const trimmed = ({ index, text }: FoundComment): FoundComment => ({
   index,
   text: Str.trimEnd(text),
 });
+
+export const commentsFrom =
+  (reader: string) =>
+  (read: (source: string) => readonly FoundComment[]) =>
+  (source: string): Found =>
+    Effect.try({
+      try: () => pipe(read(source), Arr.map(trimmed)),
+      catch: unreadable(reader),
+    });

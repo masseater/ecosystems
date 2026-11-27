@@ -1,6 +1,6 @@
 import { Array as Arr, Effect, Option, Record as Rec, Schema, String as Str, pipe } from "effect";
 
-import { MANIFEST_FILE } from "#/entities/package/index.ts";
+import { MANIFEST_FILE, targetsIn } from "#/entities/package/index.ts";
 import {
   nestedValues,
   RUN_TASKS,
@@ -33,11 +33,8 @@ const Manifest = Schema.Struct({
   main: Schema.optional(Schema.Unknown),
   exports: Schema.optional(Schema.Unknown),
 });
-const TargetMap = Schema.Record(Schema.String, Schema.Unknown);
 
 const decodeManifest = Schema.decodeUnknownOption(Schema.fromJsonString(Manifest));
-const decodeTarget = Schema.decodeUnknownOption(Schema.String);
-const decodeTargetMap = Schema.decodeUnknownOption(TargetMap);
 
 interface CommandRun {
   readonly path: string;
@@ -67,19 +64,12 @@ const runsIn = ({ text, start }: FoundString): readonly CommandRun[] =>
     ),
   );
 
-const targetsIn = (held: unknown): readonly string[] => [
-  ...pipe(decodeTarget(held), Option.map(withoutCurrent), Option.toArray),
-  ...pipe(
-    decodeTargetMap(held),
-    Option.map(Rec.values),
-    Option.getOrElse((): readonly unknown[] => []),
-    Arr.flatMap(targetsIn),
-  ),
-];
+const targetPaths = (held: unknown): readonly string[] =>
+  pipe(targetsIn(held), Arr.map(withoutCurrent));
 
 const entriesOf = (manifest: typeof Manifest.Type): Entries => {
-  const bins = targetsIn(manifest.bin);
-  return { all: [...bins, ...targetsIn(manifest.main), ...targetsIn(manifest.exports)], bins };
+  const bins = targetPaths(manifest.bin);
+  return { all: [...bins, ...targetPaths(manifest.main), ...targetPaths(manifest.exports)], bins };
 };
 
 const declaredEntries = Effect.fn("declaredEntries")(function* declaredEntries(

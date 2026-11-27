@@ -3,7 +3,7 @@ import type { Option } from "effect";
 import type { ContextExpr } from "#/entities/expression-tree/index.ts";
 import type { Document } from "#/shared/yamlpath/index.ts";
 
-import type { EnvValue, If, LoE, Uses } from "./common.ts";
+import type { EnvValue, If, LoE, RepositoryUses, Uses } from "./common.ts";
 import type { SymbolicLocation } from "./finding.ts";
 import type { ActionInput, AuditInput, NormalJob } from "./input.ts";
 
@@ -16,6 +16,15 @@ export type StepBodyCommon =
       readonly with: LoE<ReadonlyMap<string, EnvValue>>;
     }
   | { readonly type: "run"; readonly run: string };
+
+export interface RepositoryBody {
+  readonly type: "uses";
+  readonly uses: RepositoryUses;
+  readonly with: LoE<ReadonlyMap<string, EnvValue>>;
+}
+
+export const isRepositoryBody = (body: StepBodyCommon): body is RepositoryBody =>
+  body.type === "uses" && body.uses.type === "repository";
 
 export interface Expansion {
   readonly path: string;

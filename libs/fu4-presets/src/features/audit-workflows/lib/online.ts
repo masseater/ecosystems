@@ -1,7 +1,10 @@
 import { Effect, Option } from "effect";
 
 import type { AuditContext, Drafts, Produced } from "#/features/audit-workflows/model/audit.ts";
+import type { FindingDraft } from "#/features/audit-workflows/model/finding.ts";
 import type { GitHubClient, GitHubEffect } from "#/features/audit-workflows/model/github.ts";
+
+import type { UsesTarget } from "./uses-targets.ts";
 
 const reported = new Set<string>();
 
@@ -22,11 +25,27 @@ export const withGitHub =
         run(client).pipe(Effect.catchTag("GitHubError", (failure) => warned(failure.message))),
     });
 
+export interface OnlineCall<Found> {
+  readonly client: GitHubClient;
+  readonly found: Found;
+  readonly target: UsesTarget;
+  readonly context: AuditContext;
+}
+
+export const onlineCheck =
+  <Found>(gather: (target: UsesTarget) => Option.Option<Found>) =>
+  (run: (call: OnlineCall<Found>) => GitHubEffect<Drafts>) =>
+  (target: UsesTarget, context: AuditContext): Produced =>
+    Option.match(gather(target), {
+      onNone: (): Produced => [],
+      onSome: (found) => withGitHub(context)((client) => run({ client, found, target, context })),
+    });
+
 export const draftsIf =
-  (draft: () => Drafts) =>
+  (draft: FindingDraft) =>
   (condition: boolean): Drafts => {
     if (condition) {
-      return draft();
+      return [draft];
     }
     return [];
   };

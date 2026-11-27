@@ -56,15 +56,7 @@ export const envValue: Decoder<EnvValue> = untagged<EnvValue>(
 
 export const env: Decoder<ReadonlyMap<string, EnvValue>> = record(envValue);
 
-export const displayEnv = (value: EnvValue): string => {
-  if (value.type === "string") {
-    return value.value;
-  }
-  if (value.type === "number") {
-    return String(value.value);
-  }
-  return String(value.value);
-};
+export const displayEnv = (value: EnvValue): string => String(value.value);
 
 export const ifCondition: Decoder<If> = untagged<If>(
   map(boolean)((value) => ({ type: "bool", value })),

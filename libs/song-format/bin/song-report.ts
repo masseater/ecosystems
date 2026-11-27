@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 import { readSong } from "@r_masseater/fumx-parser";
 import { AnalysisSchema, analyze } from "@r_masseater/fumx-parser/analysis";
+import { runMain } from "@r_masseater/node-main";
 import { Array as Arr, Console, Effect, FileSystem, Path, Schema, pipe } from "effect";
 import { Argument, Command } from "effect/cli";
-
-import { runWithNode } from "#/app/node-services.ts";
 
 const INDENT = 2;
 
@@ -52,4 +51,4 @@ const command = Command.make(
     }),
 );
 
-runWithNode(Command.run(command, { version: "0.0.0" }));
+runMain("song-report")(Command.run(command, { version: "0.0.0" }));

@@ -117,27 +117,21 @@ const probabilitiesOf = (answer: Answer | undefined): Readonly<Record<string, nu
 const asksAbout = (ref: string, id: string): boolean =>
   pipe(Str.split(id, OPTION_SEPARATOR), Arr.take(FIRST), Arr.contains(ref));
 
+const askedAbout =
+  (ref: string) =>
+  (wire: WireRequest): readonly (readonly [string, Question])[] =>
+    pipe(
+      Rec.toEntries(wire.questions),
+      Arr.filter(([id]) => asksAbout(ref, id)),
+    );
+
 const sentFor = (
   sent: readonly WireRequest[],
   ref: string,
-): readonly (readonly [string, Question])[] =>
-  pipe(
-    sent,
-    Arr.flatMap((wire) =>
-      pipe(
-        Rec.toEntries(wire.questions),
-        Arr.filter(([id]) => asksAbout(ref, id)),
-      ),
-    ),
-  );
+): readonly (readonly [string, Question])[] => pipe(sent, Arr.flatMap(askedAbout(ref)));
 
 const stateTextOf = (sent: readonly WireRequest[], ref: string, snippet: string): string =>
-  Arr.findFirst(sent, (wire) =>
-    pipe(
-      Rec.keys(wire.questions),
-      Arr.some((id) => asksAbout(ref, id)),
-    ),
-  ).pipe(
+  Arr.findFirst(sent, (wire) => Arr.isReadonlyArrayNonEmpty(askedAbout(ref)(wire))).pipe(
     Option.map(({ state }) => state),
     Option.filter(Predicate.isString),
     Option.getOrElse(() => snippet),
@@ -198,7 +192,7 @@ const explaining = (pass: ExplainPass, mode: ExplainFormat): Explainer => {
   const sent = snippetRequestsFor(pass.request);
   const print = printerFor(mode);
   return {
-    outcome: (match, at, { served, answers, cached, verdict, reported }) => {
+    outcome: (match, at, { served, answers, cached, verdict, reported }): void => {
       print({
         ...baseOf({ pass, sent }, match, at)(answers),
         served,
@@ -210,7 +204,7 @@ const explaining = (pass: ExplainPass, mode: ExplainFormat): Explainer => {
         reported,
       });
     },
-    failure: (matches, reason) => {
+    failure: (matches, reason): void => {
       for (const [index, match] of matches.entries()) {
         const at = { ref: refAt(index), loc: match.loc };
         print({ ...baseOf({ pass, sent }, match, at)({}), reported: false, error: reason });

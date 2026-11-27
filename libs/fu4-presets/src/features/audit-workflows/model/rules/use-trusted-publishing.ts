@@ -3,11 +3,10 @@ import { Array as Arr, Option, String as Str, pipe } from "effect";
 import {
   is,
   isNot,
-  passes,
   reaches,
+  reachesWithout,
   startsWith,
   take,
-  thenEvery,
 } from "#/features/audit-workflows/lib/args.ts";
 import type { Predicate, Taken } from "#/features/audit-workflows/lib/args.ts";
 import {
@@ -83,10 +82,11 @@ type Publisher = (args: readonly string[]) => boolean;
 
 const DRY_RUN = isNot("--dry-run");
 
-const withoutDryRun =
-  (...predicates: readonly Predicate[]): Publisher =>
-  (args) =>
-    pipe(Option.some(args), passes(...predicates), thenEvery(DRY_RUN));
+const NOT_DRY_RUN_OR_N = isNot("--dry-run", "-n");
+
+const withoutDryRun = reachesWithout(DRY_RUN);
+
+const withoutDryRunOrN = reachesWithout(NOT_DRY_RUN_OR_N);
 
 const firstOf =
   (...values: readonly string[]) =>
@@ -106,7 +106,7 @@ const yarn: Publisher = (args) =>
     if (value === "publish") {
       return true;
     }
-    return pipe(Option.some(rest), passes(is("publish")), thenEvery(isNot("--dry-run", "-n")));
+    return withoutDryRunOrN(is("publish"))(rest);
   });
 
 const isNpm: Predicate = (arg) => arg === "npm" || Str.startsWith("npm@")(arg);
@@ -115,11 +115,7 @@ const bunx: Publisher = (args) =>
   Option.exists(take(isNpm)(args), ({ rest }) => withoutDryRun(is("publish"))(rest));
 
 const PUBLISHERS: ReadonlyMap<string, Publisher> = new Map([
-  [
-    "cargo",
-    (args: readonly string[]) =>
-      pipe(Option.some(args), passes(is("publish")), thenEvery(isNot("--dry-run", "-n"))),
-  ],
+  ["cargo", withoutDryRunOrN(is("publish"))],
   ["uv", uv],
   ["uvx", reaches(startsWith("twine"), is("upload"))],
   ["hatch", reaches(is("publish"))],

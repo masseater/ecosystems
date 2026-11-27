@@ -1,8 +1,7 @@
-import { runCli as runLinter } from "@masseater.dev/lint-host";
+import { formatDiagnostic, runCli as runLinter } from "@masseater.dev/lint-host";
 
 import { failedWith } from "#/shared/lib/errors.ts";
 
-import { format } from "./format.ts";
 import { lint } from "./lint.ts";
 import { i68Section, songPathspecs } from "./section.ts";
 
@@ -12,7 +11,7 @@ export const runCli = (): void => {
     section: i68Section,
     pathspecs: songPathspecs,
     lint,
-    format,
+    format: formatDiagnostic,
     failWith: failedWith,
   });
 };

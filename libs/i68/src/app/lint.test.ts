@@ -1,10 +1,10 @@
 import { expect, it } from "@effect/vitest";
+import { formatDiagnostic as format } from "@masseater.dev/lint-host";
 import { Array as Arr, Effect, Record as Rec, String as Str, pipe } from "effect";
 
 import type { I68Config } from "#/shared/config/index.ts";
 import { I68Error } from "#/shared/lib/errors.ts";
 
-import { format } from "./format.ts";
 import { CONFIG, extra, linesOf, linesWith, range, song } from "./lint.test.support.ts";
 import { lint } from "./lint.ts";
 import { i68Section, songPathspecs } from "./section.ts";

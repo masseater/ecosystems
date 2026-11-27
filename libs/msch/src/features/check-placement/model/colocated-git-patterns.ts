@@ -3,6 +3,7 @@ import { Array as Arr, Effect, Option, String as Str, pipe } from "effect";
 
 import { MANIFEST_FILE } from "#/entities/package/index.ts";
 import { workspaceDirectories } from "#/entities/workspace/index.ts";
+import { problemAtPosition } from "#/shared/lib/problem.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
@@ -82,13 +83,8 @@ const entriesIn = Effect.fn("entriesIn")(function* entriesIn(root: string, file:
   );
 });
 
-const problemAt = (entry: PatternEntry, message: string): Problem => ({
-  file: entry.file,
-  line: entry.line,
-  column: FIRST,
-  rule: RULE,
-  message,
-});
+const patternProblem = (entry: PatternEntry, message: string): Problem =>
+  problemAtPosition(RULE)(entry.file, { line: entry.line, column: FIRST }, message);
 
 const misplacedMessage = (kind: string, workspaces: readonly string[]): string => {
   if (workspaces.length === FIRST) {
@@ -158,7 +154,7 @@ const misplaced = Effect.fn("misplaced")(function* misplaced(
   if (Arr.isReadonlyArrayEmpty(deepest)) {
     return Option.none<Problem>();
   }
-  return Option.some(problemAt(entry, misplacedMessage(entry.kind, deepest)));
+  return Option.some(patternProblem(entry, misplacedMessage(entry.kind, deepest)));
 });
 
 const isFloating = (pattern: string): boolean =>
@@ -206,7 +202,7 @@ const repeated =
     return pipe(
       outer,
       Option.map((found) =>
-        problemAt(
+        patternProblem(
           entry,
           `repeats ${found.pattern} from ${outerName(found)}, which already applies here. Delete it.`,
         ),

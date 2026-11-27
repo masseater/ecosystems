@@ -1,4 +1,12 @@
-import { Array as Arr, Effect, Option, Schema, String as Str, pipe } from "effect";
+import {
+  Array as Arr,
+  Effect,
+  Option,
+  Schema,
+  SchemaTransformation,
+  String as Str,
+  pipe,
+} from "effect";
 
 import { implementationFingerprint } from "#/entities/project/index.ts";
 import type { ProjectInputs } from "#/entities/project/index.ts";
@@ -38,8 +46,6 @@ const AnalysisSchema = Schema.Struct({
   unowned: Schema.Array(UnownedSiteSchema),
   literals: Schema.Array(FileLiteralsSchema),
 });
-
-const AnalysisJson = Schema.fromJsonString(AnalysisSchema);
 
 export type Analysis = typeof AnalysisSchema.Type;
 
@@ -154,17 +160,35 @@ const moved =
 const entryFile = (cache: AnalysisCache, key: string): string =>
   `${cache.directory}/${key}${CACHE_SUFFIX}`;
 
+const portableOf = (
+  cache: AnalysisCache,
+  files: typeof RepositoryFiles.Service,
+): SchemaTransformation.Transformation<Analysis, Analysis> =>
+  SchemaTransformation.transform({
+    decode: moved((file) => files.resolve(cache.root, file)),
+    encode: moved((file) => files.relative(cache.root, file)),
+  });
+
+const codecOf = (
+  cache: AnalysisCache,
+): Effect.Effect<Schema.Codec<Analysis, string>, never, RepositoryFiles> =>
+  Effect.gen(function* buildCodec() {
+    const files = yield* RepositoryFiles;
+    const portable = AnalysisSchema.pipe(Schema.decodeTo(AnalysisSchema, portableOf(cache, files)));
+    return Schema.fromJsonString(portable);
+  });
+
 export const readAnalysis =
   (cache: AnalysisCache) =>
   (key: string): Effect.Effect<Option.Option<Analysis>, never, RepositoryFiles> =>
     Effect.gen(function* readCached() {
       const files = yield* RepositoryFiles;
+      const codec = yield* codecOf(cache);
       const text = yield* files.readFile(entryFile(cache, key));
-      const restored = moved((file) => files.resolve(cache.root, file));
       return yield* Option.match(text, {
         onNone: () => Effect.succeedNone,
-        onSome: (found) => Schema.decodeEffect(AnalysisJson)(found).pipe(Effect.option),
-      }).pipe(Effect.map(Option.map(restored)));
+        onSome: (found) => Schema.decodeEffect(codec)(found).pipe(Effect.option),
+      });
     });
 
 export const writeAnalysis =
@@ -172,8 +196,8 @@ export const writeAnalysis =
   (key: string, analysis: Analysis): Effect.Effect<void, never, RepositoryFiles> =>
     Effect.gen(function* writeCached() {
       const files = yield* RepositoryFiles;
-      const portable = moved((file) => files.relative(cache.root, file))(analysis);
-      const text = yield* Schema.encodeEffect(AnalysisJson)(portable).pipe(Effect.option);
+      const codec = yield* codecOf(cache);
+      const text = yield* Schema.encodeEffect(codec)(analysis).pipe(Effect.option);
       yield* Option.match(text, {
         onNone: () => Effect.void,
         onSome: (found) => files.writeFile(entryFile(cache, key), found),

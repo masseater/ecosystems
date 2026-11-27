@@ -4,6 +4,11 @@ import { Array as Arr, Option, pipe } from "effect";
 export const descendants = (node: SyntaxNode): readonly SyntaxNode[] =>
   Arr.prepend(pipe(node.children, Arr.flatMap(descendants)), node);
 
+export const anyWithin =
+  (matches: (node: SyntaxNode) => boolean) =>
+  (root: SyntaxNode): boolean =>
+    pipe(descendants(root), Arr.some(matches));
+
 export const fieldOf =
   (field: string) =>
   (node: SyntaxNode): Option.Option<SyntaxNode> =>

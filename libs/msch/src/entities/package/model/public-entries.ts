@@ -34,7 +34,7 @@ export interface EntryLookup {
   readonly packEntries: readonly PackEntrySource[];
 }
 
-const targetsIn = (held: unknown): readonly string[] => {
+export const targetsIn = (held: unknown): readonly string[] => {
   if (Predicate.isString(held)) {
     return [held];
   }

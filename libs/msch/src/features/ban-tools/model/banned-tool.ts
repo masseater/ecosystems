@@ -1,7 +1,13 @@
 import { Array as Arr, Effect, String as Str, pipe } from "effect";
 
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
-import { isScannedText, listedFiles, presentFiles, scanText } from "#/shared/lib/scanned-files.ts";
+import {
+  isScannedText,
+  isToolVersions,
+  listedFiles,
+  presentFiles,
+  scanText,
+} from "#/shared/lib/scanned-files.ts";
 import type { Listed } from "#/shared/lib/scanned-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
 
@@ -10,6 +16,24 @@ const CONFIG_SOURCE = /(?:^|\/)[^/]*\.config\.[cm]?[jt]s$/u;
 
 export const isProgramSource = ({ name }: Listed): boolean =>
   PROGRAM_SOURCE.test(name) && !CONFIG_SOURCE.test(name);
+
+export interface PatternSets {
+  readonly spawn: readonly RegExp[];
+  readonly command: readonly RegExp[];
+  readonly toolVersions?: readonly RegExp[];
+}
+
+export const patternsBy =
+  ({ spawn, command, toolVersions = [] }: PatternSets) =>
+  (entry: Listed): readonly RegExp[] => {
+    if (isProgramSource(entry)) {
+      return spawn;
+    }
+    if (isToolVersions(entry)) {
+      return [...command, ...toolVersions];
+    }
+    return command;
+  };
 
 export const spawnPattern = (program: string): RegExp =>
   new RegExp(

@@ -83,6 +83,7 @@
     "@effect/platform-node-shared": "catalog:",
     "@effect/tsgo": "catalog:stack",
     "@effect/vitest": "catalog:",
+    "@masseater.dev/lint-host": "workspace:*",
     "@oxlint/plugins": "catalog:",
     "@types/node": "catalog:",
     "effect": "catalog:stack",

@@ -1,8 +1,17 @@
 import { Array as Arr, Option, pipe } from "effect";
 
-import type { Diagnostic } from "#/shared/config/index.ts";
+export interface Reportable {
+  readonly path: string;
+  readonly line: number;
+  readonly column?: number | undefined;
+  readonly rule: string;
+  readonly message: string;
+  readonly detail?: string | undefined;
+  readonly context?: string | undefined;
+  readonly severity: string;
+}
 
-export const diagnosticDetail = (diagnostic: Diagnostic): string =>
+export const diagnosticDetail = (diagnostic: Reportable): string =>
   pipe(
     [diagnostic.detail, diagnostic.context],
     Arr.flatMap((part) => Option.toArray(Option.fromNullishOr(part))),
@@ -11,7 +20,7 @@ export const diagnosticDetail = (diagnostic: Diagnostic): string =>
     Arr.join(""),
   );
 
-export const format = (diagnostic: Diagnostic): string => {
+export const formatDiagnostic = (diagnostic: Reportable): string => {
   const column = pipe(
     Option.fromNullishOr(diagnostic.column),
     Option.map((value) => `:${String(value)}`),

@@ -22,10 +22,10 @@ import {
   DEPTH_LIMIT,
   builtinIn,
   failIn,
-  frameHolding,
   freshState,
   isTopLevel,
   numberOf,
+  heldValue,
   tickIn,
 } from "./runtime.ts";
 import type { Scope } from "./runtime.ts";
@@ -38,11 +38,9 @@ import type { Value } from "./values.ts";
 const ONE = 1;
 
 const lookupIn: From<Machine, From<Binding, Value>> = (machine) => (binding) => {
-  const { state, frames } = machine.scope;
+  const { state } = machine.scope;
   return pipe(
-    frameHolding(frames)(binding),
-    Option.flatMap((frame) => Option.fromNullishOr(frame.get(binding))),
-    Option.orElse(() => Option.fromNullishOr(state.globals.get(binding))),
+    heldValue(machine.scope)(binding),
     Option.getOrElse(() => {
       if (!isTopLevel(binding)) {
         return failIn(state)({ node: binding, message: `${binding.name} はまだ値がありません` });
@@ -175,7 +173,7 @@ const valueIn: From<Machine, From<Expression, Value>> = (machine) => (node) => {
 const envOf: From<Machine, Env> = (machine) => ({
   value: machine.value,
   with: ([binding, value]) => envOf(machine.inner(new Map<AstNode, Value>([[binding, value]]))),
-  fail: ({ node, message }) => {
+  fail: ({ node, message }): void => {
     failIn(machine.scope.state)({ node, message });
   },
 });

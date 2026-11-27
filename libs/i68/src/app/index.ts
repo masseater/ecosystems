@@ -1,5 +1,5 @@
 export { definePlugin, defineRule } from "#/entities/rule/index.ts";
-export { format } from "./format.ts";
+export { formatDiagnostic as format } from "@masseater.dev/lint-host";
 export { lint, lintText } from "./lint.ts";
 export type { LintInput, TextInput } from "./lint.ts";
 export type { Read } from "#/features/read-songs/index.ts";

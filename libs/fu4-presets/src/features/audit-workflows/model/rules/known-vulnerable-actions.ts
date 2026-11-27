@@ -3,16 +3,11 @@ import { Array as Arr, Effect, Option, pipe } from "effect";
 import { atPath, confidence, finding, severity } from "#/features/audit-workflows/lib/finding.ts";
 import { longestTag, lookupRef } from "#/features/audit-workflows/lib/github-refs.ts";
 import { annotated, primary, withKeys, withUrl } from "#/features/audit-workflows/lib/location.ts";
-import { withGitHub } from "#/features/audit-workflows/lib/online.ts";
+import { onlineCheck } from "#/features/audit-workflows/lib/online.ts";
 import { stepTargetCheck } from "#/features/audit-workflows/lib/uses-targets.ts";
 import type { UsesTarget } from "#/features/audit-workflows/lib/uses-targets.ts";
 import { commitRef, refSlug, symbolicRef } from "#/features/audit-workflows/lib/uses.ts";
-import type {
-  Audit,
-  AuditContext,
-  Drafts,
-  Produced,
-} from "#/features/audit-workflows/model/audit.ts";
+import type { Audit, AuditContext, Drafts } from "#/features/audit-workflows/model/audit.ts";
 import type { Severity } from "#/features/audit-workflows/model/finding.ts";
 import type {
   Advisory,
@@ -100,11 +95,9 @@ const findings =
       }),
     );
 
-const check = (target: UsesTarget, context: AuditContext): Produced =>
-  Option.match(refSlug(target.ref), {
-    onNone: (): Produced => [],
-    onSome: (slug) => withGitHub(context)((client) => findings(client, target, context)(slug.full)),
-  });
+const check = onlineCheck((target) => refSlug(target.ref))(
+  ({ client, found: slug, target, context }) => findings(client, target, context)(slug.full),
+);
 
 const step = stepTargetCheck(check);
 

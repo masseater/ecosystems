@@ -13,7 +13,7 @@ import type { Text } from "#/shared/yaml/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
 import type { Handler, Handlers } from "./fold.ts";
-import { parseMapping, parseSection } from "./mapping.ts";
+import { emptyableSection, parseMapping } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { parseString } from "./scalar.ts";
 import { checkSequence, parseStringOrSequence } from "./sequence.ts";
@@ -87,12 +87,7 @@ export const parseRepositoryDispatch =
   (sink: Sink) =>
   (node: YamlNode): RepositoryDispatchEvent =>
     foldEntries<RepositoryDispatchEvent>({
-      entries: parseSection(sink)({
-        section: "repository_dispatch",
-        node,
-        allowEmpty: true,
-        caseSensitive: true,
-      }),
+      entries: emptyableSection(sink)("repository_dispatch", node),
       initial: { type: "repository_dispatch", types: [] },
       handlers: [["types", setters<RepositoryDispatchEvent>().set("types", strings(sink))]],
       unknown: rejecting({ sink, section: "repository_dispatch", expected: ["types"] }),
@@ -147,12 +142,7 @@ export const parseWebhook =
   (sink: Sink) =>
   (name: Text, node: YamlNode): WebhookEvent =>
     foldEntries<WebhookEvent>({
-      entries: parseSection(sink)({
-        section: name.value,
-        node,
-        allowEmpty: true,
-        caseSensitive: true,
-      }),
+      entries: emptyableSection(sink)(name.value, node),
       initial: emptyWebhook(name),
       handlers: webhookHandlers(sink),
       unknown: rejecting({ sink, section: name.value, expected: WEBHOOK_KEYS }),

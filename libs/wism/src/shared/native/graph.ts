@@ -1,3 +1,4 @@
+import { spanText } from "@masseater.dev/lint-host";
 import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import type { GraphEdge, ImportTarget } from "#/shared/config/index.ts";
@@ -6,6 +7,8 @@ const HEADER_WORDS = 3;
 const EDGE_WORDS = 7;
 const STRING_WORDS = 2;
 const WORD = 4;
+const UTF8 = "utf8";
+const BYTE = 1;
 const NOTHING = 0;
 const HEADER = { edges: 0, strings: 1 } as const;
 const FIELD = {
@@ -19,7 +22,6 @@ const FIELD = {
 } as const;
 const MODULE = 1;
 const WILDCARD = 1;
-const LENGTH = 1;
 const MODULE_SEPARATOR = "::";
 
 const at = (words: Uint32Array, index: number): number =>
@@ -31,17 +33,7 @@ const stringsOf = (words: Uint32Array): ((index: number) => string) => {
     words.buffer,
     words.byteOffset + (spans + at(words, HEADER.strings) * STRING_WORDS) * WORD,
   );
-  const decoder = new TextDecoder();
-  const cache = new Map<number, string>();
-  const read = (index: number): string => {
-    const start = at(words, spans + index * STRING_WORDS);
-    const value = decoder.decode(
-      blob.subarray(start, start + at(words, spans + index * STRING_WORDS + LENGTH)),
-    );
-    cache.set(index, value);
-    return value;
-  };
-  return (index) => Option.getOrElse(Option.fromNullishOr(cache.get(index)), () => read(index));
+  return spanText(words)(blob, UTF8)(spans, BYTE);
 };
 
 const targetOf = (kind: number, value: string): ImportTarget => {

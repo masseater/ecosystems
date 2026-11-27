@@ -17,6 +17,7 @@ import { repoLocation } from "#/features/audit-workflows/lib/pre-commit.ts";
 import { patternMatches, urlRef, usesRef } from "#/features/audit-workflows/lib/uses.ts";
 import type { RepoRef } from "#/features/audit-workflows/lib/uses.ts";
 import type { Audit, AuditContext, Drafts } from "#/features/audit-workflows/model/audit.ts";
+import { isRepositoryBody } from "#/features/audit-workflows/model/step.ts";
 import type { StepView } from "#/features/audit-workflows/model/step.ts";
 
 const meta = { ident: "forbidden-uses", desc: "forbidden action or repository used" } as const;
@@ -38,11 +39,7 @@ const denied = (context: AuditContext, ref: RepoRef): Option.Option<boolean> =>
 
 const step = (view: StepView, context: AuditContext): Drafts => {
   const { body } = view;
-  if (
-    body.type !== "uses" ||
-    body.uses.type !== "repository" ||
-    !Option.contains(denied(context, usesRef(body.uses)), true)
-  ) {
+  if (!isRepositoryBody(body) || !Option.contains(denied(context, usesRef(body.uses)), true)) {
     return [];
   }
   return [

@@ -22,6 +22,7 @@ import { parsedFenced, supportsTemplates } from "#/features/audit-workflows/lib/
 import type { Audit, Drafts } from "#/features/audit-workflows/model/audit.ts";
 import type { FindingDraft, Persona } from "#/features/audit-workflows/model/finding.ts";
 import type { AuditInput } from "#/features/audit-workflows/model/input.ts";
+import { isRepositoryBody } from "#/features/audit-workflows/model/step.ts";
 import type { StepView } from "#/features/audit-workflows/model/step.ts";
 import { subfeatureOf } from "#/shared/subfeature/index.ts";
 
@@ -104,7 +105,7 @@ const opaqueWith = (view: StepView): FindingDraft =>
 
 const step = (view: StepView): Drafts => {
   const { body } = view;
-  if (body.type !== "uses" || body.uses.type !== "repository") {
+  if (!isRepositoryBody(body)) {
     return [];
   }
   const repo = repoFindings(view, repoAnnotations(body.uses.subpath));

@@ -19,6 +19,7 @@ import {
 import { normalizeShell } from "#/features/audit-workflows/lib/shell.ts";
 import { usesMatches } from "#/features/audit-workflows/lib/uses.ts";
 import type { Audit, Drafts } from "#/features/audit-workflows/model/audit.ts";
+import { isRepositoryBody } from "#/features/audit-workflows/model/step.ts";
 import type { StepView } from "#/features/audit-workflows/model/step.ts";
 
 const meta = { ident: "misfeature", desc: "usage of GitHub Actions misfeatures" } as const;
@@ -31,8 +32,7 @@ const isSetupPython = usesMatches("actions/setup-python");
 const uses = (view: StepView): Drafts => {
   const { body } = view;
   if (
-    body.type !== "uses" ||
-    body.uses.type !== "repository" ||
+    !isRepositoryBody(body) ||
     body.with.type !== "literal" ||
     !isSetupPython(body.uses) ||
     !body.with.value.has("pip-install")

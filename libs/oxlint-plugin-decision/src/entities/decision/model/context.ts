@@ -1,3 +1,4 @@
+import { ancestorsBy } from "@masseater.dev/lint-host/collections";
 import type { Context } from "@oxlint/plugins";
 import { Array as Arr, Option, Predicate, String as Str, pipe, Function as Fn } from "effect";
 
@@ -18,12 +19,7 @@ const ENCLOSING_TYPES: Readonly<Record<EnclosingKind, readonly string[]>> = {
   block: ["BlockStatement", "StaticBlock", "Program"],
 };
 
-const ancestorsOf = (node: AstNode): readonly AstNode[] =>
-  Arr.unfold(Option.fromNullishOr(node.parent), (current) =>
-    current.pipe(
-      Option.map((ancestor) => [ancestor, Option.fromNullishOr(ancestor.parent)] as const),
-    ),
-  );
+const ancestorsOf = ancestorsBy((node: AstNode) => Option.fromNullishOr(node.parent));
 
 const enclosingText = (context: Context, node: AstNode, kind: EnclosingKind): string =>
   Arr.findFirst(ancestorsOf(node), (ancestor) =>

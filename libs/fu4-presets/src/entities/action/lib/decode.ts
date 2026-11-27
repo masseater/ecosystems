@@ -3,7 +3,7 @@ import { Array as Arr, Option, Result, pipe } from "effect";
 
 import { EMPTY_ACTION } from "#/entities/action/model/types.ts";
 import type { ActionMetadata } from "#/entities/action/model/types.ts";
-import { decodeString, isPresent, valueAt } from "#/shared/yaml/index.ts";
+import { decodeString, isPresent, readYaml, valueAt } from "#/shared/yaml/index.ts";
 import type { Sink } from "#/shared/yaml/index.ts";
 
 import { decodeInputs, decodeOutputs } from "./decode-inputs.ts";
@@ -39,11 +39,7 @@ const failure = (errors: readonly string[]): string => {
   return `yaml: unmarshal errors:  ${Arr.join(errors, "  ")}`;
 };
 
-export const decodeAction = (source: Source): Result.Result<ActionMetadata, string> => {
-  const error = Arr.head(source.errors);
-  if (Option.isSome(error)) {
-    return Result.fail(`yaml: line ${String(error.value.line)}: ${error.value.message}`);
-  }
+export const decodeAction = readYaml((source: Source): Result.Result<ActionMetadata, string> => {
   const root = Option.fromNullishOr(source.yaml);
   if (Option.isNone(root)) {
     return Result.succeed(EMPTY_ACTION);
@@ -59,4 +55,4 @@ export const decodeAction = (source: Source): Result.Result<ActionMetadata, stri
       () => failure(errors),
     ),
   );
-};
+});

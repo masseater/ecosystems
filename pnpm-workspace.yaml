@@ -68,8 +68,8 @@ catalog:
   domhandler: 6.0.1
   fflate: 0.8.3
   synckit: 0.12.3
-  "@oxlint/plugins": 1.94.0
-  oxlint: 1.94.0
+  "@oxlint/plugins": 1.95.0
+  oxlint: 1.95.0
   oxlint-tsgolint: 7.0.2008
   fast-xml-parser: 5.12.1
   ableton-als: 0.5.0
@@ -107,7 +107,6 @@ catalog:
   liquidjs: 10.30.1
   hast-util-from-html: 2.1.0
   hast-util-select: 6.0.5
-  hast-util-to-string: 3.0.1
   unist-util-visit: 5.2.0
   verovio: 6.4.1
   modern-web-guidance: 1.0.2
@@ -119,6 +118,7 @@ catalogs:
     fallow: 3.48.0
     fallow-type-aware: 3.48.0
     fallow-similar-code: 3.48.0
+    tsrs: 7.1.0-beta.tsrs5
     typescript: 7.1.0-dev.20261124.1
     vite-plus: 1.8.0
 overrides:

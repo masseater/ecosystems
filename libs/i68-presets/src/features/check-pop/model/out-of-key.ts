@@ -71,21 +71,17 @@ const isStep = (from: Sounding, to: Sounding): boolean => {
   return distance >= HALF_STEP && distance <= WHOLE_STEP;
 };
 
-const endsAt =
-  (tick: number) =>
-  (other: Sounding): boolean =>
-    other.end === tick;
-
-const startsAt =
-  (tick: number) =>
-  (other: Sounding): boolean =>
-    other.start === tick;
-
 const neighboursOf =
   (track: readonly Sounding[]) =>
   (sounding: Sounding): Option.Option<readonly [Sounding, Sounding]> => {
-    const before = pipe(track, Arr.findLast(endsAt(sounding.start)));
-    const after = pipe(track, Arr.findFirst(startsAt(sounding.end)));
+    const before = pipe(
+      track,
+      Arr.findLast((other) => other.end === sounding.start),
+    );
+    const after = pipe(
+      track,
+      Arr.findFirst((other) => other.start === sounding.end),
+    );
     return Option.all([before, after]);
   };
 

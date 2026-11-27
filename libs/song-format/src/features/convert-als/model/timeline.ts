@@ -1,7 +1,7 @@
 import { TICKS_PER_WHOLE } from "@r_masseater/fumx-parser";
 import { Array as Arr, Boolean as Bool, Option, pipe } from "effect";
 
-import { sortedByTick, sortedNotes } from "#/entities/timeline/index.ts";
+import { microsecondsOf, sortedByTick, sortedNotes } from "#/entities/timeline/index.ts";
 import type { Part, TempoChange, Timeline, TimelineNote } from "#/entities/timeline/index.ts";
 import type { From } from "#/shared/lib/from.ts";
 
@@ -12,7 +12,6 @@ import { locatorsOf, metersOf, tempoPointsOf, tempoSegmentsOf } from "./tempo-ma
 
 const QUARTERS_PER_WHOLE = 4;
 const TICKS_PER_BEAT = TICKS_PER_WHOLE / QUARTERS_PER_WHOLE;
-const MICROSECONDS_PER_MINUTE = 60_000_000;
 const MELODIC_CHANNEL = 0;
 const DRUM_CHANNEL = 9;
 const NONE = 0;
@@ -27,8 +26,6 @@ const tickOf: From<number, Tick> = (beat) => {
   const exact = beat * TICKS_PER_BEAT;
   return { tick: Math.round(exact), exact: Number.isInteger(exact) };
 };
-
-const microsecondsOf: From<number, number> = (bpm) => Math.round(MICROSECONDS_PER_MINUTE / bpm);
 
 const nameOf: From<AlsMidiTrack, Option.Option<string>> = (track) =>
   pipe(

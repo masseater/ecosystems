@@ -4,7 +4,7 @@ import { Array as Arr, Option, Result, String as Str, pipe } from "effect";
 import { EMPTY_METADATA } from "#/entities/workflow/model/reusable.ts";
 import type { ReusableMetadata } from "#/entities/workflow/model/reusable.ts";
 import type { Sink } from "#/shared/yaml/index.ts";
-import { isPresent, pairsOf, valueAt } from "#/shared/yaml/index.ts";
+import { isPresent, pairsOf, readYaml, valueAt } from "#/shared/yaml/index.ts";
 
 import { inputsOf, outputsOf, secretsOf } from "./reusable-sections.ts";
 
@@ -66,11 +66,7 @@ const fromOn = (on: YamlNode): Result.Result<ReusableMetadata, string> => {
   );
 };
 
-export const reusableOf = (source: Source): Result.Result<ReusableMetadata, string> => {
-  const error = Arr.head(source.errors);
-  if (Option.isSome(error)) {
-    return Result.fail(`yaml: line ${String(error.value.line)}: ${error.value.message}`);
-  }
+export const reusableOf = readYaml((source: Source): Result.Result<ReusableMetadata, string> => {
   const on = pipe(
     Option.fromNullishOr(source.yaml),
     Option.filter((root) => root.kind === "mapping"),
@@ -80,4 +76,4 @@ export const reusableOf = (source: Source): Result.Result<ReusableMetadata, stri
     return Result.fail('"on:" is not found');
   }
   return fromOn(on.value);
-};
+});

@@ -5,7 +5,7 @@ import { quoteChar } from "#/shared/text/index.ts";
 
 import { advance, isAlnum, isAlpha, isChar, isDigit, peek } from "./cursor.ts";
 import type { Cursor, Scan } from "./cursor.ts";
-import { DIGITS, PUNCT, eof, finished, skipWhile, unexpected } from "./lexed.ts";
+import { DIGITS, PUNCT, failedAt, finished, skipWhile, unexpected } from "./lexed.ts";
 import type { Lexed } from "./lexed.ts";
 import { lexNum } from "./number.ts";
 
@@ -109,15 +109,8 @@ const lexAt = (scan: Scan, char: string): Lexed => {
   return lexPunct(scan, char);
 };
 
-const endOfInput = (scan: Scan): Lexed => ({
-  token: eof(scan),
-  end: scan.start,
-  error: {
-    message: "unexpected EOF while lexing expression",
-    line: scan.start.line,
-    column: scan.start.column,
-  },
-});
+const endOfInput = (scan: Scan): Lexed =>
+  failedAt(scan)(scan.start, "unexpected EOF while lexing expression");
 
 const isWhite = (char: Option.Option<string>): boolean =>
   Option.exists(char, (found) => WHITE.test(found));
