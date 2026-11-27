@@ -1,0 +1,8 @@
+src/app/presets/shared/data/** linguist-generated
+src/app/presets/fixtures/** linguist-vendored
+src/app/presets/shared/shell/fixtures/** linguist-vendored
+src/app/presets/features/audit-workflows/lib/fixtures/** linguist-vendored
+src/app/presets/features/audit-workflows/fixtures/** linguist-vendored
+src/app/presets/entities/expression/lib/fixtures/** linguist-vendored
+src/app/presets/shared/glob/fixtures/** linguist-vendored
+src/app/presets/entities/expression-tree/lib/fixtures/** linguist-vendored

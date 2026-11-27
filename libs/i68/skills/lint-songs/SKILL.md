@@ -21,7 +21,7 @@ i68 lints `.fumx` songs. Each rule sees the song as data and reports findings by
 
 ```ts
 import "@r_masseater/i68/vite";
-import { recommended } from "@r_masseater/i68-presets";
+import { recommended } from "@r_masseater/i68/presets";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({ i68: { extends: [recommended()] } });
@@ -42,7 +42,7 @@ Naming a plugin in `rules` that `plugins` does not register fails the run.
 
 ## Write a rule
 
-`check(context)` gets `song` (the parsed `Song`), `soundings` (notes of unmuted tracks with `track`, `role`, `midi`, `start`, `end`, `bar`, `line`, `column`), `options` and `report({ line, column, message, detail })`. Times are ticks. `end` already accounts for the note's gate. Keys and chords come from `@r_masseater/fumx-parser/analysis`.
+`check(context)` gets `song` (the parsed `Song`), `soundings` (notes of unmuted tracks with `track`, `role`, `midi`, `start`, `end`, `bar`, `line`, `column`), `options` and `report({ line, column, message, detail })`. Times are ticks. `end` already accounts for the note's gate. Keys and chords come from `@r_masseater/song-format/analysis`.
 
 Report with the sounding's `line` and `column` so the finding points at the note in the file.
 

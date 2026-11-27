@@ -156,7 +156,7 @@ export default defineConfig({
       },
       test: {
         command: "vp test run",
-        dependsOn: ["build", "@r_masseater/h56m-presets#native"],
+        dependsOn: ["build", "@r_masseater/h56m#native", "@r_masseater/h56m#extract-presets"],
         cache: LOCKED,
       },
       size: { command: "size-limit", dependsOn: ["build"] },

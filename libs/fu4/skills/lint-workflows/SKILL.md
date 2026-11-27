@@ -17,18 +17,17 @@ sources:
 
 fu4 is the engine of a GitHub Actions linter. Rust parses each file once; TypeScript rules read
 the parsed trees without copying them. fu4 has no rules of its own, so a config without plugins
-reports nothing. The official rules are in `@r_masseater/fu4-presets`, which ships its own skill for choosing
-them and fixing what they report.
+reports nothing. The official rules are in `@r_masseater/fu4/presets`.
 
 ## Setup
 
 ```sh
-vp add -D @r_masseater/fu4 @r_masseater/fu4-presets
+vp add -D @r_masseater/fu4
 ```
 
 ```ts
 import "@r_masseater/fu4/vite";
-import { recommended } from "@r_masseater/fu4-presets";
+import { recommended } from "@r_masseater/fu4/presets";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({

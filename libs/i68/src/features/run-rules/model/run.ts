@@ -1,7 +1,7 @@
 import { present, reportedSeverity } from "@masseater.dev/lint-host";
-import type { Song, SourceComment } from "@r_masseater/fumx-parser";
-import { soundingsOf } from "@r_masseater/fumx-parser/analysis";
-import type { Sounding } from "@r_masseater/fumx-parser/analysis";
+import type { Song, SourceComment } from "@r_masseater/song-format";
+import { soundingsOf } from "@r_masseater/song-format/analysis";
+import type { Sounding } from "@r_masseater/song-format/analysis";
 import { Array as Arr, Effect, Option, pipe } from "effect";
 
 import type { ResolvedRule } from "#/entities/rule/index.ts";

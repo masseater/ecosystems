@@ -609,37 +609,6 @@ importers:
       '@r_masseater/vitest-otlp':
         specifier: workspace:*
         version: link:../vitest-otlp
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.6.6
-      effect:
-        specifier: catalog:stack
-        version: 4.1.5
-      vite:
-        specifier: 'catalog:'
-        version: '@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)'
-      vite-plus:
-        specifier: catalog:stack
-        version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
-      yaml:
-        specifier: 'catalog:'
-        version: 2.9.1
-
-  libs/fu4-presets:
-    dependencies:
-      '@effect/platform-node':
-        specifier: 'catalog:'
-        version: 4.1.5(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))
-    devDependencies:
-      '@masseater.dev/lint-host':
-        specifier: workspace:*
-        version: link:../lint-host
-      '@masseater.dev/path-kit':
-        specifier: workspace:*
-        version: link:../path-kit
-      '@r_masseater/fu4':
-        specifier: workspace:*
-        version: link:../fu4
       '@types/hast':
         specifier: 'catalog:'
         version: 3.0.5
@@ -679,43 +648,15 @@ importers:
       unist-util-visit:
         specifier: 'catalog:'
         version: 5.2.0
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)'
       vite-plus:
         specifier: catalog:stack
         version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
-
-  libs/fumx-parser:
-    dependencies:
-      tonal:
-        specifier: 'catalog:'
-        version: 6.9.0
-      vscode-languageserver:
-        specifier: 'catalog:'
-        version: 11.0.1
-    devDependencies:
-      '@effect/vitest':
-        specifier: 'catalog:'
-        version: 4.1.5(effect@4.1.5)(vitest@5.1.1)
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.6.6
-      effect:
-        specifier: catalog:stack
-        version: 4.1.5
-      langium:
-        specifier: 'catalog:'
-        version: 4.4.2
-      langium-cli:
-        specifier: 'catalog:'
-        version: 4.4.1
-      typescript:
-        specifier: catalog:stack
-        version: 7.1.0-dev.20261124.1
-      vite-plus:
-        specifier: catalog:stack
-        version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
 
   libs/github-workflow:
     devDependencies:
@@ -750,36 +691,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.6
-      effect:
-        specifier: catalog:stack
-        version: 4.1.5
-      vite:
-        specifier: 'catalog:'
-        version: '@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)'
-      vite-plus:
-        specifier: catalog:stack
-        version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
-
-  libs/h56m-presets:
-    devDependencies:
-      '@effect/platform-node':
-        specifier: 'catalog:'
-        version: 4.1.5(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))
-      '@effect/vitest':
-        specifier: 'catalog:'
-        version: 4.1.5(effect@4.1.5)(vitest@5.1.1)
-      '@r_masseater/h56m':
-        specifier: workspace:*
-        version: link:../h56m
-      '@r_masseater/vitest-otlp':
-        specifier: workspace:*
-        version: link:../vitest-otlp
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.6.6
       betterleaks:
         specifier: github:betterleaks/betterleaks#e07e69ba6a441313529b3e72be43ffdcc62bdf86
-        version: https://codeload.github.com/betterleaks/betterleaks/tar.gz/e07e69ba6a441313529b3e72be43ffdcc62bdf86
+        version: git+https://github.com/betterleaks/betterleaks.git#e07e69ba6a441313529b3e72be43ffdcc62bdf86
       effect:
         specifier: catalog:stack
         version: 4.1.5
@@ -798,12 +712,9 @@ importers:
       '@effect/platform-node':
         specifier: 'catalog:'
         version: 4.1.5(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))
-      '@r_masseater/fumx-parser':
+      '@r_masseater/song-format':
         specifier: workspace:*
-        version: link:../fumx-parser
-      langium:
-        specifier: 'catalog:'
-        version: 4.4.2
+        version: link:../song-format
     devDependencies:
       '@effect/vitest':
         specifier: 'catalog:'
@@ -820,49 +731,15 @@ importers:
       effect:
         specifier: catalog:stack
         version: 4.1.5
-      vite:
-        specifier: 'catalog:'
-        version: '@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)'
-      vite-plus:
-        specifier: catalog:stack
-        version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
-
-  libs/i68-presets:
-    dependencies:
-      '@r_masseater/fumx-parser':
-        specifier: workspace:*
-        version: link:../fumx-parser
-      langium:
-        specifier: 'catalog:'
-        version: 4.4.2
       tonal:
         specifier: 'catalog:'
         version: 6.9.0
-    devDependencies:
-      '@effect/platform-node':
-        specifier: 'catalog:'
-        version: 4.1.5(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))
-      '@effect/vitest':
-        specifier: 'catalog:'
-        version: 4.1.5(effect@4.1.5)(vitest@5.1.1)
-      '@masseater.dev/lint-host':
-        specifier: workspace:*
-        version: link:../lint-host
-      '@r_masseater/i68':
-        specifier: workspace:*
-        version: link:../i68
-      '@r_masseater/song-format':
-        specifier: workspace:*
-        version: link:../song-format
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.6.6
-      effect:
-        specifier: catalog:stack
-        version: 4.1.5
       verovio:
         specifier: 'catalog:'
         version: 6.4.1
+      vite:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)'
       vite-plus:
         specifier: catalog:stack
         version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
@@ -1015,15 +892,9 @@ importers:
       '@r_masseater/fu4':
         specifier: workspace:*
         version: link:../fu4
-      '@r_masseater/fu4-presets':
-        specifier: workspace:*
-        version: link:../fu4-presets
       '@r_masseater/h56m':
         specifier: workspace:*
         version: link:../h56m
-      '@r_masseater/h56m-presets':
-        specifier: workspace:*
-        version: link:../h56m-presets
       '@r_masseater/oxlint-plugin-decision':
         specifier: workspace:*
         version: link:../oxlint-plugin-decision
@@ -1039,15 +910,9 @@ importers:
       '@r_masseater/wism':
         specifier: workspace:*
         version: link:../wism
-      '@r_masseater/wism-presets':
-        specifier: workspace:*
-        version: link:../wism-presets
       '@r_masseater/y8':
         specifier: workspace:*
         version: link:../y8
-      '@r_masseater/y8-presets':
-        specifier: workspace:*
-        version: link:../y8-presets
       '@shadcn/lint':
         specifier: 'catalog:'
         version: 0.2.5(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))
@@ -1311,9 +1176,6 @@ importers:
 
   libs/song-format:
     dependencies:
-      '@r_masseater/fumx-parser':
-        specifier: workspace:^
-        version: link:../fumx-parser
       ableton-als:
         specifier: 'catalog:'
         version: 0.5.0
@@ -1354,6 +1216,9 @@ importers:
       effect:
         specifier: catalog:stack
         version: 4.1.5
+      langium-cli:
+        specifier: 'catalog:'
+        version: 4.4.1
       ts-content-mapper:
         specifier: 0.1.1
         version: 0.1.1
@@ -1473,9 +1338,6 @@ importers:
       '@masseater.dev/path-kit':
         specifier: workspace:*
         version: link:../path-kit
-      '@r_masseater/h56m-presets':
-        specifier: workspace:*
-        version: link:../h56m-presets
       '@size-limit/file':
         specifier: 'catalog:'
         version: 14.3.0(size-limit@14.3.0)
@@ -1552,6 +1414,9 @@ importers:
       '@masseater.dev/lint-host':
         specifier: workspace:*
         version: link:../lint-host
+      '@masseater.dev/path-kit':
+        specifier: workspace:*
+        version: link:../path-kit
       '@r_masseater/vitest-otlp':
         specifier: workspace:*
         version: link:../vitest-otlp
@@ -1564,27 +1429,6 @@ importers:
       vite:
         specifier: 'catalog:'
         version: '@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)'
-      vite-plus:
-        specifier: catalog:stack
-        version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
-
-  libs/wism-presets:
-    devDependencies:
-      '@effect/platform-node':
-        specifier: 'catalog:'
-        version: 4.1.5(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))
-      '@masseater.dev/path-kit':
-        specifier: workspace:*
-        version: link:../path-kit
-      '@r_masseater/wism':
-        specifier: workspace:*
-        version: link:../wism
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.6.6
-      effect:
-        specifier: catalog:stack
-        version: 4.1.5
       vite-plus:
         specifier: catalog:stack
         version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
@@ -1616,6 +1460,9 @@ importers:
       markdownlint:
         specifier: 'catalog:'
         version: 0.42.2(supports-color@10.2.2)
+      minimatch:
+        specifier: 'catalog:'
+        version: 11.0.9
       vite:
         specifier: 'catalog:'
         version: '@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)'
@@ -1623,36 +1470,11 @@ importers:
         specifier: catalog:stack
         version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
 
-  libs/y8-presets:
-    dependencies:
-      minimatch:
-        specifier: 'catalog:'
-        version: 11.0.9
-    devDependencies:
-      '@effect/platform-node':
-        specifier: 'catalog:'
-        version: 4.1.5(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))
-      '@masseater.dev/lint-host':
-        specifier: workspace:*
-        version: link:../lint-host
-      '@r_masseater/y8':
-        specifier: workspace:*
-        version: link:../y8
-      '@types/node':
-        specifier: 'catalog:'
-        version: 26.6.6
-      effect:
-        specifier: catalog:stack
-        version: 4.1.5
-      vite-plus:
-        specifier: catalog:stack
-        version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
-
   tools/lint-bench:
     dependencies:
-      '@r_masseater/h56m-presets':
+      '@r_masseater/h56m':
         specifier: workspace:*
-        version: link:../../libs/h56m-presets
+        version: link:../../libs/h56m
       '@r_masseater/node-main':
         specifier: workspace:*
         version: link:../../libs/node-main
@@ -4696,8 +4518,8 @@ packages:
   bcp-47-match@2.0.3:
     resolution: {integrity: sha512-JtTezzbAibu8G0R9op9zb3vcWZd9JF6M0xOYGPn0fNCd7wOpRB1mU2mH9T8gaBGbAAyIIVgB2G7xG0GP98zMAQ==}
 
-  betterleaks@https://codeload.github.com/betterleaks/betterleaks/tar.gz/e07e69ba6a441313529b3e72be43ffdcc62bdf86:
-    resolution: {gitHosted: true, integrity: sha512-Nuw5CBCTOf1XTPDu7DNEH0w29VQ4w1PvgCneVx1UVakuF3eAFJorFnMkYyqf2hX4VGSH9HeyUF6Qmd/Ekor8PQ==, tarball: https://codeload.github.com/betterleaks/betterleaks/tar.gz/e07e69ba6a441313529b3e72be43ffdcc62bdf86}
+  betterleaks@git+https://github.com/betterleaks/betterleaks.git#e07e69ba6a441313529b3e72be43ffdcc62bdf86:
+    resolution: {commit: e07e69ba6a441313529b3e72be43ffdcc62bdf86, repo: https://github.com/betterleaks/betterleaks.git, type: git}
     version: 0.0.0
 
   bole@5.0.29:
@@ -10186,7 +10008,7 @@ snapshots:
 
   bcp-47-match@2.0.3: {}
 
-  betterleaks@https://codeload.github.com/betterleaks/betterleaks/tar.gz/e07e69ba6a441313529b3e72be43ffdcc62bdf86: {}
+  betterleaks@git+https://github.com/betterleaks/betterleaks.git#e07e69ba6a441313529b3e72be43ffdcc62bdf86: {}
 
   bole@5.0.29:
     dependencies:

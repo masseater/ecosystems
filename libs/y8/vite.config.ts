@@ -40,6 +40,7 @@ export default defineConfig({
       cli: "bin/y8.ts",
       vite: "src/app/vite.ts",
       kuromojin: "src/app/kuromojin.ts",
+      presets: "src/app/presets.ts",
     },
     platform: "node",
     sourcemap: true,

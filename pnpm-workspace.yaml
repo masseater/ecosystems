@@ -155,19 +155,11 @@ allowBuilds:
 permissions:
   "@r_masseater/fu4":
     skills: true
-  "@r_masseater/fu4-presets":
-    skills: true
-  "@r_masseater/fumx-parser":
-    skills: true
   "@r_masseater/github-workflow":
     skills: true
   "@r_masseater/h56m":
     skills: true
-  "@r_masseater/h56m-presets":
-    skills: true
   "@r_masseater/i68":
-    skills: true
-  "@r_masseater/i68-presets":
     skills: true
   "@r_masseater/mapped-import":
     skills: true
@@ -189,11 +181,7 @@ permissions:
     skills: true
   "@r_masseater/wism":
     skills: true
-  "@r_masseater/wism-presets":
-    skills: true
   "@r_masseater/y8":
-    skills: true
-  "@r_masseater/y8-presets":
     skills: true
   fallow:
     skills: true

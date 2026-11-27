@@ -1,9 +1,9 @@
-import { TICKS_PER_WHOLE } from "@r_masseater/fumx-parser";
 import { Array as Arr, Boolean as Bool, Option, pipe } from "effect";
 
 import { microsecondsOf, sortedByTick, sortedNotes } from "#/entities/timeline/index.ts";
 import type { Part, TempoChange, Timeline, TimelineNote } from "#/entities/timeline/index.ts";
 import type { From } from "#/shared/lib/from.ts";
+import { TICKS_PER_WHOLE } from "#/shared/lib/ticks.ts";
 
 import { notesOfClip } from "./clips.ts";
 import type { PlayedNote } from "./clips.ts";

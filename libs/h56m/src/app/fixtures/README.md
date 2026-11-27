@@ -1,12 +1,12 @@
 # Betterleaks engine scans
 
-`betterleaks-scans.json.gz` holds every distinct scan that the Go tests of Betterleaks at commit `e07e69ba6a441313529b3e72be43ffdcc62bdf86` (v2.0.0-rc.9) make through the scanner, with the findings Betterleaks returned. The rule tests of the `rules` package are left out because `@r_masseater/h56m-presets` runs them. It is gzipped so that secret scanners do not read the test secrets. `LICENSE` is the Betterleaks license (MIT).
+`betterleaks-scans.json.gz` holds every distinct scan that the Go tests of Betterleaks at commit `e07e69ba6a441313529b3e72be43ffdcc62bdf86` (v2.0.0-rc.9) make through the scanner, with the findings Betterleaks returned. The rule tests of the `rules` package are left out because `@r_masseater/h56m/presets` runs them. It is gzipped so that secret scanners do not read the test secrets. `LICENSE` is the Betterleaks license (MIT).
 
 Each scan has the config Betterleaks used (`configs`, keyed by hash, as TOML), the decode depth, the fragment text, its path, its first line and first-line column offset, and the expected rule, secret and location of each finding. `unsupported` names scanner options that h56m does not have; those scans are not run.
 
 `src/app/betterleaks-scans.test.ts` scans each fragment with h56m and compares. Scans that do not match are listed in `betterleaks-scans-known-failures.txt` with the reason.
 
-Record it again when the `betterleaks` pin in `@r_masseater/h56m-presets` moves. In a Betterleaks checkout of the pinned commit, save the file below as `scan/record_hook.go`, call `recordNew(s, cfg)` just before `return s, nil` in `New`, and call `recordScan(s, fragment, findings)` right after each `s.detectFragmentWithState(...)` call in `scan/scanner.go`. Then run the tests and build the fixture with the Node program further below.
+Record it again when the `betterleaks` pin in `@r_masseater/h56m/presets` moves. In a Betterleaks checkout of the pinned commit, save the file below as `scan/record_hook.go`, call `recordNew(s, cfg)` just before `return s, nil` in `New`, and call `recordScan(s, fragment, findings)` right after each `s.detectFragmentWithState(...)` call in `scan/scanner.go`. Then run the tests and build the fixture with the Node program further below.
 
 ```sh
 mkdir -p /tmp/blrec

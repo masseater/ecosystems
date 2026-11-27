@@ -23,7 +23,12 @@ export default defineConfig({
     },
   },
   pack: {
-    entry: { index: "src/app/index.ts", cli: "bin/wism.ts", vite: "src/app/vite.ts" },
+    entry: {
+      index: "src/app/index.ts",
+      cli: "bin/wism.ts",
+      vite: "src/app/vite.ts",
+      presets: "src/app/presets.ts",
+    },
     platform: "node",
     sourcemap: true,
     deps: { alwaysBundle: ["@masseater.dev/lint-host"] },

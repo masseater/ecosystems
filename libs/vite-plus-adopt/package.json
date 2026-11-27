@@ -77,7 +77,6 @@
     "@effect/vitest": "catalog:",
     "@loaderkit/resolve": "catalog:",
     "@masseater.dev/path-kit": "workspace:*",
-    "@r_masseater/h56m-presets": "workspace:*",
     "@size-limit/file": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",

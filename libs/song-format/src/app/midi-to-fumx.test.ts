@@ -1,9 +1,9 @@
 import { expect, it } from "@effect/vitest";
-import { readSong } from "@r_masseater/fumx-parser";
 import { Effect, String as Str } from "effect";
 
 import { compareWithSong } from "#/entities/timeline/index.ts";
 import { midiToFumx } from "#/features/convert-midi/index.ts";
+import { readSong } from "#/features/read-song/index.ts";
 
 import {
   EXTREME_NOTES,

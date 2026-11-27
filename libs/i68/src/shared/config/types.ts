@@ -1,6 +1,6 @@
 import type { RuleEntry, RuleOptions, Severity } from "@masseater.dev/lint-host";
-import type { Song } from "@r_masseater/fumx-parser";
-import type { Sounding } from "@r_masseater/fumx-parser/analysis";
+import type { Song } from "@r_masseater/song-format";
+import type { Sounding } from "@r_masseater/song-format/analysis";
 
 export type { RuleEntry, RuleOptions, Severity } from "@masseater.dev/lint-host";
 

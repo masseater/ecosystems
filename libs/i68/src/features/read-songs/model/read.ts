@@ -1,5 +1,5 @@
-import { readSong } from "@r_masseater/fumx-parser";
-import type { SongSource } from "@r_masseater/fumx-parser";
+import { readSong } from "@r_masseater/song-format";
+import type { SongSource } from "@r_masseater/song-format";
 import { Effect } from "effect";
 
 import type { I68Error } from "#/shared/lib/errors.ts";

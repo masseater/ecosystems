@@ -29,13 +29,13 @@ Run without arguments, it runs every configured check in parallel and prints the
 1. Install it.
 
    ```sh
-   vp add -D @r_masseater/vite-plus-adopt @r_masseater/h56m-presets
+   vp add -D @r_masseater/vite-plus-adopt @r_masseater/h56m/presets
    ```
 
 2. Write the sections. `import type {} from "@r_masseater/vite-plus-adopt"` types them in `defineConfig`.
 
    ```ts
-   import { betterleaks } from "@r_masseater/h56m-presets";
+   import { betterleaks } from "@r_masseater/h56m/presets";
    import type {} from "@r_masseater/vite-plus-adopt";
    import { defineConfig } from "vite-plus";
 

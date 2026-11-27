@@ -1,0 +1,66 @@
+import { Effect, Option, pipe } from "effect";
+
+import {
+  at,
+  confidence,
+  finding,
+  severity,
+} from "#/app/presets/features/audit-workflows/lib/finding.ts";
+import { isImpostor } from "#/app/presets/features/audit-workflows/lib/impostor.ts";
+import {
+  annotated,
+  primary,
+  withinText,
+  withKeys,
+} from "#/app/presets/features/audit-workflows/lib/location.ts";
+import { draftsIf, onlineCheck } from "#/app/presets/features/audit-workflows/lib/online.ts";
+import {
+  repoTargetCheck,
+  reusableTargetCheck,
+  stepTargetCheck,
+} from "#/app/presets/features/audit-workflows/lib/uses-targets.ts";
+import type { UsesTarget } from "#/app/presets/features/audit-workflows/lib/uses-targets.ts";
+import { commitRef, refSlug } from "#/app/presets/features/audit-workflows/lib/uses.ts";
+import type { Audit } from "#/app/presets/features/audit-workflows/model/audit.ts";
+import type {
+  FindingDraft,
+  SymbolicLocation,
+} from "#/app/presets/features/audit-workflows/model/finding.ts";
+
+const meta = {
+  ident: "impostor-commit",
+  desc: "commit with no history in referenced repository",
+} as const;
+
+const ANNOTATION = "uses a commit that doesn't belong to the specified org/repo";
+
+const flagged = (target: UsesTarget): SymbolicLocation => {
+  if (target.kind === "repo") {
+    return pipe(target.location, withKeys("rev"), annotated(ANNOTATION), primary);
+  }
+  return pipe(
+    target.location,
+    withKeys("uses"),
+    withinText(target.raw),
+    primary,
+    annotated(ANNOTATION),
+  );
+};
+
+const draft = (target: UsesTarget): FindingDraft =>
+  pipe(finding(meta), severity("high"), confidence("high"), at(target.grip), at(flagged(target)));
+
+const check = onlineCheck((target) => Option.all([refSlug(target.ref), commitRef(target.ref)]))(
+  ({ client, found: [slug, sha], target }) =>
+    Effect.map(isImpostor(client)(slug.full)(sha), draftsIf(draft(target))),
+);
+
+const step = stepTargetCheck(check);
+
+export const impostorCommit: Audit = {
+  ...meta,
+  step,
+  compositeStep: step,
+  reusableJob: reusableTargetCheck(check),
+  preCommitRepo: repoTargetCheck(check),
+};

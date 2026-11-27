@@ -28,10 +28,10 @@
   "ignoreDependencies": ["@effect/language-service", "fallow-similar-code", "oxlint-tsgolint"],
   "workspaces": {
     "settings": {
-      "libs/fumx-parser": {
+      "libs/song-format": {
         "ignoreDependencies": ["langium-cli"],
       },
-      "libs/h56m-presets": {
+      "libs/h56m": {
         "ignoreDependencies": ["betterleaks"],
       },
       "libs/msch": {
@@ -75,7 +75,7 @@
   "ignorePatterns": [
     ".claude/**",
     "**/generated/**",
-    "libs/fu4-presets/src/**/fixtures/**",
+    "libs/fu4/src/**/fixtures/**",
     "libs/oxlint-plugin-decision/example*/**",
     "libs/oxlint-typed-rules/upstream/{react,tanstack-query,tanstack-router,drizzle,remotion}/**",
     "libs/vite-plus-adopt/upstream/**",

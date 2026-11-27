@@ -1,6 +1,7 @@
-import type { Controller } from "@r_masseater/fumx-parser";
 import { Array as Arr, Order } from "effect";
 import type { Option } from "effect";
+
+import type { Controller } from "#/entities/song/@x/timeline.ts";
 
 export interface Timed {
   readonly tick: number;
