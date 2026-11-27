@@ -222,12 +222,6 @@ catalogs:
     '@eslint-react/eslint-plugin':
       specifier: 5.30.6
       version: 5.30.6
-    '@feature-sliced/filesystem':
-      specifier: 3.1.1
-      version: 3.1.1
-    '@feature-sliced/steiger-plugin':
-      specifier: 0.8.2
-      version: 0.8.2
     '@html-eslint/eslint-plugin-react':
       specifier: 0.68.0
       version: 0.68.0
@@ -342,9 +336,6 @@ catalogs:
     '@yarnpkg/parsers':
       specifier: 3.1.0
       version: 3.1.0
-    chokidar:
-      specifier: 6.0.0
-      version: 6.0.0
     cjs-module-lexer:
       specifier: 2.3.0
       version: 2.3.0
@@ -360,12 +351,6 @@ catalogs:
     domhandler:
       specifier: 6.0.1
       version: 6.0.1
-    effector:
-      specifier: 23.5.1
-      version: 23.5.1
-    empathic:
-      specifier: 2.1.0
-      version: 2.1.0
     eslint:
       specifier: 10.15.0
       version: 10.15.0
@@ -381,15 +366,9 @@ catalogs:
     eslint-plugin-react-hooks:
       specifier: 7.1.1
       version: 7.1.1
-    fastest-levenshtein:
-      specifier: 1.0.16
-      version: 1.0.16
     fflate:
       specifier: 0.8.3
       version: 0.8.3
-    globby:
-      specifier: 16.2.4
-      version: 16.2.4
     hast-util-from-html:
       specifier: 2.1.0
       version: 2.1.0
@@ -402,9 +381,6 @@ catalogs:
     htmlparser2:
       specifier: 12.0.0
       version: 12.0.0
-    immer:
-      specifier: 11.2.10
-      version: 11.2.10
     langium:
       specifier: 4.4.2
       version: 4.4.2
@@ -420,9 +396,6 @@ catalogs:
     mdast-util-to-string:
       specifier: 4.0.0
       version: 4.0.0
-    micromatch:
-      specifier: 4.0.8
-      version: 4.0.8
     midi-file:
       specifier: 1.2.4
       version: 1.2.4
@@ -444,12 +417,6 @@ catalogs:
     oxlint-tsgolint:
       specifier: 7.0.2007
       version: 7.0.2007
-    patronum:
-      specifier: 2.3.0
-      version: 2.3.0
-    pluralize:
-      specifier: 8.0.0
-      version: 8.0.0
     publint:
       specifier: 0.3.25
       version: 0.3.25
@@ -471,9 +438,6 @@ catalogs:
     sql-parser-cst:
       specifier: 0.45.0
       version: 0.45.0
-    steiger:
-      specifier: 0.10.0
-      version: 0.10.0
     synckit:
       specifier: 0.12.3
       version: 0.12.3
@@ -489,9 +453,6 @@ catalogs:
     tonal:
       specifier: 6.9.0
       version: 6.9.0
-    tsconfck:
-      specifier: 3.1.6
-      version: 3.1.6
     unified:
       specifier: 11.0.5
       version: 11.0.5
@@ -510,9 +471,6 @@ catalogs:
     vscode-languageserver:
       specifier: 11.0.1
       version: 11.0.1
-    web-tree-sitter:
-      specifier: 0.27.2
-      version: 0.27.2
     wordnet-db:
       specifier: 3.1.14
       version: 3.1.14
@@ -544,7 +502,6 @@ catalogs:
 
 overrides:
   '@r_masseater/h56m': workspace:*
-  '@feature-sliced/filesystem>typescript': 7.1.0-beta
   langium>vscode-languageserver: 11.0.1
   '@remotion/eslint-plugin>@typescript-eslint/utils': '-'
   '@remotion/eslint-plugin>typescript': '-'
@@ -1358,57 +1315,24 @@ importers:
       '@textlint/utils':
         specifier: 'catalog:'
         version: 16.1.3
-      chokidar:
-        specifier: 'catalog:'
-        version: 6.0.0
       cjs-module-lexer:
         specifier: 'catalog:'
         version: 2.3.0
-      effector:
-        specifier: 'catalog:'
-        version: 23.5.1
-      empathic:
-        specifier: 'catalog:'
-        version: 2.1.0
-      fastest-levenshtein:
-        specifier: 'catalog:'
-        version: 1.0.16
       fflate:
         specifier: 'catalog:'
         version: 0.8.3
-      globby:
-        specifier: 'catalog:'
-        version: 16.2.4
-      immer:
-        specifier: 'catalog:'
-        version: 11.2.10
-      micromatch:
-        specifier: 'catalog:'
-        version: 4.0.8
       minimatch:
         specifier: 'catalog:'
         version: 11.0.9
-      patronum:
-        specifier: 'catalog:'
-        version: 2.3.0(effector@23.5.1)
-      pluralize:
-        specifier: 'catalog:'
-        version: 8.0.0
       semver:
         specifier: 'catalog:'
         version: 7.8.6
       textlint:
         specifier: 'catalog:'
         version: 16.1.3(supports-color@10.2.2)
-      tsconfck:
-        specifier: 'catalog:'
-        version: 3.1.6(typescript@7.1.0-beta)
       validate-npm-package-name:
         specifier: 'catalog:'
         version: 8.0.0
-      web-tree-sitter:
-        specifier: 'catalog:'
-        version: 0.27.2
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
@@ -1419,12 +1343,6 @@ importers:
       '@effect/vitest':
         specifier: 'catalog:'
         version: 4.1.5(effect@4.1.5)(vitest@5.1.1)
-      '@feature-sliced/filesystem':
-        specifier: 'catalog:'
-        version: 3.1.1
-      '@feature-sliced/steiger-plugin':
-        specifier: 'catalog:'
-        version: 0.8.2(typescript@7.1.0-beta)
       '@r_masseater/h56m-presets':
         specifier: workspace:*
         version: link:../h56m-presets
@@ -1443,9 +1361,6 @@ importers:
       size-limit:
         specifier: 'catalog:'
         version: 14.3.0
-      steiger:
-        specifier: 'catalog:'
-        version: 0.10.0(typescript@7.1.0-beta)
       typescript:
         specifier: catalog:stack
         version: 7.1.0-beta
@@ -1764,12 +1679,6 @@ packages:
 
   '@chevrotain/utils@13.2.0':
     resolution: {integrity: sha512-SzKYY68rseOrb9KILVzPsl6SjkQtdWw01SRGB5aCVI5kFcHltQsOYV3JB0Ffst72DgkvHCyDQ0NLwxtmCCf97Q==}
-
-  '@clack/core@0.4.1':
-    resolution: {integrity: sha512-Pxhij4UXg8KSr7rPek6Zowm+5M22rbd2g1nfojHJkxp5YkFqiZ2+YLEM/XGVIzvGOcM0nqjIFxrpDwWRZYWYjA==}
-
-  '@clack/prompts@0.9.1':
-    resolution: {integrity: sha512-JIpyaboYZeWYlyP0H+OoPPxd6nqueG/CmN6ixBiNFsIDHREevjIf0n0Ohh5gr5C8pEDknzgvz+pIJ8dMhzWIeg==}
 
   '@cloudflare/workerd-darwin-64@1.20260730.1':
     resolution: {integrity: sha512-+MBHmPaiTe2KajryW0T24rZvWFxb41hD3d8anNzQqHzft6vSEb18+sp0znSwxgij7ApPhSM1+vhkNg4f3YMguA==}
@@ -2279,12 +2188,6 @@ packages:
     resolution: {integrity: sha512-WRUCOGocIlqKCTH7LxbVBE8dDobuvauoO4HHw4mENs96XefXue2rmIo/nb7cniBYs4DSGBox2fH1eU5LuRTc7A==}
     cpu: [x64]
     os: [win32]
-
-  '@feature-sliced/filesystem@3.1.1':
-    resolution: {integrity: sha512-P3WpHkOqdH4572ZhTfeg/Sbw0qkIuMw0QcLyTUygfwTZg1yd7hIv8QDYbhTddNTiFDgBRJTrYw/s6r2hnlo6Tw==}
-
-  '@feature-sliced/steiger-plugin@0.8.2':
-    resolution: {integrity: sha512-Gmc6b2GhjAT+Y+cQfHaCT+R1PnSuoOFcS6qsYtCnY8WjVH1FyT18FWJnhUjMyw4jN1Oqg0jSj5xeDDLs2InWoA==}
 
   '@grpc/grpc-js@1.14.5':
     resolution: {integrity: sha512-7VZM+SVdEcUUqSQeNI3zM8Qs/BhQKZndPo2h5VkYkAM8Iz0wJIa8mKV5ekQGqG8UUsnkQ0NMxIxwkIHYvj0qOw==}
@@ -4640,10 +4543,6 @@ packages:
     resolution: {integrity: sha512-GTouk5YzgBxlTPCaDn5q0q2EJKkrYmnPF+HmF8v0Qo4r3iyPG7HJivkN1wthCXZcm3sIcZFpGTRovLPNdJNRCA==}
     engines: {node: '>=22.0.0'}
 
-  chokidar@4.0.3:
-    resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
-    engines: {node: '>= 14.16.0'}
-
   chokidar@6.0.0:
     resolution: {integrity: sha512-Ec2Z7wpcKBiMpR7DxteoqS/sq5G5d2A4fpxzPv6+fD7xNNdrTghn7L11YwV5EN1B3i72Erc3XVT5FkWIDx90+A==}
     engines: {node: '>= 22.22'}
@@ -4736,10 +4635,6 @@ packages:
   cookie@2.0.2:
     resolution: {integrity: sha512-SL0cVuEdETEp7pN0FuZb01toc3vnODEfVUCooxG1SJN0yIirh7JMb9X9bvfCFf0vzzbT68RdbKDHYTiWy7a7iw==}
     engines: {node: '>=22'}
-
-  cosmiconfig@10.0.1:
-    resolution: {integrity: sha512-/zvGoYn0y27QTBmK+0B+oPdEPC4fKGUmJsMTQbDjqph00TrkqfVFW/M+C6ya54sYCgHC6QCwK/mI6djt8cEGHQ==}
-    engines: {node: ^22.18 || >= 24}
 
   cosmiconfig@9.0.2:
     resolution: {integrity: sha512-gtTZxTDau1wL7Y7zifc2dd8jHSK/k6BTx/2Xp/BpdlAdnlYWFVt7qhJqgwi7637yRwRQ3qL4ZidbB4I8tA5VOg==}
@@ -4870,10 +4765,6 @@ packages:
     resolution: {integrity: sha512-E9+X0O3/ot/9pIcpjgAOJ7dgmJdhdJEkdNw+hsas/MfjyodzmYidfdpsq+uYAZCMU4cR1cVJzjCQfbg/JD6iXQ==}
     engines: {node: '>=11.0.0'}
 
-  effector@23.5.1:
-    resolution: {integrity: sha512-QklgDt4NU62uhJo2suyOCADYczlX14vVj3ResBRfk4L7ERh8Fv/pS5AkgyhjwhW5VbFqCz5gHpKLr6zjM1BFGw==}
-    engines: {node: '>=11.0.0'}
-
   electron-to-chromium@1.5.439:
     resolution: {integrity: sha512-qu6QIPXhsb+CRcAiTMNjR4A1y/7tCYKkKjr5CZXRVih6qkDf79peZ2BpEU3qoDBNCRrcy3Mra3X9nG5oruuA7Q==}
 
@@ -4882,10 +4773,6 @@ packages:
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
-
-  empathic@1.1.0:
-    resolution: {integrity: sha512-rsPft6CK3eHtrlp9Y5ALBb+hfK+DWnA4WFebbazxjWyx8vSm3rZeoM3z9irsjcqO3PYRzlfv27XIB4tz2DV7RA==}
-    engines: {node: '>=14'}
 
   empathic@2.1.0:
     resolution: {integrity: sha512-AnfC1ATldl49/cvZdLPDjBfrRNwbDO05aibiOtzQu3qtlbJtomNLhF30HEtn/7iBz50dlMECqATo3fG0LrdEgw==}
@@ -5430,9 +5317,6 @@ packages:
     resolution: {integrity: sha512-wCBiZ77u1tuWde6G/nfOtLaCTYcFDU5yCzARzK10y+rLhzYoL7a7yEemcopcc2Mzow7gZOIjnV2ym1NYmdiJOQ==}
     engines: {node: '>= 4'}
 
-  immer@10.2.0:
-    resolution: {integrity: sha512-d/+XTN3zfODyjr89gM3mPq1WNX2B8pYsu7eORitdwyA2sBubnTl3laYlBk4sXY5FUa5qTZGBDPJICVbvqzjlbw==}
-
   immer@11.2.10:
     resolution: {integrity: sha512-pzANBj+0A9u+prdhBJ14DVi44vCvVUQzBa8DKt6I0AMCokPHtt722BK9IX5bFC70xUSU9TnzLRIJLTGqIzjEFw==}
 
@@ -5675,10 +5559,6 @@ packages:
 
   js-yaml@4.3.2:
     resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
-    hasBin: true
-
-  js-yaml@5.4.2:
-    resolution: {integrity: sha512-m+aqu+LwO1O6sIopafj8HUVl5aawITwZQe/yHpMCKjaWBaA/d07B/QdMb3529REftiU+RMMHL3Vlsw3hON7vWg==}
     hasBin: true
 
   js-yaml@5.5.0:
@@ -6408,10 +6288,6 @@ packages:
     resolution: {integrity: sha512-HzMy3Geq23nVALD/M2LliU+F+M+gVNsvkQWWqeBZ8HDiCgzo6YPJ/Omrmtq24EFrIsk0a3EkQGEd7bDOo+IhGA==}
     engines: {node: '>=18'}
 
-  prexit@2.3.0:
-    resolution: {integrity: sha512-mX+LIbtS0anKtl2PykYabxninwloblUQMRO6CubeSmjxb+kKlATuJoH9UeN8NLE4TgIEFWfBXw7V3GkWbBrSmg==}
-    engines: {node: '>=12'}
-
   prh@5.4.4:
     resolution: {integrity: sha512-UATF+R/2H8owxwPvF12Knihu9aYGTuZttGHrEEq5NBWz38mREh23+WvCVKX3fhnIZIMV7ye6E1fnqAl+V6WYEw==}
     hasBin: true
@@ -6458,10 +6334,6 @@ packages:
   read-yaml-file@3.0.0:
     resolution: {integrity: sha512-7urDNDyx3oJt9NGkymzT3qudju76BoJhT6ICWclx6274zxMeSUOhyiceHscSBk4Lfbs0IYpjOjUwLkaOzrsJdQ==}
     engines: {node: '>=22.13'}
-
-  readdirp@4.1.2:
-    resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
-    engines: {node: '>= 14.18.0'}
 
   readdirp@5.1.1:
     resolution: {integrity: sha512-Kko+Y5XQ6fM+Ce3dq3m9YGxnacYZYl9cA1wZjaF3Vbry2L3i1qVg8+CAgNPsXRArPMUMCaOR7oa9Nqntc43JKA==}
@@ -6642,9 +6514,6 @@ packages:
     resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
     engines: {node: '>=18'}
 
-  sisteransi@1.0.5:
-    resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
-
   size-limit@14.3.0:
     resolution: {integrity: sha512-SoT7DtEYQ9AkOIyrNmmHu8IyJyA3P/Q6EUVjUUinT0iBuaI6IOpWxwyI+teUxg8WdLwcTwbu9moKvw/LGlCE7g==}
     engines: {node: ^22.19.0 || ^24.5.0 || >=26.0.0}
@@ -6698,11 +6567,6 @@ packages:
 
   std-env@4.3.0:
     resolution: {integrity: sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==}
-
-  steiger@0.10.0:
-    resolution: {integrity: sha512-tZw/nlwLgiOhw1QeTluahgZdNo3r1I9WmYUXVx1BPG1GgoVJh/MBFCzA2oiXPtzi/0GamcYJtlZDAiZ2o9bEnw==}
-    engines: {node: '>=22.18.0'}
-    hasBin: true
 
   stop-iteration-iterator@1.1.0:
     resolution: {integrity: sha512-eLoXW/DHyl62zxY4SCaIgnRhuMr6ri4juEYARS8E6sCEqzKpOiE521Ucofdx+KnDZl5xmvGYaaKCk5FEOxJCoQ==}
@@ -7202,9 +7066,6 @@ packages:
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
 
-  web-tree-sitter@0.26.13:
-    resolution: {integrity: sha512-5bUZ7vbQ1kcondet96wzP974+JfCZDeQ7bTpacICm2nnvHpa5cO0ByRsoMcAhUP+743vpkb4m0BFlVSm+Ye9VA==}
-
   web-tree-sitter@0.27.2:
     resolution: {integrity: sha512-ZRo86GKI4aOSBAqOrPmCtriExI3xIzu1sNw/V6v3b4QGxrEmO19FGwbMNdyhw3MJLAZIw0xAV0oSpqX361eAyQ==}
 
@@ -7537,17 +7398,6 @@ snapshots:
   '@chevrotain/types@13.2.0': {}
 
   '@chevrotain/utils@13.2.0': {}
-
-  '@clack/core@0.4.1':
-    dependencies:
-      picocolors: 1.1.1
-      sisteransi: 1.0.5
-
-  '@clack/prompts@0.9.1':
-    dependencies:
-      '@clack/core': 0.4.1
-      picocolors: 1.1.1
-      sisteransi: 1.0.5
 
   '@cloudflare/workerd-darwin-64@1.20260730.1':
     optional: true
@@ -7973,20 +7823,6 @@ snapshots:
 
   '@fallow-cli/win32-x64-msvc@3.48.0':
     optional: true
-
-  '@feature-sliced/filesystem@3.1.1':
-    dependencies:
-      typescript: 7.1.0-beta
-
-  '@feature-sliced/steiger-plugin@0.8.2(typescript@7.1.0-beta)':
-    dependencies:
-      '@feature-sliced/filesystem': 3.1.1
-      fastest-levenshtein: 1.0.16
-      pluralize: 8.0.0
-      tsconfck: 3.1.6(typescript@7.1.0-beta)
-      web-tree-sitter: 0.26.13
-    transitivePeerDependencies:
-      - typescript
 
   '@grpc/grpc-js@1.14.5':
     dependencies:
@@ -10191,10 +10027,6 @@ snapshots:
       '@chevrotain/types': 13.2.0
       '@chevrotain/utils': 13.2.0
 
-  chokidar@4.0.3:
-    dependencies:
-      readdirp: 4.1.2
-
   chokidar@6.0.0:
     dependencies:
       readdirp: 5.1.1
@@ -10269,11 +10101,6 @@ snapshots:
 
   cookie@2.0.2:
     optional: true
-
-  cosmiconfig@10.0.1:
-    dependencies:
-      env-paths: 2.2.1
-      js-yaml: 5.4.2
 
   cosmiconfig@9.0.2(typescript@7.1.0-beta):
     dependencies:
@@ -10396,15 +10223,11 @@ snapshots:
 
   effector@23.5.0: {}
 
-  effector@23.5.1: {}
-
   electron-to-chromium@1.5.439: {}
 
   emoji-regex@10.6.0: {}
 
   emoji-regex@8.0.0: {}
-
-  empathic@1.1.0: {}
 
   empathic@2.1.0: {}
 
@@ -11168,8 +10991,6 @@ snapshots:
 
   ignore@7.0.14: {}
 
-  immer@10.2.0: {}
-
   immer@11.2.10: {}
 
   import-fresh@3.3.1:
@@ -11389,10 +11210,6 @@ snapshots:
       esprima: 4.0.1
 
   js-yaml@4.3.2:
-    dependencies:
-      argparse: 2.0.1
-
-  js-yaml@5.4.2:
     dependencies:
       argparse: 2.0.1
 
@@ -12359,10 +12176,6 @@ snapshots:
     dependencies:
       effector: 23.5.0
 
-  patronum@2.3.0(effector@23.5.1):
-    dependencies:
-      effector: 23.5.1
-
   picocolors@1.1.1: {}
 
   picomatch@2.3.2: {}
@@ -12400,8 +12213,6 @@ snapshots:
   pretty-ms@9.3.1:
     dependencies:
       parse-ms: 4.0.0
-
-  prexit@2.3.0: {}
 
   prh@5.4.4:
     dependencies:
@@ -12463,8 +12274,6 @@ snapshots:
     dependencies:
       js-yaml: 4.3.2
       strip-bom: 5.0.0
-
-  readdirp@4.1.2: {}
 
   readdirp@5.1.1: {}
 
@@ -12734,8 +12543,6 @@ snapshots:
       mrmime: 2.0.1
       totalist: 3.0.1
 
-  sisteransi@1.0.5: {}
-
   size-limit@14.3.0:
     dependencies:
       lilconfig: 3.1.4
@@ -12777,26 +12584,6 @@ snapshots:
       minipass: 7.1.3
 
   std-env@4.3.0: {}
-
-  steiger@0.10.0(typescript@7.1.0-beta):
-    dependencies:
-      '@clack/prompts': 0.9.1
-      '@feature-sliced/steiger-plugin': 0.8.2(typescript@7.1.0-beta)
-      chokidar: 4.0.3
-      cosmiconfig: 10.0.1
-      effector: 23.5.1
-      empathic: 1.1.0
-      fastest-levenshtein: 1.0.16
-      globby: 16.2.4
-      immer: 10.2.0
-      micromatch: 4.0.8
-      patronum: 2.3.0(effector@23.5.1)
-      picocolors: 1.1.1
-      prexit: 2.3.0
-      yargs: 17.7.3
-      zod: 4.6.7
-    transitivePeerDependencies:
-      - typescript
 
   stop-iteration-iterator@1.1.0:
     dependencies:
@@ -13567,8 +13354,6 @@ snapshots:
   web-namespaces@1.1.4: {}
 
   web-namespaces@2.0.1: {}
-
-  web-tree-sitter@0.26.13: {}
 
   web-tree-sitter@0.27.2: {}
 
