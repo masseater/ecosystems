@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/song-format",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The .fumx song format: a reader that turns a song into a typed value, key and chord analysis, import from TypeScript with Vite, a language server, MIDI and Ableton Live Set conversion that checks the result against the original, and a song report.",
   "keywords": [
     "fumx",
@@ -70,6 +70,10 @@
       "./language": {
         "types": "./dist/language.d.mts",
         "default": "./dist/language.mjs"
+      },
+      "./convert-als": {
+        "types": "./dist/convert-als.d.mts",
+        "default": "./dist/convert-als.mjs"
       },
       "./convert-midi": {
         "types": "./dist/convert-midi.d.mts",

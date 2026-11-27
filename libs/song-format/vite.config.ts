@@ -21,6 +21,7 @@ export default defineConfig({
         index: "src/app/index.ts",
         analysis: "src/app/analysis.ts",
         language: "src/app/language.ts",
+        "convert-als": "src/features/convert-als/index.ts",
         "convert-midi": "src/features/convert-midi/index.ts",
         vite: "src/app/vite.ts",
       },

@@ -3,33 +3,22 @@ import { Array as Arr, Boolean as Bool, Option, pipe } from "effect";
 import { microsecondsOf, sortedByTick, sortedNotes } from "#/entities/timeline/index.ts";
 import type { Part, TempoChange, Timeline, TimelineNote } from "#/entities/timeline/index.ts";
 import type { From } from "#/shared/lib/from.ts";
-import { TICKS_PER_WHOLE } from "#/shared/lib/ticks.ts";
 
 import { notesOfClip } from "./clips.ts";
 import type { PlayedNote } from "./clips.ts";
 import type { AlsMidiTrack, LiveSet } from "./live-set.ts";
+import { mixOf } from "./mix.ts";
 import { locatorsOf, metersOf, tempoPointsOf, tempoSegmentsOf } from "./tempo-map.ts";
+import { tickOf } from "./ticks.ts";
 
-const QUARTERS_PER_WHOLE = 4;
-const TICKS_PER_BEAT = TICKS_PER_WHOLE / QUARTERS_PER_WHOLE;
 const MELODIC_CHANNEL = 0;
 const DRUM_CHANNEL = 9;
 const NONE = 0;
 const NEXT = 1;
 
-interface Tick {
-  readonly tick: number;
-  readonly exact: boolean;
-}
-
-const tickOf: From<number, Tick> = (beat) => {
-  const exact = beat * TICKS_PER_BEAT;
-  return { tick: Math.round(exact), exact: Number.isInteger(exact) };
-};
-
-const nameOf: From<AlsMidiTrack, Option.Option<string>> = (track) =>
+const nameOf: From<AlsMidiTrack["Name"], Option.Option<string>> = (label) =>
   pipe(
-    [track.Name.EffectiveName, track.Name.UserName],
+    [label.EffectiveName, label.UserName],
     Arr.map(Option.fromUndefinedOr),
     Arr.getSomes,
     Arr.map((name) => name.Value),
@@ -93,7 +82,7 @@ const partOf = (track: AlsMidiTrack, index: number): PartRead => {
         onFalse: () => MELODIC_CHANNEL,
         onTrue: () => DRUM_CHANNEL,
       }),
-      name: nameOf(track),
+      name: nameOf(track.Name),
       program: Option.none(),
       notes: read.notes,
       controls: [],
@@ -158,5 +147,6 @@ export const timelineOf: From<LiveSet, Timeline> = (liveSet) => {
     meters,
     markers,
     parts,
+    mix: mixOf(nameOf)(liveSet),
   };
 };

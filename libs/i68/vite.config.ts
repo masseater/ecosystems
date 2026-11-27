@@ -19,6 +19,7 @@ export default defineConfig({
       cli: "bin/i68.ts",
       vite: "src/app/vite.ts",
       presets: "src/app/presets.ts",
+      habits: "src/app/habits.ts",
     },
     platform: "node",
     sourcemap: true,

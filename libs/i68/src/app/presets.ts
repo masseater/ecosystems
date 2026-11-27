@@ -13,6 +13,21 @@ export {
 } from "#/app/presets/features/check-progressions/index.ts";
 export type { Progression } from "#/app/presets/features/check-progressions/index.ts";
 export { bach, bachPlugin, stylePluginOf } from "#/app/presets/features/check-style/index.ts";
+export { styleRules, styleRulesPluginOf } from "#/app/presets/features/check-habits/index.ts";
+export type { StyleRulesPreset } from "#/app/presets/features/check-habits/index.ts";
+export {
+  HABIT_KINDS,
+  StyleRulesSchema,
+  subjectKeyOf,
+} from "#/app/presets/shared/lib/style-rules.ts";
+export type {
+  HabitKind,
+  HabitRule,
+  StyleRules,
+  Subject,
+} from "#/app/presets/shared/lib/style-rules.ts";
+export { mixKeyOf } from "#/app/presets/shared/lib/mix-habit.ts";
+export type { MixHabit } from "#/app/presets/shared/lib/mix-habit.ts";
 export type { StyleTable, Transitions } from "#/app/presets/shared/lib/style-table.ts";
 export { harmony, harmonyPlugin } from "#/app/presets/features/check-harmony/index.ts";
 
