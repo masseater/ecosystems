@@ -22,7 +22,8 @@
     "msch": "./bin/msch.ts",
     "msch-changed": "./bin/msch-changed.ts",
     "msch-exits": "./bin/msch-exits.ts",
-    "msch-publish": "./bin/msch-publish.ts"
+    "msch-publish": "./bin/msch-publish.ts",
+    "msch-wake": "./bin/msch-wake.ts"
   },
   "files": [
     "dist",
@@ -58,7 +59,8 @@
       "msch": "./dist/cli.mjs",
       "msch-changed": "./dist/changed.mjs",
       "msch-exits": "./dist/exits.mjs",
-      "msch-publish": "./dist/publish.mjs"
+      "msch-publish": "./dist/publish.mjs",
+      "msch-wake": "./dist/wake.mjs"
     },
     "exports": {
       "./cli": "./dist/cli.mjs",

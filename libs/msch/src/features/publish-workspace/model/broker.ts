@@ -1,11 +1,9 @@
 import { mask } from "@r_masseater/github-workflow";
-import { Config, Console, Effect, Option, Redacted, Schema } from "effect";
+import { Console, Effect, Option, Schema } from "effect";
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http";
 
-const BROKER = "https://credentials.masseater.dev/";
-const AUDIENCE = "masseater-dev-credential-broker";
+import { BROKER, actionsOidcToken } from "#/shared/lib/credential-broker.ts";
 
-const IdToken = Schema.Struct({ value: Schema.String });
 const Issued = Schema.Record(Schema.String, Schema.Unknown);
 
 /** @internal */
@@ -13,20 +11,6 @@ export interface Credential {
   readonly kind: string;
   readonly field: string;
 }
-
-const oidcToken = Effect.fn("publish.oidc")(function* oidcToken(
-  requestUrl: string,
-  requestToken: Redacted.Redacted,
-) {
-  const client = yield* HttpClient.HttpClient;
-  const request = HttpClientRequest.get(`${requestUrl}&audience=${AUDIENCE}`).pipe(
-    HttpClientRequest.bearerToken(Redacted.value(requestToken)),
-  );
-  const response = yield* HttpClient.filterStatusOk(client).execute(request);
-  const { value } = yield* HttpClientResponse.schemaBodyJson(IdToken)(response);
-  yield* mask(value);
-  return value;
-});
 
 const issued = Effect.fn("publish.issued")(function* issued(
   oidc: string,
@@ -50,13 +34,13 @@ const issued = Effect.fn("publish.issued")(function* issued(
 export const brokerCredential = Effect.fn("publish.brokerCredential")(function* brokerCredential(
   credential: Credential,
 ) {
-  const requestUrl = yield* Config.option(Config.String("ACTIONS_ID_TOKEN_REQUEST_URL"));
-  const requestToken = yield* Config.option(Config.Redacted("ACTIONS_ID_TOKEN_REQUEST_TOKEN"));
-  if (Option.isNone(requestUrl) || Option.isNone(requestToken)) {
-    return Option.none<string>();
-  }
-  return yield* oidcToken(requestUrl.value, requestToken.value).pipe(
-    Effect.flatMap((oidc) => issued(oidc, credential)),
+  return yield* actionsOidcToken.pipe(
+    Effect.flatMap(
+      Option.match({
+        onNone: () => Effect.succeedNone,
+        onSome: (oidc) => issued(oidc, credential),
+      }),
+    ),
     Effect.tapError(() => Console.log(`The credential broker gave no ${credential.field}`)),
     Effect.orElseSucceed(() => Option.none<string>()),
   );
