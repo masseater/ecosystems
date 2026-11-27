@@ -18,16 +18,13 @@ import {
   isStringLiteral,
 } from "#/shared/lib/compiler.ts";
 import type { API, Node } from "#/shared/lib/compiler.ts";
+import { packageNameOf } from "#/shared/lib/package-name.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
 const RELATIVE = /^\.\.?(?:\/|$)/u;
 const SUBPATH_IMPORT = "#";
 const WILDCARD = "*";
-const SCOPE = "@";
-const SEPARATOR = "/";
 const SOURCE_SUFFIXES = ["", ".ts", ".tsx", "/index.ts"] as const;
-const SCOPED_SEGMENTS = 2;
-const PLAIN_SEGMENTS = 1;
 
 const ImportsField = Schema.Struct({
   imports: Schema.optional(Schema.Record(Schema.String, Schema.String)),
@@ -48,14 +45,6 @@ interface Walk {
 }
 
 type Reference = Result.Result<string, string>;
-
-const packageNameOf = (specifier: string): string => {
-  const segments = Str.split(specifier, SEPARATOR);
-  if (Str.startsWith(SCOPE)(specifier)) {
-    return pipe(segments, Arr.take(SCOPED_SEGMENTS), Arr.join(SEPARATOR));
-  }
-  return pipe(segments, Arr.take(PLAIN_SEGMENTS), Arr.join(SEPARATOR));
-};
 
 const literalText = (specifier: Node): Option.Option<string> =>
   pipe(

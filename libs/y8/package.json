@@ -29,6 +29,7 @@
     "skills/lint-markdown"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },

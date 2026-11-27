@@ -1,39 +1,21 @@
-import { stripVTControlCharacters } from "node:util";
-
-import { Array as Arr, Effect, Option, Predicate, String as Str, pipe } from "effect";
+import { Array as Arr, Effect, Option } from "effect";
 import { rolldown } from "vite/rolldown";
 
 import { deployEntries } from "#/entities/workspace/index.ts";
+import { bundleErrorDetail } from "#/shared/lib/bundle-error.ts";
 import { problemInFile } from "#/shared/lib/problem.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
 const RULE: RuleName = "worker-bundle";
 const BUNDLE_CONCURRENCY = 4;
-const SHOWN_ERRORS = 3;
-const ERROR_LINE = /\[[A-Z_]+\]/u;
 const PLATFORM_MODULES = [/^cloudflare:/u, /^node:/u];
 const CONDITIONS = ["workerd", "worker", "browser", "import", "module", "default"];
-const NO_DETAIL = "Run the bundle to see the error.";
 
 const problemFor = problemInFile(RULE);
 
-const errorLines = (error: unknown): readonly string[] =>
-  pipe(
-    Option.liftPredicate(error, Predicate.isError),
-    Option.map(({ message }) => message),
-    Option.getOrElse(() => String(error)),
-    stripVTControlCharacters,
-    Str.split("\n"),
-    Arr.filter((line) => ERROR_LINE.test(line)),
-    Arr.take(SHOWN_ERRORS),
-  );
-
-const detailOf = (lines: readonly string[]): string =>
-  pipe(lines, Arr.match({ onEmpty: () => NO_DETAIL, onNonEmpty: Arr.join(" ") }));
-
-const problemOf = (file: string, lines: readonly string[]): Problem =>
-  problemFor(file, `does not bundle as a Worker, so the deploy would fail. ${detailOf(lines)}`);
+const problemOf = (file: string, detail: string): Problem =>
+  problemFor(file, `does not bundle as a Worker, so the deploy would fail. ${detail}`);
 
 const bundleProblem = (file: string): Effect.Effect<Option.Option<Problem>> =>
   Effect.gen(function* bundle() {
@@ -46,14 +28,17 @@ const bundleProblem = (file: string): Effect.Effect<Option.Option<Problem>> =>
           resolve: { conditionNames: CONDITIONS },
           logLevel: "silent",
         }),
-      catch: errorLines,
+      catch: bundleErrorDetail,
     });
-    yield* Effect.tryPromise({ try: () => built.generate({ format: "esm" }), catch: errorLines });
+    yield* Effect.tryPromise({
+      try: () => built.generate({ format: "esm" }),
+      catch: bundleErrorDetail,
+    });
     yield* Effect.promise(() => built.close());
   }).pipe(
     Effect.match({
       onSuccess: () => Option.none<Problem>(),
-      onFailure: (lines) => Option.some(problemOf(file, lines)),
+      onFailure: (detail) => Option.some(problemOf(file, detail)),
     }),
   );
 

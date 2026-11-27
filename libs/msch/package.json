@@ -34,6 +34,7 @@
     "src/app/vite.d.ts"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*",
     "#package.json": "./package.json"
@@ -148,6 +149,7 @@
     "oxlint-plugin-eslint": "catalog:",
     "semver": "catalog:",
     "sql-parser-cst": "catalog:",
+    "synckit": "catalog:",
     "textlint-rule-preset-ja-technical-writing": "catalog:",
     "toml-eslint-parser": "catalog:",
     "yaml": "catalog:"

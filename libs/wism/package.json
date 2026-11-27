@@ -30,6 +30,7 @@
     "skills/lint-structure"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },

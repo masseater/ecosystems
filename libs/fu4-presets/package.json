@@ -26,6 +26,7 @@
     "skills/apply-fu4-presets"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },

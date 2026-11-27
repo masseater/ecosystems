@@ -31,6 +31,7 @@
     "skills/scan-secrets"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },

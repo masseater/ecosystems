@@ -32,6 +32,7 @@
     "skills/run-typed-eslint-rules"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },

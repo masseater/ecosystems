@@ -26,6 +26,7 @@
     "skills/use-i68-presets"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },
@@ -49,6 +50,7 @@
   },
   "dependencies": {
     "@r_masseater/fumx-parser": "workspace:*",
+    "langium": "catalog:",
     "tonal": "catalog:"
   },
   "devDependencies": {

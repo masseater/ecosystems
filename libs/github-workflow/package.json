@@ -25,6 +25,7 @@
     "skills/write-actions-steps"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },

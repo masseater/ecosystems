@@ -34,6 +34,9 @@ export interface EntryLookup {
   readonly packEntries: readonly PackEntrySource[];
 }
 
+export const isBinEntry = ({ label }: PublicEntry): boolean =>
+  Str.startsWith(`${BIN_LABEL} `)(label);
+
 export const targetsIn = (held: unknown): readonly string[] => {
   if (Predicate.isString(held)) {
     return [held];
@@ -74,7 +77,7 @@ const binsOf = (manifest: EntryManifest): readonly (readonly [string, unknown])[
   );
 };
 
-const trimmedBase = (target: string): string => Str.replace(BUILT, "")(baseName(target));
+export const entryNameOf = (target: string): string => Str.replace(BUILT, "")(baseName(target));
 
 const sourceOf =
   ({ join, packEntries }: EntryLookup) =>
@@ -82,7 +85,7 @@ const sourceOf =
     if (SOURCE.test(target) && !Str.includes(DECLARATION)(target)) {
       return Option.some(join(target));
     }
-    const name = trimmedBase(target);
+    const name = entryNameOf(target);
     return pipe(
       packEntries,
       Arr.findFirst((entry) => entry.name === name),

@@ -27,6 +27,7 @@
     "skills/lint-presets"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },

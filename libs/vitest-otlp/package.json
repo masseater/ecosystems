@@ -27,6 +27,9 @@
     "skills/assert-exported-telemetry"
   ],
   "type": "module",
+  "sideEffects": [
+    "./dist/setup.mjs"
+  ],
   "imports": {
     "#/*": "./src/*"
   },
@@ -70,13 +73,11 @@
   "scripts": {
     "prepublishOnly": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm/')) { console.error('npm publish leaves catalog: in dependencies. Publish the tarball from vp pm pack instead.'); process.exit(1) }\" && vp run build"
   },
-  "dependencies": {
-    "@bufbuild/protobuf": "catalog:",
-    "@effect/platform-node": "catalog:"
-  },
   "devDependencies": {
     "@bufbuild/buf": "catalog:",
+    "@bufbuild/protobuf": "catalog:",
     "@cloudflare/workers-types": "catalog:",
+    "@effect/platform-node": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/sdk-node": "catalog:",
     "@types/node": "catalog:",
@@ -85,8 +86,18 @@
     "vite-plus": "catalog:stack"
   },
   "peerDependencies": {
+    "@bufbuild/protobuf": ">=2.17.0",
+    "@effect/platform-node": ">=4.1.5",
     "effect": "^4.1.0",
     "vite-plus": "^1.8.0"
+  },
+  "peerDependenciesMeta": {
+    "@bufbuild/protobuf": {
+      "optional": true
+    },
+    "@effect/platform-node": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=26.13.1"

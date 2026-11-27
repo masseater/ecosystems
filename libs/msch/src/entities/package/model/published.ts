@@ -37,12 +37,17 @@ export const PackEntry = Schema.Union([
   Schema.Array(Schema.String),
   Schema.Record(Schema.String, Schema.String),
 ]);
-const PackSettings = Schema.Struct({ entry: Schema.optional(PackEntry) });
+const AlwaysBundle = Schema.Array(Schema.String);
+const PackDeps = Schema.Struct({ alwaysBundle: Schema.optional(AlwaysBundle) });
+const PackSettings = Schema.Struct({
+  entry: Schema.optional(PackEntry),
+  deps: Schema.optional(PackDeps),
+});
 const PackList = Schema.Union([PackSettings, Schema.Array(PackSettings)]);
 const isEntryList = Schema.is(Schema.Array(Schema.String));
-const WorkspaceConfig = Schema.Struct({
+const PackConfig = Schema.Struct({ pack: Schema.optional(PackList) });
+const BudgetConfig = Schema.Struct({
   msch: Schema.Struct({ publish: Schema.Struct({ installSize: SizeText }) }),
-  pack: Schema.optional(PackList),
 });
 const PublicManifest = Schema.Struct({ private: Schema.optional(Schema.Literal(false)) });
 
@@ -58,12 +63,16 @@ export interface PackEntrySource {
   readonly source: string;
 }
 
-export interface PublishedWorkspace {
+export interface PackedWorkspace {
   readonly directory: string;
   readonly configFile: string;
+  readonly packEntries: readonly PackEntrySource[];
+  readonly alwaysBundle: readonly string[];
+}
+
+export interface PublishedWorkspace extends PackedWorkspace {
   readonly installSize: string;
   readonly installBudget: number;
-  readonly packEntries: readonly PackEntrySource[];
 }
 
 const bytesPer = (unit: string): number =>
@@ -98,11 +107,16 @@ export const entriesOf = (entry: typeof PackEntry.Type): readonly PackEntrySourc
   );
 };
 
-const packEntriesOf = (pack: typeof WorkspaceConfig.Type.pack): readonly PackEntrySource[] =>
+const packSettingsOf = (pack: typeof PackConfig.Type.pack): readonly (typeof PackSettings.Type)[] =>
   pipe(
     Option.fromUndefinedOr(pack),
     Option.map(Arr.ensure),
     Option.getOrElse((): readonly (typeof PackSettings.Type)[] => []),
+  );
+
+const packEntriesOf = (pack: typeof PackConfig.Type.pack): readonly PackEntrySource[] =>
+  pipe(
+    packSettingsOf(pack),
     Arr.flatMap((setting) =>
       pipe(
         Option.fromUndefinedOr(setting.entry),
@@ -111,12 +125,25 @@ const packEntriesOf = (pack: typeof WorkspaceConfig.Type.pack): readonly PackEnt
     ),
   );
 
+const alwaysBundleOf = (pack: typeof PackConfig.Type.pack): readonly string[] =>
+  pipe(
+    packSettingsOf(pack),
+    Arr.flatMap((setting) =>
+      pipe(
+        Option.fromUndefinedOr(setting.deps),
+        Option.flatMap((deps) => Option.fromUndefinedOr(deps.alwaysBundle)),
+        Option.getOrElse((): readonly string[] => []),
+      ),
+    ),
+    Arr.dedupe,
+  );
+
 const settingsIn = Effect.fn("settingsIn")(function* settingsIn(file: string) {
   const config = yield* Effect.tryPromise({
     try: () => resolveConfigFromFile(file),
     catch: () => WorkspaceConfigUnreadable.make({ file }),
   }).pipe(Effect.option);
-  return pipe(config, Option.flatMap(Schema.decodeUnknownOption(WorkspaceConfig)));
+  return config;
 });
 
 const isPublicPackage = Effect.fn("isPublicPackage")(function* isPublicPackage(directory: string) {
@@ -127,37 +154,69 @@ const isPublicPackage = Effect.fn("isPublicPackage")(function* isPublicPackage(d
   );
 });
 
-const workspaceOf =
+const packedWorkspaceOf =
   (directory: string, configFile: string, join: (source: string) => string) =>
-  ({ msch, pack }: typeof WorkspaceConfig.Type): PublishedWorkspace => {
-    const [amount, , unit] = msch.publish.installSize;
-    return {
-      directory,
-      configFile,
-      installSize: `${amount} ${unit}`,
-      installBudget: amount * bytesPer(unit),
-      packEntries: pipe(
-        packEntriesOf(pack),
-        Arr.map((entry) => ({ name: entry.name, source: join(entry.source) })),
-      ),
-    };
-  };
+  ({ pack }: typeof PackConfig.Type): PackedWorkspace => ({
+    directory,
+    configFile,
+    packEntries: pipe(
+      packEntriesOf(pack),
+      Arr.map((entry) => ({ name: entry.name, source: join(entry.source) })),
+    ),
+    alwaysBundle: alwaysBundleOf(pack),
+  });
 
-const publishedIn = Effect.fn("publishedIn")(function* publishedIn(
-  root: string,
-  configName: string,
-) {
+const budgetOf = ({
+  msch,
+}: typeof BudgetConfig.Type): Pick<PublishedWorkspace, "installSize" | "installBudget"> => {
+  const [amount, , unit] = msch.publish.installSize;
+  return { installSize: `${amount} ${unit}`, installBudget: amount * bytesPer(unit) };
+};
+
+const packedIn = Effect.fn("packedIn")(function* packedIn(root: string, configName: string) {
   const files = yield* RepositoryFiles;
   const configFile = files.join(root, configName);
   const directory = files.dirname(configFile);
   const isPublic = yield* isPublicPackage(directory);
   if (!isPublic) {
-    return Option.none<PublishedWorkspace>();
+    return Option.none<readonly [PackedWorkspace, unknown]>();
   }
-  const settings = yield* settingsIn(configFile);
+  const config = yield* settingsIn(configFile);
   return pipe(
-    settings,
-    Option.map(workspaceOf(directory, configFile, (source) => files.join(directory, source))),
+    config,
+    Option.flatMap((found) =>
+      pipe(
+        Schema.decodeUnknownOption(PackConfig)(found),
+        Option.map(
+          packedWorkspaceOf(directory, configFile, (source) => files.join(directory, source)),
+        ),
+        Option.map((workspace) => [workspace, found] as const),
+      ),
+    ),
+  );
+});
+
+const packedPairs = Effect.fn("packedPairs")(function* packedPairs(root: string) {
+  const files = yield* RepositoryFiles;
+  const names = yield* files.listedFiles(root);
+  const configs = pipe(
+    names,
+    Arr.filter((name) => files.basename(name) === CONFIG_FILE && Str.includes(SEPARATOR)(name)),
+  );
+  const found = yield* Effect.forEach(configs, (name) => packedIn(root, name), {
+    concurrency: READ_CONCURRENCY,
+  });
+  return Arr.getSomes(found);
+});
+
+/** @internal */
+export const packedWorkspaces = Effect.fn("packedWorkspaces")(function* packedWorkspaces(
+  root: string,
+) {
+  const pairs = yield* packedPairs(root);
+  return pipe(
+    pairs,
+    Arr.map(([workspace]) => workspace),
   );
 });
 
@@ -165,14 +224,15 @@ const publishedIn = Effect.fn("publishedIn")(function* publishedIn(
 export const publishedWorkspaces = Effect.fn("publishedWorkspaces")(function* publishedWorkspaces(
   root: string,
 ) {
-  const files = yield* RepositoryFiles;
-  const names = yield* files.listedFiles(root);
-  const configs = pipe(
-    names,
-    Arr.filter((name) => files.basename(name) === CONFIG_FILE && Str.includes(SEPARATOR)(name)),
+  const pairs = yield* packedPairs(root);
+  return pipe(
+    pairs,
+    Arr.flatMap(([workspace, config]) =>
+      pipe(
+        Schema.decodeUnknownOption(BudgetConfig)(config),
+        Option.map((budget): PublishedWorkspace => ({ ...workspace, ...budgetOf(budget) })),
+        Option.toArray,
+      ),
+    ),
   );
-  const found = yield* Effect.forEach(configs, (name) => publishedIn(root, name), {
-    concurrency: READ_CONCURRENCY,
-  });
-  return Arr.getSomes(found);
 });
