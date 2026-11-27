@@ -14,9 +14,11 @@ import semver from "semver";
 
 import {
   IncompatiblePackage,
+  VITE_PLUS,
   compatManifestIn,
   compatCasesOf,
   smokeTargetsOf,
+  viteAliasOf,
 } from "./compat-manifest.ts";
 import type { CompatCase, CompatManifest } from "./compat-manifest.ts";
 import { workspaceTarballs } from "./compat-workspace.ts";
@@ -92,6 +94,25 @@ const consumerJson = Effect.fn("compat.json")(function* consumerJson({
   });
 });
 
+const withViteOfVitePlus = Effect.fn("compat.vite")(function* withViteOfVitePlus(
+  directory: string,
+) {
+  const fileSystem = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const text = yield* fileSystem.readFileString(
+    path.join(directory, "node_modules", VITE_PLUS, MANIFEST_FILE),
+  );
+  yield* Option.match(viteAliasOf(text), {
+    onNone: () => Effect.void,
+    onSome: (alias) =>
+      mustSucceed({
+        command: "npm",
+        args: ["install", "--ignore-scripts", "--force", ...INSTALL_FLAGS, alias],
+        cwd: directory,
+      }),
+  });
+});
+
 const installedConsumer = Effect.fn("compat.consumer")(function* installedConsumer(
   root: string,
   consumer: Consumer,
@@ -107,6 +128,9 @@ const installedConsumer = Effect.fn("compat.consumer")(function* installedConsum
     args: ["install", "--ignore-scripts", ...INSTALL_FLAGS],
     cwd: directory,
   });
+  if (Rec.has(consumer.peers, VITE_PLUS)) {
+    yield* withViteOfVitePlus(directory);
+  }
   return directory;
 });
 

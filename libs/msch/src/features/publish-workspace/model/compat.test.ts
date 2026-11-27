@@ -1,6 +1,7 @@
+import { Option } from "effect";
 import { describe, expect, test } from "vite-plus/test";
 
-import { compatCasesOf, smokeTargetsOf } from "./compat-manifest.ts";
+import { compatCasesOf, smokeTargetsOf, viteAliasOf } from "./compat-manifest.ts";
 import type { CompatManifest } from "./compat-manifest.ts";
 
 const manifest = (fields: Partial<CompatManifest>): CompatManifest => ({
@@ -67,6 +68,28 @@ describe("compat cases with a vite peer", () => {
       manifest({ engines: { node: ">=26.0.0" }, peerDependencies: { vite: "^8.0.0" } }),
     );
     expect(latest).toStrictEqual({ label: "latest", node: "^26", peers: { vite: "^8.0.0" } });
+  });
+});
+
+describe("the vite that vite-plus brings in", () => {
+  test("is installed at the top of the consumer under the name vite, as vite-plus-adopt does", () => {
+    const manifest = JSON.stringify({
+      dependencies: { vite: "npm:@voidzero-dev/vite-plus-core@8.3.8001", oxlint: "=1.94.0" },
+    });
+    expect(viteAliasOf(manifest)).toStrictEqual(
+      Option.some("vite@npm:@voidzero-dev/vite-plus-core@8.3.8001"),
+    );
+  });
+
+  test("is left alone when vite-plus declares no vite", () => {
+    expect(viteAliasOf(JSON.stringify({ dependencies: { oxlint: "=1.94.0" } }))).toStrictEqual(
+      Option.none(),
+    );
+    expect(viteAliasOf(JSON.stringify({ name: "vite-plus" }))).toStrictEqual(Option.none());
+  });
+
+  test("is left alone when the manifest cannot be read", () => {
+    expect(viteAliasOf("not json")).toStrictEqual(Option.none());
   });
 });
 
