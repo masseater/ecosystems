@@ -33,8 +33,11 @@ const attwModule = {
     Effect.runPromise(checkWithVpTools(tarball, options)),
 };
 
+const VIRTUAL_TYPESCRIPT = "\0typescript-default";
+const TS_COMPAT = toJson(local("src/shared/lib/ts-compat.ts"));
+
 const shims: Readonly<Record<string, string>> = {
-  typescript: local("src/shared/lib/ts-compat.ts"),
+  typescript: VIRTUAL_TYPESCRIPT,
   "ts-api-utils": local("src/shared/lib/ts-api-utils.ts"),
   "@typescript-eslint/utils": local("src/shared/lib/typescript-eslint-utils.ts"),
   "@typescript-eslint/typescript-estree": local(
@@ -199,6 +202,30 @@ const drizzleRuleModule = (id: string): Option.Option<string> =>
     ),
   );
 
+const typescriptDefault = {
+  name: "typescript-default-export",
+  enforce: "pre",
+  resolveId: (id: string): string | undefined =>
+    Option.getOrUndefined(
+      Option.liftPredicate(id, (candidate) => candidate === VIRTUAL_TYPESCRIPT),
+    ),
+  load: (id: string): string | undefined =>
+    Option.getOrUndefined(
+      Option.liftPredicate(id, (candidate) => candidate === VIRTUAL_TYPESCRIPT).pipe(
+        Option.map(() =>
+          pipe(
+            [
+              `import { ts } from ${TS_COMPAT};`,
+              `export * from ${TS_COMPAT};`,
+              "export default ts;",
+            ],
+            Arr.join("\n"),
+          ),
+        ),
+      ),
+    ),
+} as const;
+
 const upstreamDrizzleRules = {
   name: "upstream-drizzle-rules",
   enforce: "pre",
@@ -224,12 +251,6 @@ export default defineConfig({
         "upstream/react/**",
         "upstream/{tanstack-*,drizzle,remotion}/**",
       ],
-      overrides: [
-        {
-          files: ["src/shared/lib/ts-compat.ts"],
-          rules: { "import/no-default-export": "off" },
-        },
-      ],
     },
   },
   plugins: [
@@ -237,6 +258,7 @@ export default defineConfig({
     upstreamTanstackModules,
     upstreamDrizzleRules,
     upstreamRemotionRules,
+    typescriptDefault,
   ],
   run: {
     tasks: {

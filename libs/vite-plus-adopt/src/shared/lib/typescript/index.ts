@@ -14,7 +14,7 @@ import { fileFunctions } from "./typescript-files.ts";
 import { nodeFunctions } from "./typescript-guards.ts";
 import { pathFunctions } from "./typescript-paths.ts";
 
-const ts = {
+export const ts = {
   ...fileFunctions,
   ...nodeFunctions,
   ...pathFunctions,
@@ -32,5 +32,3 @@ const ts = {
   unescapeLeadingUnderscores,
   version: RESOLUTION_VERSION,
 };
-
-export default ts;

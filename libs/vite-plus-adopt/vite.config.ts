@@ -20,6 +20,7 @@ const ATTW_TESTS = local("upstream/attw-core/test/");
 const VIRTUAL_HOSTS = "\0attw-compiler-hosts";
 const NODE_TEST_SHIM = "attw-node-test";
 const VIRTUAL_NODE_TEST = `\0${NODE_TEST_SHIM}`;
+const VIRTUAL_TYPESCRIPT = "\0attw-typescript";
 
 const ATTW_ROOTS: readonly string[] = [ATTW_LIB, ATTW_TESTS];
 
@@ -35,7 +36,7 @@ const isAttwUpstream = (importer: string | undefined): boolean =>
 
 const ATTW_REDIRECTS: readonly (readonly [(id: string) => boolean, string])[] = [
   [(id) => Str.endsWith("/multiCompilerHost.js")(id), VIRTUAL_HOSTS],
-  [(id) => id === "typescript", local("src/shared/lib/typescript/index.ts")],
+  [(id) => id === "typescript", VIRTUAL_TYPESCRIPT],
 ];
 
 const attwRedirect = (id: string, importer: string | undefined): Option.Option<string> =>
@@ -58,6 +59,14 @@ const VIRTUAL_MODULES: Readonly<Record<string, string>> = {
       "export function CompilerHostWrapper(fs, moduleResolution) {",
       "  return createCompilerHostWrapperWith(fs, moduleResolution, minimalLibDts);",
       "}",
+    ],
+    Arr.join("\n"),
+  ),
+  [VIRTUAL_TYPESCRIPT]: pipe(
+    [
+      `import { ts } from ${toJson(local("src/shared/lib/typescript/index.ts"))};`,
+      `export * from ${toJson(local("src/shared/lib/typescript/index.ts"))};`,
+      "export default ts;",
     ],
     Arr.join("\n"),
   ),
@@ -101,15 +110,7 @@ const builtAttw = {
 export default defineConfig({
   msch: {
     publish: { installSize: "75 MB" },
-    lint: {
-      ignorePatterns: ["upstream/**"],
-      overrides: [
-        {
-          files: ["src/shared/lib/typescript/index.ts"],
-          rules: { "import/no-default-export": "off" },
-        },
-      ],
-    },
+    lint: { ignorePatterns: ["upstream/**"] },
   },
   tsconfig: "tsconfig.json",
   plugins: [attwUpstream],

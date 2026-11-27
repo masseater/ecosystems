@@ -1,5 +1,4 @@
-import path from "node:path";
-
+import { matcher } from "@masseater.dev/path-kit";
 import {
   Array as Arr,
   Effect,
@@ -175,14 +174,6 @@ const rootSettings = Effect.fn("rootSettings")(function* rootSettings(root: stri
 const directivePattern = (directives: readonly string[]): RegExp =>
   new RegExp(String.raw`^\s?(?:${Arr.join(directives, "|")})`, "u");
 
-const isIgnored =
-  (patterns: readonly string[]) =>
-  (name: string): boolean =>
-    pipe(
-      patterns,
-      Arr.some((pattern) => path.matchesGlob(name, pattern)),
-    );
-
 const scannedFiles = Effect.fn("scannedFiles")(function* scannedFiles(
   root: string,
   settings: RootSettings,
@@ -191,6 +182,7 @@ const scannedFiles = Effect.fn("scannedFiles")(function* scannedFiles(
   const listed = yield* files.listedFiles(root);
   const generated = yield* files.generatedFiles(root);
   const vendored = yield* files.matchingFiles(root, [VENDORED_PATHSPEC]);
+  const isIgnored = matcher(settings.ignorePatterns);
   const skipped = HashSet.fromIterable([
     ...generated,
     ...pipe(
@@ -200,7 +192,7 @@ const scannedFiles = Effect.fn("scannedFiles")(function* scannedFiles(
   ]);
   return pipe(
     listed,
-    Arr.filter((name) => !isIgnored(settings.ignorePatterns)(name)),
+    Arr.filter((name) => !isIgnored(name)),
     Arr.map((name): Listed => ({ name, file: files.join(root, name) })),
     Arr.filter(({ file }) => !HashSet.has(skipped, file)),
   );

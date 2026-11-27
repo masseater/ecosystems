@@ -17,7 +17,6 @@ export default defineConfig({
         {
           files: ["src/app/setup.ts"],
           rules: {
-            "node/no-process-env": "off",
             "baseline-js/use-baseline": ["error", { ignoreFeatures: ["top-level-await"] }],
           },
         },

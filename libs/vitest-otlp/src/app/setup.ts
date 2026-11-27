@@ -1,8 +1,8 @@
-import { Effect, Exit, Option, Scope } from "effect";
-import { afterAll, inject } from "vite-plus/test";
+import { Effect, Exit, Option, Record as Rec, Scope } from "effect";
+import { afterAll, inject, vi } from "vite-plus/test";
 
 import { FORWARD_KEY } from "#/entities/semconv/index.ts";
-import { receiverEnvironment, startReceiver } from "#/features/receive-otlp/index.ts";
+import { receiverEnvironmentNow, startReceiver } from "#/features/receive-otlp/index.ts";
 
 import { setReceiver } from "./current-receiver.ts";
 
@@ -11,7 +11,10 @@ const forwardOrigins = Option.getOrElse(Option.fromNullishOr(inject(FORWARD_KEY)
 
 const receiver = await Effect.runPromise(Scope.provide(startReceiver(forwardOrigins), scope));
 setReceiver(Option.some(receiver));
-Object.assign(process.env, receiverEnvironment(receiver.address)(process.env));
+const environment = await Effect.runPromise(receiverEnvironmentNow(receiver.address));
+for (const [name, value] of Rec.toEntries(environment)) {
+  vi.stubEnv(name, value);
+}
 
 const stop = Effect.sync(() => {
   setReceiver(Option.none());
