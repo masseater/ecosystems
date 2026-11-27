@@ -25,6 +25,7 @@
     "skills/run-effect-main"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },

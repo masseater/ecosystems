@@ -26,6 +26,7 @@
     "skills/read-fumx"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*",
     "#generated/*": "./generated/*"
@@ -59,7 +60,6 @@
     "prepublishOnly": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm/')) { console.error('npm publish leaves catalog: in dependencies. Publish the tarball from vp pm pack instead.'); process.exit(1) }\" && vp run build"
   },
   "dependencies": {
-    "langium": "catalog:",
     "tonal": "catalog:",
     "vscode-languageserver": "catalog:"
   },
@@ -67,12 +67,19 @@
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:",
     "effect": "catalog:stack",
+    "langium": "catalog:",
     "langium-cli": "catalog:",
     "typescript": "catalog:stack",
     "vite-plus": "catalog:stack"
   },
   "peerDependencies": {
-    "effect": "^4.1.0"
+    "effect": "^4.1.0",
+    "langium": ">=4.4.2"
+  },
+  "peerDependenciesMeta": {
+    "langium": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=26.13.1"

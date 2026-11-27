@@ -43,6 +43,7 @@ export {
   isEnumDeclaration,
   isExportAssignment,
   isExportDeclaration,
+  isExpressionStatement,
   isFunctionDeclaration,
   isFunctionExpression,
   isIdentifier,

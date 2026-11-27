@@ -29,6 +29,7 @@
     "skills/lint-workflows"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },

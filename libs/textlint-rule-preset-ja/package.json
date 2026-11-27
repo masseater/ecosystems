@@ -27,6 +27,7 @@
     "upstream/UNICODE-LICENSE.txt"
   ],
   "type": "module",
+  "sideEffects": false,
   "main": "./src/app/index.ts",
   "imports": {
     "#upstream/*": "./upstream/*",

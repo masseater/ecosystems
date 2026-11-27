@@ -30,6 +30,7 @@
     "skills/lint-songs"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },
@@ -63,7 +64,8 @@
   },
   "dependencies": {
     "@effect/platform-node": "catalog:",
-    "@r_masseater/fumx-parser": "workspace:*"
+    "@r_masseater/fumx-parser": "workspace:*",
+    "langium": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",

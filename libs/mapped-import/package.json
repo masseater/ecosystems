@@ -25,6 +25,7 @@
     "skills/import-custom-format"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },
@@ -56,19 +57,27 @@
   "scripts": {
     "prepublishOnly": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm/')) { console.error('npm publish leaves catalog: in dependencies. Publish the tarball from vp pm pack instead.'); process.exit(1) }\" && vp run build"
   },
-  "dependencies": {
-    "@effect/platform-node": "catalog:",
-    "ts-content-mapper": "0.1.1"
-  },
   "devDependencies": {
+    "@effect/platform-node": "catalog:",
     "@types/node": "catalog:",
     "effect": "catalog:stack",
+    "ts-content-mapper": "0.1.1",
     "typescript": "catalog:stack",
     "vite-plus": "catalog:stack"
   },
   "peerDependencies": {
+    "@effect/platform-node": ">=4.1.5",
     "effect": "^4.1.0",
+    "ts-content-mapper": ">=0.1.1",
     "vite-plus": "^1.8.0"
+  },
+  "peerDependenciesMeta": {
+    "@effect/platform-node": {
+      "optional": true
+    },
+    "ts-content-mapper": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=26.13.1"

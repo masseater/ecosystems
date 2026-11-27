@@ -32,6 +32,9 @@
     "skills/use-fumx-tools"
   ],
   "type": "module",
+  "sideEffects": [
+    "./dist/mapper.mjs"
+  ],
   "imports": {
     "#/*": "./src/*"
   },
@@ -67,29 +70,43 @@
     "prepublishOnly": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm/')) { console.error('npm publish leaves catalog: in dependencies. Publish the tarball from vp pm pack instead.'); process.exit(1) }\" && vp run build"
   },
   "dependencies": {
-    "@effect/platform-node-shared": "catalog:",
     "@r_masseater/fumx-parser": "workspace:^",
-    "@r_masseater/mapped-import": "workspace:^",
     "ableton-als": "catalog:",
     "fast-xml-parser": "catalog:",
     "langium": "catalog:",
     "midi-file": "catalog:",
     "tonal": "catalog:",
-    "ts-content-mapper": "0.1.1",
     "vscode-languageserver": "catalog:"
   },
   "devDependencies": {
+    "@effect/platform-node-shared": "catalog:",
     "@effect/vitest": "catalog:",
+    "@r_masseater/mapped-import": "workspace:^",
     "@r_masseater/node-main": "workspace:*",
     "@r_masseater/song-format": "workspace:*",
     "@types/node": "catalog:",
     "effect": "catalog:stack",
+    "ts-content-mapper": "0.1.1",
     "typescript": "catalog:stack",
     "vite-plus": "catalog:stack"
   },
   "peerDependencies": {
+    "@effect/platform-node-shared": ">=4.1.5",
+    "@r_masseater/mapped-import": "workspace:^",
     "effect": "^4.1.0",
+    "ts-content-mapper": ">=0.1.1",
     "vite-plus": "^1.8.0"
+  },
+  "peerDependenciesMeta": {
+    "@effect/platform-node-shared": {
+      "optional": true
+    },
+    "@r_masseater/mapped-import": {
+      "optional": true
+    },
+    "ts-content-mapper": {
+      "optional": true
+    }
   },
   "typescript": {
     "contentMapper": {

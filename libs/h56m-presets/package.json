@@ -29,6 +29,7 @@
     "skills/use-h56m-presets"
   ],
   "type": "module",
+  "sideEffects": false,
   "imports": {
     "#/*": "./src/*"
   },
