@@ -223,15 +223,20 @@ const gunzip = (bytes: Uint8Array): Effect.Effect<string, UnreadableAls> =>
     catch: (cause) => UnreadableAls.make({ message: `Not a gzipped Live Set: ${String(cause)}` }),
   });
 
-export const readAlsDocument = Effect.fn("readAlsDocument")(function* read(bytes: Uint8Array) {
-  const xml = yield* gunzip(bytes);
-  const parsed = yield* Effect.try({
-    try: () => flattened(parser.parse(xml)),
-    catch: (cause) => UnreadableAls.make({ message: `Not XML: ${String(cause)}` }),
+export type AlsDocument = typeof DocumentSchema.Type;
+
+export const readAlsDocument: (bytes: Uint8Array) => Effect.Effect<AlsDocument, UnreadableAls> =
+  Effect.fn("readAlsDocument")(function* read(
+    bytes: Uint8Array,
+  ): Effect.fn.Return<AlsDocument, UnreadableAls> {
+    const xml = yield* gunzip(bytes);
+    const parsed = yield* Effect.try({
+      try: () => flattened(parser.parse(xml)),
+      catch: (cause) => UnreadableAls.make({ message: `Not XML: ${String(cause)}` }),
+    });
+    return yield* decodeDocument(parsed).pipe(
+      Effect.mapError((issue) =>
+        UnreadableAls.make({ message: `Not a Live Set this converter reads: ${String(issue)}` }),
+      ),
+    );
   });
-  return yield* decodeDocument(parsed).pipe(
-    Effect.mapError((issue) =>
-      UnreadableAls.make({ message: `Not a Live Set this converter reads: ${String(issue)}` }),
-    ),
-  );
-});
