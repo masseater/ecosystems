@@ -1,4 +1,4 @@
-import { mustSucceed, outputOf, succeeds } from "@masseater.dev/github-workflow";
+import { mustSucceed, outputOf, succeeds } from "@r_masseater/github-workflow";
 import { Array as Arr, Config, Effect, Option, Schema, pipe } from "effect";
 import semver from "semver";
 

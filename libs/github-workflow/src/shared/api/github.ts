@@ -6,7 +6,7 @@ import type { HttpBody, HttpClientError, HttpMethod } from "effect/http";
 const API = "https://api.github.com";
 const HEADERS = {
   accept: "application/vnd.github+json",
-  "user-agent": "masseater.dev",
+  "user-agent": "@r_masseater/github-workflow",
   "x-github-api-version": "2022-11-28",
 };
 

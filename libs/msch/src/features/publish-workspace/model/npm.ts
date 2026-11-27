@@ -1,4 +1,4 @@
-import { mustSucceed } from "@masseater.dev/github-workflow";
+import { mustSucceed } from "@r_masseater/github-workflow";
 import {
   Array as Arr,
   Console,

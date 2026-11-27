@@ -1,4 +1,4 @@
-import { outputOf, succeeds, writeOutputs } from "@masseater.dev/github-workflow";
+import { outputOf, succeeds, writeOutputs } from "@r_masseater/github-workflow";
 import {
   Array as Arr,
   Config,

@@ -1,4 +1,4 @@
-import { succeeds } from "@masseater.dev/github-workflow";
+import { succeeds } from "@r_masseater/github-workflow";
 import { Array as Arr, Effect, Option, Record as Rec, Schema, String as Str, pipe } from "effect";
 
 import { goesToNpm, manifestIn } from "./manifest.ts";
