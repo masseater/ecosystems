@@ -1,7 +1,8 @@
 import type { InputKind, Source, YamlNode } from "@r_masseater/fu4";
-import { Array as Arr, Option, Result, String as Str, pipe } from "effect";
+import { Option, Result, pipe } from "effect";
 
 import type { AuditInput } from "#/features/audit-workflows/model/input.ts";
+import { baseName } from "#/shared/text/index.ts";
 import { documentOf } from "#/shared/yamlpath/index.ts";
 import type { Document } from "#/shared/yamlpath/index.ts";
 
@@ -14,13 +15,6 @@ const HOOKS = ".pre-commit-hooks.yaml";
 const EMPTY = (): string => "empty input";
 
 const cache = new WeakMap<Source, Option.Option<AuditInput>>();
-
-const baseName = (path: string): string =>
-  pipe(
-    Str.split("/")(path),
-    Arr.last,
-    Option.getOrElse(() => path),
-  );
 
 interface Base {
   readonly filename: string;

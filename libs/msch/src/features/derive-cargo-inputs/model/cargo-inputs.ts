@@ -1,14 +1,14 @@
 import { Array as Arr, Option, String as Str, pipe } from "effect";
 
+import { SEPARATOR, isWithin } from "#/shared/lib/path-segments.ts";
+
 import {
   LOCK_FILE,
   MANIFEST_FILE,
-  SEPARATOR,
   WORKSPACE_CACHE,
   closureOf,
   directoryOf,
   isLocal,
-  isWithin,
   relativeTo,
 } from "./cargo-metadata.ts";
 import type { CargoMetadata, CargoPackage, CargoWorkspace } from "./cargo-metadata.ts";

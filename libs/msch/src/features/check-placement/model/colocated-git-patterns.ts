@@ -2,13 +2,13 @@ import { Array as Arr, Effect, Option, String as Str, pipe } from "effect";
 
 import { MANIFEST_FILE } from "#/entities/package/index.ts";
 import { workspaceDirectories } from "#/entities/workspace/index.ts";
+import { SEPARATOR, isInside } from "#/shared/lib/path-segments.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
 const RULE: RuleName = "colocated-git-patterns";
 const PATTERN_FILES = [":(glob)**/.gitignore", ":(glob)**/.gitattributes"] as const;
 const ROOT = ".";
-const SEPARATOR = "/";
 const NEGATION = "!";
 const COMMENT = "#";
 const ANY_DEPTH = "**";
@@ -27,12 +27,6 @@ interface PatternEntry {
   readonly pattern: string;
   readonly values: string;
 }
-
-const isInside =
-  (directory: string) =>
-  (inner: string): boolean =>
-    inner !== directory &&
-    (directory === ROOT || Str.startsWith(`${directory}${SEPARATOR}`)(inner));
 
 const withoutPrefix = (prefix: string, text: string): string => {
   if (Str.startsWith(prefix)(text)) {

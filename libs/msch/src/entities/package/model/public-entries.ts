@@ -8,12 +8,13 @@ import {
   pipe,
 } from "effect";
 
+import { baseName } from "#/shared/lib/path-segments.ts";
+
 import type { PackEntrySource } from "./published.ts";
 
 const SOURCE = /\.[cm]?tsx?$/u;
 const BUILT = /\.(?:d\.)?[cm]?[jt]s$/u;
 const DECLARATION = ".d.";
-const SEPARATOR = "/";
 const ROOT_SUBPATH = ".";
 const BIN_LABEL = "bin";
 
@@ -74,13 +75,7 @@ const binsOf = (manifest: EntryManifest): readonly (readonly [string, unknown])[
   );
 };
 
-const baseNameOf = (target: string): string =>
-  pipe(
-    Str.split(target, SEPARATOR),
-    Arr.last,
-    Option.getOrElse(() => target),
-    Str.replace(BUILT, ""),
-  );
+const trimmedBase = (target: string): string => Str.replace(BUILT, "")(baseName(target));
 
 const sourceOf =
   ({ join, packEntries }: EntryLookup) =>
@@ -88,7 +83,7 @@ const sourceOf =
     if (SOURCE.test(target) && !Str.includes(DECLARATION)(target)) {
       return Option.some(join(target));
     }
-    const name = baseNameOf(target);
+    const name = trimmedBase(target);
     return pipe(
       packEntries,
       Arr.findFirst((entry) => entry.name === name),

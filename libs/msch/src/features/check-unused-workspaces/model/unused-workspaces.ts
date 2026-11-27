@@ -13,6 +13,7 @@ import {
   workspaceLinks,
 } from "#/entities/workspace/index.ts";
 import type { WorkspaceLink } from "#/entities/workspace/index.ts";
+import { isInside } from "#/shared/lib/path-segments.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
@@ -20,7 +21,6 @@ const RULE: RuleName = "unused-workspace";
 const CARGO_FILE = "Cargo.toml";
 const ROOT_DIRECTORY = "";
 const TASK_SEPARATOR = "#";
-const SEPARATOR = "/";
 const START = 0;
 const FIRST = 1;
 const READ_CONCURRENCY = 8;
@@ -125,11 +125,6 @@ const taskTargets = Effect.fn("taskTargets")(function* taskTargets(
   );
 });
 
-const isWithin =
-  (directory: string) =>
-  (file: string): boolean =>
-    Str.startsWith(`${directory}${SEPARATOR}`)(file);
-
 interface MemberRequest {
   readonly root: string;
   readonly directory: string;
@@ -154,7 +149,7 @@ const memberOf = Effect.fn("memberOf")(function* memberOf(request: MemberRequest
       entry:
         manifest.private !== true ||
         Predicate.isNotUndefined(manifest.bin) ||
-        pipe(deployed, Arr.some(isWithin(directory))),
+        pipe(deployed, Arr.some(isInside(directory))),
     })),
   );
 });

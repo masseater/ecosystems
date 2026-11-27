@@ -37,6 +37,11 @@
       "ignoreTests": false
     },
     {
+      "description": "公開ライブラリの engines.node は対応する下限を範囲で書く。Renovate が現在の版に固定すると、その版でしか動かない宣言になる。更新しない。",
+      "matchDepTypes": ["engines"],
+      "enabled": false
+    },
+    {
       "description": "patches/ の crate はルートの Cargo.lock で解決される。Renovate は写しの Cargo.toml と写し自身の Cargo.lock だけを上げ、ルートの Cargo.lock と食い違って cargo の --locked が落ちる (#1283, #1284, #1289)。更新しない。",
       "matchFileNames": ["patches/**"],
       "enabled": false

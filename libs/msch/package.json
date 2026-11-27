@@ -169,9 +169,9 @@
     "effect": "^4.1.0",
     "typescript": ">=7.1.0-beta",
     "vite": "*",
-    "vite-plus": ">=1.7.0"
+    "vite-plus": ">=1.8.0"
   },
   "engines": {
-    "node": "v26.13.1"
+    "node": ">=26.13.1"
   }
 }

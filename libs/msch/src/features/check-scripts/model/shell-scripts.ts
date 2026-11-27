@@ -1,5 +1,6 @@
 import { Array as Arr, Effect, Option, Schema, String as Str, pipe } from "effect";
 
+import { baseName } from "#/shared/lib/path-segments.ts";
 import { problemInFile } from "#/shared/lib/problem.ts";
 import type { RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
@@ -15,10 +16,12 @@ const MESSAGE =
 
 const HookSchema = Schema.Struct({
   command: Schema.optional(Schema.String),
-  args: Schema.optional(Schema.Array(Schema.String)),
+  args: Schema.String.pipe(Schema.Array, Schema.optional),
 });
 const MatcherSchema = Schema.Struct({ hooks: Schema.Array(HookSchema) });
-const HooksSchema = Schema.Struct({ SessionStart: Schema.optional(Schema.Array(MatcherSchema)) });
+const HooksSchema = Schema.Struct({
+  SessionStart: MatcherSchema.pipe(Schema.Array, Schema.optional),
+});
 const SettingsSchema = Schema.Struct({ hooks: Schema.optional(HooksSchema) });
 const decodeSettings = Schema.decodeOption(Schema.fromJsonString(SettingsSchema));
 
@@ -53,13 +56,6 @@ const sessionStartCommands = (source: string): readonly string[] => {
     Option.getOrElse(() => NO_TEXT),
   );
 };
-
-const baseName = (name: string): string =>
-  pipe(
-    Str.split("/")(name),
-    Arr.last,
-    Option.getOrElse(() => name),
-  );
 
 const hasExtension = (name: string): boolean => EXTENSION.test(baseName(name));
 

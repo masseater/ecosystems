@@ -1,6 +1,8 @@
 import type { SyntaxNode } from "@r_masseater/fu4";
 import { Array as Arr, Option, String as Str, pipe } from "effect";
 
+import { isAppending, targetOf } from "#/shared/shell/assignment.ts";
+import type { Target } from "#/shared/shell/assignment.ts";
 import { fieldOf } from "#/shared/syntax/index.ts";
 
 import type { Analysis, Execute } from "./analysis.ts";
@@ -15,31 +17,6 @@ interface Assignment {
   readonly node: SyntaxNode;
   readonly integer: boolean;
 }
-
-interface Target {
-  readonly name: string;
-  readonly subscript: boolean;
-}
-
-const isAppend = (node: SyntaxNode): boolean =>
-  pipe(
-    node.children,
-    Arr.some((child) => !child.named && child.type === "+="),
-  );
-
-const targetOf = (node: SyntaxNode): Option.Option<Target> =>
-  pipe(
-    fieldOf("name")(node),
-    Option.flatMap((name) => {
-      if (name.type === "subscript") {
-        return pipe(
-          fieldOf("name")(name),
-          Option.map((found): Target => ({ name: found.text, subscript: true })),
-        );
-      }
-      return Option.some({ name: name.text, subscript: false });
-    }),
-  );
 
 const assignedStatus = (scope: Scope, { node, integer }: Assignment, name: string): Status => {
   if (integer || isInteger(name)(scope)) {
@@ -56,7 +33,7 @@ const nextStatus = (scope: Scope, assignment: Assignment, target: Target): Statu
     return "dirty";
   }
   const status = assignedStatus(scope, assignment, target.name);
-  if (isAppend(assignment.node)) {
+  if (isAppending(assignment.node)) {
     return appendAll([statusOf(target.name)(scope), status]);
   }
   return status;

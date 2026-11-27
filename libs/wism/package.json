@@ -76,10 +76,10 @@
   "peerDependencies": {
     "effect": "^4.1.0",
     "vite": "*",
-    "vite-plus": ">=1.7.0"
+    "vite-plus": ">=1.8.0"
   },
   "engines": {
-    "node": "v26.13.1"
+    "node": ">=26.13.1"
   },
   "native": {
     "binary": "wism",

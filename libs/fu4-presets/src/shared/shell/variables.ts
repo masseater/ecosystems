@@ -3,6 +3,7 @@ import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import { fieldOf } from "#/shared/syntax/index.ts";
 
+import { isAppending, targetOf } from "./assignment.ts";
 import { findingAt, report } from "./finding.ts";
 import type { State } from "./finding.ts";
 import { INTERNAL_VARIABLES } from "./internal-variables.ts";
@@ -39,22 +40,10 @@ const isExported = (node: SyntaxNode): boolean =>
       (parent.type === "declaration_command" && isExportingDeclaration(parent)),
   );
 
-const isAppending = (node: SyntaxNode): boolean =>
-  pipe(
-    node.children,
-    Arr.some((child) => !child.named && child.type === "+="),
-  );
-
 const assignedName = (node: SyntaxNode): Option.Option<string> =>
   pipe(
-    fieldOf("name")(node),
-    Option.map((name) => {
-      if (name.type === "subscript") {
-        return Option.getOrElse(fieldOf("name")(name), () => name);
-      }
-      return name;
-    }),
-    Option.map((name) => name.text),
+    targetOf(node),
+    Option.map(({ name }) => name),
     Option.filter((name) => !Str.startsWith("_")(name)),
   );
 
