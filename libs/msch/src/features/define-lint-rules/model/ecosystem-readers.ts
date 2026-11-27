@@ -1,5 +1,7 @@
-import { Array as Arr, Option, Record as Rec, String as Str, pipe } from "effect";
+import { Array as Arr, Option, Record as Rec, pipe } from "effect";
 import type { Context, ESTree, Rule } from "vite-plus/lint/plugins";
+
+import { baseName } from "#/shared/lib/path-segments.ts";
 
 type Format = "json" | "toml" | "typescript" | "yaml";
 
@@ -49,15 +51,6 @@ const PARSER_CALLS: Readonly<Record<Format, Option.Option<RegExp>>> = {
   yaml: Option.none(),
 };
 
-const SEPARATOR = "/";
-
-const baseNameOf = (text: string): string =>
-  pipe(
-    Str.split(text, SEPARATOR),
-    Arr.last,
-    Option.getOrElse(() => text),
-  );
-
 const importedModules = (statements: readonly ESTree.Statement[]): readonly string[] =>
   pipe(
     statements,
@@ -88,7 +81,7 @@ const parserIn =
 const messageFor =
   (context: Context) =>
   (text: string): Option.Option<string> => {
-    const name = baseNameOf(text);
+    const name = baseName(text);
     return pipe(
       ECOSYSTEM_FILES,
       Arr.findFirst((entry) => entry.name.test(name)),

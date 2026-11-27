@@ -1,8 +1,8 @@
 import { Array as Arr, Option, Record as Rec, Schema, String as Str, pipe } from "effect";
 
+import { SEPARATOR } from "#/shared/lib/path-segments.ts";
 import { reachable } from "#/shared/lib/reachable.ts";
 
-export const SEPARATOR = "/";
 export const LOCK_FILE = "Cargo.lock";
 export const MANIFEST_FILE = "Cargo.toml";
 export const WORKSPACE_CACHE = "node_modules/.cache/msch/cargo-workspace.json";
@@ -55,13 +55,6 @@ export const relativeTo =
 
 export const directoryOf = (file: string): string =>
   pipe(normalized(file), Str.replace(LAST_SEGMENT, ""));
-
-export const isWithin =
-  (directory: string) =>
-  (path: string): boolean =>
-    Str.isEmpty(directory) ||
-    path === directory ||
-    Str.startsWith(`${directory}${SEPARATOR}`)(path);
 
 export const isLocal = (entry: CargoPackage): boolean => entry.source === null;
 

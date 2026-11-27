@@ -5,7 +5,7 @@ import { cleanJoin, joinPath } from "#/entities/action/index.ts";
 import type { ActionRuns, LocalAction } from "#/entities/action/index.ts";
 import type { Fail } from "#/features/check-workflows/lib/workflow-rule.ts";
 import data from "#/shared/data/action.json" with { type: "json" };
-import { quote } from "#/shared/text/index.ts";
+import { baseName, quote } from "#/shared/text/index.ts";
 import type { Text } from "#/shared/yaml/index.ts";
 
 export const DOCS =
@@ -134,14 +134,6 @@ const isOnRegistry = (image: string): boolean =>
   pipe(
     REGISTRIES,
     Arr.some((prefix) => Str.startsWith(prefix)(image)),
-  );
-
-const baseName = (path: string): string =>
-  pipe(
-    Str.split("/")(path),
-    Arr.filter(Str.isNonEmpty),
-    Arr.last,
-    Option.getOrElse(() => ""),
   );
 
 const checkImage = (local: Local, image: string): void => {
