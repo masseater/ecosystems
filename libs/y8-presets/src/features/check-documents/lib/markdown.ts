@@ -1,3 +1,4 @@
+import { groupedUnder } from "@masseater.dev/lint-host/collections";
 import type { MarkdownNode, RuleContext } from "@r_masseater/y8";
 import { Array as Arr, Option, Predicate, String as Str, pipe } from "effect";
 
@@ -83,29 +84,18 @@ const isHeadingAtMost =
   (node: MarkdownNode): boolean =>
     node.type === "heading" && levelOf(node) <= level;
 
-export const sectionsOf = (context: RuleContext): readonly Section[] => {
-  const blocks = context.root.children;
-  return pipe(
-    blocks,
-    Arr.flatMap((node, index) =>
-      Option.toArray(
-        Option.liftPredicate(node, (block) => block.type === "heading").pipe(
-          Option.map((block): Section => {
-            const heading = headingOf(context)(block);
-            const rest = Arr.drop(blocks, index + ONE);
-            return {
-              heading,
-              blocks: pipe(
-                rest,
-                Arr.takeWhile((next) => !isHeadingAtMost(heading.level)(next)),
-              ),
-            };
-          }),
-        ),
-      ),
-    ),
+const asHeadingNode = (node: MarkdownNode): Option.Option<MarkdownNode> =>
+  Option.liftPredicate(node, (block) => block.type === "heading");
+
+const sectionsUnder = groupedUnder(asHeadingNode)((block: MarkdownNode, next: MarkdownNode) =>
+  isHeadingAtMost(levelOf(block))(next),
+);
+
+export const sectionsOf = (context: RuleContext): readonly Section[] =>
+  pipe(
+    sectionsUnder(context.root.children),
+    Arr.map(({ head, items }) => ({ heading: headingOf(context)(head), blocks: items })),
   );
-};
 
 export const matchesAny =
   (names: readonly string[]) =>

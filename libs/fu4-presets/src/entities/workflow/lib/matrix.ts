@@ -1,4 +1,4 @@
-import { sortedRecord } from "@masseater.dev/lint-host/records";
+import { sortedRecord } from "@masseater.dev/lint-host/collections";
 import type { Position, YamlNode } from "@r_masseater/fu4";
 import { Option, Record as Rec } from "effect";
 

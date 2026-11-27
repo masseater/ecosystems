@@ -60,7 +60,6 @@
     "effect": "catalog:stack",
     "hast-util-from-html": "catalog:",
     "hast-util-select": "catalog:",
-    "hast-util-to-string": "catalog:",
     "liquidjs": "catalog:",
     "mdast-util-to-string": "catalog:",
     "minimatch": "catalog:",

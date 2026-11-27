@@ -1,7 +1,7 @@
+import { groupedUnder } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Option, String as Str, pipe } from "effect";
 import type { Element, Root as HtmlRoot } from "hast";
 import { fromHtml } from "hast-util-from-html";
-import { toString as htmlText } from "hast-util-to-string";
 import type { Heading, Root, RootContent, Table, TableRow } from "mdast";
 import { toString as textOf } from "mdast-util-to-string";
 import remarkGfm from "remark-gfm";
@@ -10,7 +10,6 @@ import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
 const HEADER_ROWS = 1;
-const NEXT = 1;
 const SINGLE = 1;
 
 export interface Section {
@@ -44,34 +43,18 @@ export const codeAt =
 export const bodyRows = (table: Table): readonly TableRow[] =>
   pipe(table.children, Arr.drop(HEADER_ROWS));
 
-export const sections = (root: Root): readonly Section[] => {
-  const headings = pipe(
-    root.children,
-    Arr.map((node, index) =>
-      pipe(
-        Option.some(node),
-        Option.filter((candidate): candidate is Heading => candidate.type === "heading"),
-        Option.map((heading) => ({ heading, index })),
-      ),
-    ),
-    Arr.getSomes,
+const asHeading = (node: RootContent): Option.Option<Heading> =>
+  Option.liftPredicate(node, (candidate): candidate is Heading => candidate.type === "heading");
+
+const sectionsUnder = groupedUnder(asHeading)(
+  (_heading, next: RootContent) => next.type === "heading",
+);
+
+export const sections = (root: Root): readonly Section[] =>
+  pipe(
+    sectionsUnder(root.children),
+    Arr.map(({ head, items }) => ({ title: textOf(head), depth: head.depth, nodes: items })),
   );
-  return pipe(
-    headings,
-    Arr.map(({ heading, index }, position) => {
-      const end = pipe(
-        Arr.get(headings, position + NEXT),
-        Option.map((next) => next.index),
-        Option.getOrElse(() => root.children.length),
-      );
-      return {
-        title: textOf(heading),
-        depth: heading.depth,
-        nodes: pipe(root.children, Arr.take(end), Arr.drop(index + NEXT)),
-      };
-    }),
-  );
-};
 
 export const tablesOf = (section: Section): readonly Table[] =>
   pipe(
@@ -105,7 +88,7 @@ export const htmlOf = (node: RootContent): string => {
   return Arr.join(found, "");
 };
 
-export const textOfHtml = (node: Element): string => Str.trim(htmlText(node));
+export const textOfHtml = (node: Element): string => Str.trim(textOf(node));
 
 export const listOf = (text: string): readonly string[] =>
   pipe(

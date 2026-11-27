@@ -1,4 +1,4 @@
-import { sortedRecord } from "@masseater.dev/lint-host/records";
+import { sortedRecord } from "@masseater.dev/lint-host/collections";
 import { readSong } from "@r_masseater/fumx-parser";
 import { soundingsOf } from "@r_masseater/fumx-parser/analysis";
 import { midiToFumx } from "@r_masseater/song-format/convert-midi";

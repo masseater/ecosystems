@@ -1,4 +1,4 @@
-import { sortedRecord } from "@masseater.dev/lint-host/records";
+import { sortedRecord } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, pipe } from "effect";
 
 import type { ExecAction, ExecRun, Input } from "#/entities/workflow/model/job-types.ts";

@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@effect/platform-node": "catalog:",
+    "@masseater.dev/lint-host": "workspace:*",
     "@r_masseater/y8": "workspace:*",
     "@types/node": "catalog:",
     "effect": "catalog:stack",
