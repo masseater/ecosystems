@@ -262,8 +262,8 @@ catalogs:
       specifier: 0.13.0
       version: 0.13.0
     '@remotion/eslint-plugin':
-      specifier: 4.0.546
-      version: 4.0.546
+      specifier: 4.0.547
+      version: 4.0.547
     '@shadcn/lint':
       specifier: 0.2.5
       version: 0.2.5
@@ -316,8 +316,8 @@ catalogs:
       specifier: 26.6.6
       version: 26.6.6
     '@types/react':
-      specifier: 19.3.0
-      version: 19.3.0
+      specifier: 19.3.1
+      version: 19.3.1
     '@types/semver':
       specifier: 7.8.0
       version: 7.8.0
@@ -1092,7 +1092,7 @@ importers:
         version: 0.13.0(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)(vite-plus@1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))
       '@remotion/eslint-plugin':
         specifier: 'catalog:'
-        version: 4.0.546(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))
+        version: 4.0.547(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))
       '@size-limit/file':
         specifier: 'catalog:'
         version: 14.3.0(size-limit@14.3.0)
@@ -1113,7 +1113,7 @@ importers:
         version: 26.6.6
       '@types/react':
         specifier: 'catalog:'
-        version: 19.3.0
+        version: 19.3.1
       '@typescript-eslint/parser':
         specifier: 'catalog:'
         version: 8.74.0(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)
@@ -3462,8 +3462,8 @@ packages:
     peerDependencies:
       '@redis/client': ^6.2.1
 
-  '@remotion/eslint-plugin@4.0.546':
-    resolution: {integrity: sha512-MyESGZ9r6u/VM7dS1JjdRA4RGb4I0a5lrlRnGwYLq6whMojR/Fct2eOZjcRKkxdPU/CKt1/Z3704GYZkE173qg==}
+  '@remotion/eslint-plugin@4.0.547':
+    resolution: {integrity: sha512-xNQOXZKHw7dGDW+roAkazl/6k1Zb2fcGiUJ6xz1PhjatiaWtNJ+UrH/CHRkORvIMLB3yk2pTDnIQI+OXQ+dHhA==}
     peerDependencies:
       eslint: '>=7.0.0'
 
@@ -3913,8 +3913,8 @@ packages:
   '@types/node@26.6.6':
     resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
 
-  '@types/react@19.3.0':
-    resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
+  '@types/react@19.3.1':
+    resolution: {integrity: sha512-HNTkBIm8zmHX8LUXX2vtZ/ONzehrV1J3abl2fUIiZ5qxTYRCj/z+rDeFwOltqCLl9lRdUTKWT41OLtYuFV/Arg==}
 
   '@types/semver@7.8.0':
     resolution: {integrity: sha512-1mAINjtQCXXeLkJ9ehXkwOcBpqtLxiVtKhpUf83DdRNdQKV0iXZpaHYqRr7nj+wvxuJzoAmAwXI+sCNMv1CzLQ==}
@@ -8977,7 +8977,7 @@ snapshots:
     dependencies:
       '@redis/client': 6.2.1(@opentelemetry/api@1.10.0)
 
-  '@remotion/eslint-plugin@4.0.546(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))':
+  '@remotion/eslint-plugin@4.0.547(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))':
     dependencies:
       eslint: 10.15.0(jiti@2.7.0)(supports-color@10.2.2)
 
@@ -9546,7 +9546,7 @@ snapshots:
     dependencies:
       undici-types: 8.9.0
 
-  '@types/react@19.3.0':
+  '@types/react@19.3.1':
     dependencies:
       csstype: 3.2.3
 
