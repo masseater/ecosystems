@@ -31,3 +31,4 @@ export {
 } from "#/shared/lib/words.ts";
 export { diagnosticDetail, formatDiagnostic } from "#/shared/lib/diagnostic.ts";
 export type { Reportable } from "#/shared/lib/diagnostic.ts";
+export { pathspecsOf, sectionOf } from "#/shared/lib/section.ts";

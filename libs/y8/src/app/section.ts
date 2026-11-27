@@ -1,32 +1,15 @@
-import { Array as Arr, Option, Predicate, pipe } from "effect";
+import { pathspecsOf, sectionOf } from "@masseater.dev/lint-host";
+import type { PathspecRequest } from "@masseater.dev/lint-host";
 
 import { flattenConfig } from "#/entities/rule/index.ts";
 import type { Y8Config } from "#/shared/config/index.ts";
 
-const MARKDOWN = "*.md";
+export type PathspecInput = PathspecRequest<Y8Config>;
 
-const hasSection = (value: unknown): value is { readonly y8: Y8Config } =>
-  Predicate.hasProperty(value, "y8") && Predicate.isObject(value.y8);
+export const y8Section = sectionOf<Y8Config>({
+  name: "y8",
+  prepare: flattenConfig,
+  fallback: {},
+});
 
-export const y8Section = (config: unknown): Y8Config =>
-  pipe(
-    Option.liftPredicate(config, hasSection),
-    Option.map((value) => flattenConfig(value.y8)),
-    Option.getOrElse((): Y8Config => ({})),
-  );
-
-export interface PathspecInput {
-  readonly config: Y8Config;
-  readonly patterns?: readonly string[];
-}
-
-export const markdownPathspecs = ({
-  config,
-  patterns = [MARKDOWN],
-}: PathspecInput): readonly string[] => [
-  ...patterns,
-  ...pipe(
-    config.ignores ?? [],
-    Arr.map((glob) => `:(glob,exclude)${glob}`),
-  ),
-];
+export const markdownPathspecs = pathspecsOf({ defaults: ["*.md"] });
