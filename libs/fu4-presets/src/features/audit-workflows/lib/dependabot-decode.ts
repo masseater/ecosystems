@@ -81,28 +81,23 @@ const DIGITS = /^\d+$/u;
 const noStrings = (): readonly string[] => [];
 const noEntries = <Value>(): ReadonlyMap<string, Value> => new Map();
 
+const u64 = (value: number, isInteger: boolean): Result.Result<number, string> =>
+  Result.liftPredicate(
+    value,
+    (each) => isInteger && each >= MINIMUM,
+    () => "expected u64",
+  );
+
 const unsigned: Decoder<number> = (node) =>
   pipe(
     number(node),
-    Result.flatMap((value) =>
-      Result.liftPredicate(
-        value,
-        (each) => node.tag === "!!int" && each >= MINIMUM,
-        () => "expected u64",
-      ),
-    ),
+    Result.flatMap((value) => u64(value, node.tag === "!!int")),
   );
 
 const lenientUnsigned: Decoder<number> = (node) =>
   pipe(
     anyScalar(node),
-    Result.flatMap((text) =>
-      Result.liftPredicate(
-        Number(text),
-        (value) => DIGITS.test(text) && value >= MINIMUM,
-        () => "expected u64",
-      ),
-    ),
+    Result.flatMap((text) => u64(Number(text), DIGITS.test(text))),
   );
 
 const strings = sequence(string);

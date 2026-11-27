@@ -23,15 +23,25 @@ export const CANDIDATE_LIMIT = 3;
 
 const FIRST = 1;
 
-export const problemInFile =
+export interface Position {
+  readonly line: number;
+  readonly column: number;
+}
+
+export const problemAtPosition =
   (rule: RuleName) =>
-  (file: string, message: string): Problem => ({
+  (file: string, { line, column }: Readonly<Position>, message: string): Problem => ({
     file,
-    line: FIRST,
-    column: FIRST,
+    line,
+    column,
     rule,
     message,
   });
+
+export const problemInFile =
+  (rule: RuleName) =>
+  (file: string, message: string): Problem =>
+    problemAtPosition(rule)(file, { line: FIRST, column: FIRST }, message);
 
 export interface Finding {
   readonly rule: RuleName;

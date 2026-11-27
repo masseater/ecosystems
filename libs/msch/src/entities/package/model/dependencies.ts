@@ -230,23 +230,27 @@ const entriesOfDependency = Effect.fn("entriesOfDependency")(function* entriesOf
   return [...rootEntries, ...subpathEntries];
 });
 
-const declaredDependencies = (manifest: Manifest): readonly string[] =>
+const isWorkspaceRange = Str.startsWith(WORKSPACE_PROTOCOL);
+
+const namesWhere = (
+  keep: (range: string) => boolean,
+  declared: Readonly<Record<string, string>>,
+): readonly string[] =>
   pipe(
-    Rec.toEntries({
-      ...manifest.dependencies,
-      ...manifest.devDependencies,
-      ...manifest.peerDependencies,
-    }),
-    Arr.filter(([, range]) => !Str.startsWith(WORKSPACE_PROTOCOL)(range)),
+    Rec.toEntries(declared),
+    Arr.filter(([, range]) => keep(range)),
     Arr.map(([packageName]) => packageName),
   );
 
+const declaredDependencies = (manifest: Manifest): readonly string[] =>
+  namesWhere((range) => !isWorkspaceRange(range), {
+    ...manifest.dependencies,
+    ...manifest.devDependencies,
+    ...manifest.peerDependencies,
+  });
+
 export const workspaceDependencies = (manifest: Manifest): readonly string[] =>
-  pipe(
-    Rec.toEntries({ ...manifest.dependencies, ...manifest.devDependencies }),
-    Arr.filter(([, range]) => Str.startsWith(WORKSPACE_PROTOCOL)(range)),
-    Arr.map(([packageName]) => packageName),
-  );
+  namesWhere(isWorkspaceRange, { ...manifest.dependencies, ...manifest.devDependencies });
 
 const entryOrder = Order.mapInput(Order.String, (entry: DependencyEntry) => entry.specifier);
 

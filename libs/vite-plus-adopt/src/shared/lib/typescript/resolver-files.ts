@@ -31,50 +31,72 @@ const attempt = (
   usingTsExtension,
 });
 
-const esmAttempts = (original: string): readonly ExtensionAttempt[] => {
-  const explicit = original === Extension.Mts || original === Extension.Dmts;
-  return [
-    attempt("TypeScript", Extension.Mts, explicit),
-    attempt("Declaration", Extension.Dmts, explicit),
-    attempt("JavaScript", Extension.Mjs),
-  ];
-};
+type Listed = readonly [ExtensionKind, string];
 
-const cjsAttempts = (original: string): readonly ExtensionAttempt[] => {
-  const explicit = original === Extension.Cts || original === Extension.Dcts;
-  return [
-    attempt("TypeScript", Extension.Cts, explicit),
-    attempt("Declaration", Extension.Dcts, explicit),
-    attempt("JavaScript", Extension.Cjs),
-  ];
-};
+const family =
+  (typed: readonly string[], listed: readonly Listed[], plain: readonly Listed[]) =>
+  (original: string): readonly ExtensionAttempt[] => {
+    const explicit = typed.includes(original);
+    return [
+      ...pipe(
+        listed,
+        Arr.map(([kind, extension]) => attempt(kind, extension, explicit)),
+      ),
+      ...pipe(
+        plain,
+        Arr.map(([kind, extension]) => attempt(kind, extension)),
+      ),
+    ];
+  };
+
+const esmAttempts = family(
+  [Extension.Mts, Extension.Dmts],
+  [
+    ["TypeScript", Extension.Mts],
+    ["Declaration", Extension.Dmts],
+  ],
+  [["JavaScript", Extension.Mjs]],
+);
+
+const cjsAttempts = family(
+  [Extension.Cts, Extension.Dcts],
+  [
+    ["TypeScript", Extension.Cts],
+    ["Declaration", Extension.Dcts],
+  ],
+  [["JavaScript", Extension.Cjs]],
+);
 
 const jsonAttempts = (): readonly ExtensionAttempt[] => [
   attempt("Declaration", ".d.json.ts"),
   attempt("Json", Extension.Json),
 ];
 
-const jsxAttempts = (original: string): readonly ExtensionAttempt[] => {
-  const explicit = original === Extension.Tsx;
-  return [
-    attempt("TypeScript", Extension.Tsx, explicit),
-    attempt("TypeScript", Extension.Ts, explicit),
-    attempt("Declaration", Extension.Dts, explicit),
-    attempt("JavaScript", Extension.Jsx),
-    attempt("JavaScript", Extension.Js),
-  ];
-};
+const jsxAttempts = family(
+  [Extension.Tsx],
+  [
+    ["TypeScript", Extension.Tsx],
+    ["TypeScript", Extension.Ts],
+    ["Declaration", Extension.Dts],
+  ],
+  [
+    ["JavaScript", Extension.Jsx],
+    ["JavaScript", Extension.Js],
+  ],
+);
 
-const defaultAttempts = (original: string): readonly ExtensionAttempt[] => {
-  const explicit = original === Extension.Ts || original === Extension.Dts;
-  return [
-    attempt("TypeScript", Extension.Ts, explicit),
-    attempt("TypeScript", Extension.Tsx, explicit),
-    attempt("Declaration", Extension.Dts, explicit),
-    attempt("JavaScript", Extension.Js),
-    attempt("JavaScript", Extension.Jsx),
-  ];
-};
+const defaultAttempts = family(
+  [Extension.Ts, Extension.Dts],
+  [
+    ["TypeScript", Extension.Ts],
+    ["TypeScript", Extension.Tsx],
+    ["Declaration", Extension.Dts],
+  ],
+  [
+    ["JavaScript", Extension.Js],
+    ["JavaScript", Extension.Jsx],
+  ],
+);
 
 const arbitraryAttempts = (candidate: string, original: string): readonly ExtensionAttempt[] =>
   Option.liftPredicate(`${candidate}${original}`, (path) => !isDeclarationFileName(path)).pipe(

@@ -25,20 +25,16 @@ const causedBy =
 const statusOf = (headers: Readonly<Record<string, unknown>>): Option.Option<string> =>
   Option.map(Option.fromNullishOr(headers["grpc-status"]), String);
 
-const succeeded =
-  (origin: string) =>
-  (code: string): Effect.Effect<void, ForwardFailed> =>
-    Effect.fromOption(Option.liftPredicate(code, (status) => status === GrpcStatus.ok)).pipe(
-      Effect.asVoid,
-      Effect.mapError(() => failure(origin)(`grpc-status ${code}`)),
-    );
-
 const outcome =
   (origin: string) =>
   (status: Option.Option<string>): Effect.Effect<void, ForwardFailed> =>
     Effect.fromOption(status).pipe(
       Effect.mapError(() => failure(origin)("no grpc-status")),
-      Effect.flatMap(succeeded(origin)),
+      Effect.filterOrFail(
+        (code) => code === GrpcStatus.ok,
+        (code) => failure(origin)(`grpc-status ${code}`),
+      ),
+      Effect.asVoid,
     );
 
 const requestHeaders = (endpoint: Endpoint): Readonly<Record<string, string>> => ({

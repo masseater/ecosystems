@@ -1,6 +1,7 @@
 import { Array as Arr, Effect, Option, pipe } from "effect";
 
-import type { Problem, RuleName } from "#/shared/lib/problem.ts";
+import { problemAtPosition } from "#/shared/lib/problem.ts";
+import type { Position, Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { loadLanguage, readTree } from "#/shared/lib/tree-sitter.ts";
 import type { Language } from "#/shared/lib/tree-sitter.ts";
@@ -72,13 +73,8 @@ interface Read {
 
 const itemProblem =
   (file: string, rule: RuleName, message: string) =>
-  ({ line, column }: Readonly<{ line: number; column: number }>): Problem => ({
-    file,
-    line,
-    column,
-    rule,
-    message,
-  });
+  (position: Readonly<Position>): Problem =>
+    problemAtPosition(rule)(file, position, message);
 
 const isRootItem =
   (inner: string) =>
