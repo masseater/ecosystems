@@ -1,9 +1,9 @@
 import { readSong } from "@r_masseater/fumx-parser";
 import { soundingsOf } from "@r_masseater/fumx-parser/analysis";
-import { alsToFumx } from "@r_masseater/song-format/convert-als";
-import { Effect, FileSystem, Path, Schema, String as Str } from "effect";
+import { Effect, Schema } from "effect";
 
 import { progressionOf } from "#/shared/lib/degrees.ts";
+import { mixFactsOf } from "#/shared/lib/mix-facts.ts";
 
 import type { StyleSong } from "./habits.ts";
 
@@ -14,27 +14,24 @@ export class UnreadableSong extends taggedError<
   { readonly brand: unique symbol }
 >()("UnreadableSong", { message: Schema.String }, { identifier: "UnreadableSong" }) {}
 
-const textOf = Effect.fn("textOf")(function* textOf(file: string, name: string) {
-  const fileSystem = yield* FileSystem.FileSystem;
-  if (Str.endsWith(".als")(file)) {
-    const bytes = yield* fileSystem.readFile(file);
-    const fumx = yield* alsToFumx({ bytes, title: name });
-    return fumx.text;
-  }
-  return yield* fileSystem.readFileString(file);
-});
+export interface SongText {
+  readonly name: string;
+  readonly text: string;
+}
 
-export const styleSongOf = Effect.fn("styleSongOf")(function* styleSongOf(file: string) {
-  const path = yield* Path.Path;
-  const { name } = path.parse(file);
-  const text = yield* textOf(file, name);
-  const source = yield* readSong({ path: `${file}.fumx`, read: () => Effect.succeed(text) });
+export const styleSongFromText = Effect.fn("styleSongFromText")(function* styleSongFromText({
+  name,
+  text,
+}: SongText) {
+  const source = yield* readSong({ path: `/${name}.fumx`, read: () => Effect.succeed(text) });
   if (source.status === "invalid") {
-    return yield* UnreadableSong.make({ message: `${file} is not a song i68 can read` });
+    return yield* UnreadableSong.make({ message: `${name} is not a song i68 can read` });
   }
+  const soundings = soundingsOf(source.song);
   const song: StyleSong = {
     name,
-    steps: progressionOf(soundingsOf(source.song))(source.song),
+    steps: progressionOf(soundings)(source.song),
+    mix: mixFactsOf(soundings)(source.song),
   };
   return song;
 });

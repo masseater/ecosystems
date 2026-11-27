@@ -13,7 +13,7 @@ export default defineConfig({
     },
   },
   pack: {
-    entry: ["src/app/index.ts"],
+    entry: { index: "src/app/index.ts", habits: "src/app/habits.ts" },
     platform: "neutral",
     sourcemap: true,
     publint: { strict: true },

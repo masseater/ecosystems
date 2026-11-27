@@ -16,6 +16,7 @@ export default defineConfig({
   pack: [
     {
       entry: {
+        "convert-als": "src/features/convert-als/index.ts",
         "convert-midi": "src/features/convert-midi/index.ts",
         vite: "src/app/vite.ts",
       },

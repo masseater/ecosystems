@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/song-format",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tooling for .fumx songs: import a song from TypeScript with Vite, a language server, MIDI to .fumx conversion that checks the result against the original, and a song report.",
   "keywords": [
     "fumx",
@@ -52,6 +52,10 @@
       "song-report": "./dist/song-report.mjs"
     },
     "exports": {
+      "./convert-als": {
+        "types": "./dist/convert-als.d.mts",
+        "default": "./dist/convert-als.mjs"
+      },
       "./convert-midi": {
         "types": "./dist/convert-midi.d.mts",
         "default": "./dist/convert-midi.mjs"
