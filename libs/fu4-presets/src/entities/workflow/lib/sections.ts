@@ -1,5 +1,5 @@
 import type { Position, YamlNode } from "@r_masseater/fu4";
-import { Predicate, Record as Rec } from "effect";
+import { Record as Rec } from "effect";
 
 import type { Env, Job } from "#/entities/workflow/model/job-types.ts";
 import type {
@@ -16,6 +16,7 @@ import { entryRecord, parseSection } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { parseBool, parseExpression, parseString } from "./scalar.ts";
 import { reportEmpty } from "./sequence.ts";
+import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
 
 const section =
@@ -93,9 +94,7 @@ export const parseDefaults =
       ],
       unknown: rejecting({ sink, section: "defaults", expected: ["run"] }),
     });
-    if (Predicate.isUndefined(defaults.run)) {
-      sink.error(node, '"defaults" section should have "run" section');
-    }
+    reportMissing(sink)(defaults.run, node, '"defaults" section should have "run" section');
     return defaults;
   };
 
@@ -122,9 +121,7 @@ export const parseConcurrency =
         expected: ["group", "cancel-in-progress"],
       }),
     });
-    if (Predicate.isUndefined(concurrency.group)) {
-      sink.error(at, 'group name is missing in "concurrency" section');
-    }
+    reportMissing(sink)(concurrency.group, at, 'group name is missing in "concurrency" section');
     return concurrency;
   };
 
@@ -145,9 +142,7 @@ export const parseEnvironment =
       ],
       unknown: rejecting({ sink, section: "environment", expected: ["deployment", "name", "url"] }),
     });
-    if (Predicate.isUndefined(environment.name)) {
-      sink.error(at, 'name is missing in "environment" section');
-    }
+    reportMissing(sink)(environment.name, at, 'name is missing in "environment" section');
     return environment;
   };
 

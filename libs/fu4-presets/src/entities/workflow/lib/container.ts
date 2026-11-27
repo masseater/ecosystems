@@ -10,6 +10,7 @@ import type { Entry } from "./mapping.ts";
 import { mayParseExpression, parseString } from "./scalar.ts";
 import { parseEnv } from "./sections.ts";
 import { parseStringSequence } from "./sequence.ts";
+import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
 
 const text =
@@ -90,9 +91,7 @@ export const parseContainer =
       return { ports: [], volumes: [], image: parseString(sink)(node, false) };
     }
     const container = containerMapping(sink)(section, node);
-    if (Predicate.isUndefined(container.image)) {
-      sink.error(at, `"image" is missing in ${quote(section)} section`);
-    }
+    reportMissing(sink)(container.image, at, `"image" is missing in ${quote(section)} section`);
     return container;
   };
 

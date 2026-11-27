@@ -1,5 +1,5 @@
 import type { Position, YamlNode } from "@r_masseater/fu4";
-import { Array as Arr, Option, Predicate, Record as Rec } from "effect";
+import { Array as Arr, Option, Record as Rec } from "effect";
 
 import type {
   CallEventInput,
@@ -16,6 +16,7 @@ import type { Handler } from "./fold.ts";
 import { entryRecord, parseMapping, parseSection } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { checkString, parseBool, parseString } from "./scalar.ts";
+import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
 
 const CALL_TYPES: Readonly<Record<string, CallInputType>> = {
@@ -130,12 +131,11 @@ const callOutput =
         expected: ["description", "value"],
       }),
     });
-    if (Predicate.isUndefined(output.value)) {
-      sink.error(
-        entry.key,
-        `"value" is missing at ${quote(entry.key.value)} output of workflow_call event`,
-      );
-    }
+    reportMissing(sink)(
+      output.value,
+      entry.key,
+      `"value" is missing at ${quote(entry.key.value)} output of workflow_call event`,
+    );
     return output;
   };
 

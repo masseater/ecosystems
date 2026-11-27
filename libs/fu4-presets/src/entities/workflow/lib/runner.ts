@@ -1,5 +1,5 @@
 import type { Position, YamlNode } from "@r_masseater/fu4";
-import { Option, Predicate } from "effect";
+import { Option } from "effect";
 
 import type { CallValue, Runner, Snapshot } from "#/entities/workflow/model/job-types.ts";
 import type { Text } from "#/shared/yaml/index.ts";
@@ -10,6 +10,7 @@ import { entryRecord, parseSection } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { mayParseExpression, parseString } from "./scalar.ts";
 import { parseStringOrSequence } from "./sequence.ts";
+import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
 
 const labels =
@@ -70,9 +71,11 @@ const snapshotMapping =
       ],
       unknown: rejecting({ sink, section: "snapshot", expected: ["image-name", "version", "if"] }),
     });
-    if (Predicate.isUndefined(snapshot.imageName)) {
-      sink.error(at, '"snapshot" section must have "image-name" configuration');
-    }
+    reportMissing(sink)(
+      snapshot.imageName,
+      at,
+      '"snapshot" section must have "image-name" configuration',
+    );
     return snapshot;
   };
 

@@ -1,5 +1,5 @@
 import type { Source, YamlNode } from "@r_masseater/fu4";
-import { Array as Arr, Option, Predicate, String as Str, pipe } from "effect";
+import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import type { Workflow } from "#/entities/workflow/model/job-types.ts";
 
@@ -9,6 +9,7 @@ import { entryRecord, parseSection } from "./mapping.ts";
 import { parseEvents } from "./on.ts";
 import { parseString } from "./scalar.ts";
 import { parseConcurrency, parseDefaults, parseEnv, parsePermissions } from "./sections.ts";
+import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
 
 const WORKFLOW_KEYS = [
@@ -64,12 +65,8 @@ const parseRoot =
       ],
       unknown: rejecting({ sink, section: "workflow", expected: WORKFLOW_KEYS }),
     });
-    if (Predicate.isUndefined(workflow.on)) {
-      sink.error(root, '"on" section is missing in workflow');
-    }
-    if (Predicate.isUndefined(workflow.jobs)) {
-      sink.error(root, '"jobs" section is missing in workflow');
-    }
+    reportMissing(sink)(workflow.on, root, '"on" section is missing in workflow');
+    reportMissing(sink)(workflow.jobs, root, '"jobs" section is missing in workflow');
     return workflow;
   };
 
