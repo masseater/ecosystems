@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vite-plus/test";
 
-import { format } from "./format.ts";
+import { formatDiagnostic as format } from "./diagnostic.ts";
 
 const BASE = {
   path: "docs/guide.md",

@@ -79,12 +79,33 @@ const nextRandom: From<State, number> = (state) => {
 export const isTopLevel: Predicate.Refinement<AstNode, Let> = (node): node is Let =>
   isLet(node) && isSong(node.$container);
 
-export const frameHolding: From<Frames, From<Binding, Option.Option<Map<AstNode, Value>>>> =
+const frameHolding: From<Frames, From<Binding, Option.Option<Map<AstNode, Value>>>> =
   (frames) => (binding) =>
     pipe(
       Arr.reverse(frames),
       Arr.findFirst((frame) => frame.has(binding)),
     );
+
+export const holderOf: From<Scope, From<Binding, Option.Option<Map<AstNode, Value>>>> =
+  (scope) => (binding) =>
+    pipe(
+      frameHolding(scope.frames)(binding),
+      Option.orElse(() =>
+        Option.liftPredicate(scope.state.globals, (globals) => globals.has(binding)),
+      ),
+    );
+
+export const heldValue: From<Scope, From<Binding, Option.Option<Value>>> = (scope) => (binding) =>
+  pipe(
+    holderOf(scope)(binding),
+    Option.flatMap((holder) => Option.fromNullishOr(holder.get(binding))),
+  );
+
+export const declareIn: From<Scope, From<readonly [Binding, Value], void>> =
+  (scope) =>
+  ([binding, value]) => {
+    Option.getOrElse(Arr.last(scope.frames), () => scope.state.globals).set(binding, value);
+  };
 
 export const countUp: From<readonly [number, number], readonly number[]> = ([from, to]) => {
   const items: number[] = [];

@@ -1,9 +1,10 @@
+import { sortedRecord } from "@masseater.dev/lint-host/collections";
 import type { YamlNode } from "@r_masseater/fu4";
 import { Array as Arr, Option, pipe } from "effect";
 
 import type { RawValue } from "#/entities/workflow/model/job-types.ts";
 
-import { parseMapping, sortedRecord } from "./mapping.ts";
+import { parseMapping } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import type { Sink } from "./sink.ts";
 

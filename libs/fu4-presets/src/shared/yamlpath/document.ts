@@ -1,7 +1,7 @@
 import type { Source, SyntaxNode } from "@r_masseater/fu4";
 import { Array as Arr, Option, Result, String as Str, pipe } from "effect";
 
-import { descendants } from "#/shared/syntax/index.ts";
+import { anyWithin, descendants } from "#/shared/syntax/index.ts";
 
 import { isAnchor, isComment, isContainer, namedWhere, parentOf } from "./nodes.ts";
 
@@ -54,11 +54,7 @@ const topOf = (root: SyntaxNode): Result.Result<SyntaxNode, string> =>
     Result.fromOption(() => "document has no block_node or flow_node"),
   );
 
-const hasError = (root: SyntaxNode): boolean =>
-  pipe(
-    descendants(root),
-    Arr.some((node) => node.isError || node.isMissing),
-  );
+const hasError = anyWithin((node) => node.isError || node.isMissing);
 
 const cache = new WeakMap<Source, Result.Result<Document, string>>();
 

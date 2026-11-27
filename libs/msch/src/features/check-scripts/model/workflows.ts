@@ -1,5 +1,6 @@
 import { Array as Arr, Effect, String as Str, pipe } from "effect";
 
+import { problemAtPosition } from "#/shared/lib/problem.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
 import { readWorkflows } from "#/shared/lib/workflow-files.ts";
@@ -31,7 +32,7 @@ const problemsIn =
     return pipe(
       runScriptsOf(source),
       Arr.filter(runsMoreThanOneCommand),
-      Arr.map(({ start }) => ({ file, ...at(start), rule: RULE, message: MESSAGE })),
+      Arr.map(({ start }) => problemAtPosition(RULE)(file, at(start), MESSAGE)),
     );
   };
 

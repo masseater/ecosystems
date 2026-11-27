@@ -74,22 +74,27 @@ const fromSelfName = (
   return Option.none();
 };
 
+const foundAs =
+  (isExternalLibraryImport: boolean) =>
+  (resolved: Resolved): Found => ({ resolved, isExternalLibraryImport });
+
 const resolveNonRelative = (
   lookup: ModuleLookup,
   features: Features,
   state: ResolutionState,
-): FoundResult =>
-  fromPackageImports(lookup, features, state).pipe(
+): FoundResult => {
+  const external = foundAs(true);
+  return fromPackageImports(lookup, features, state).pipe(
     Option.orElse(() => fromSelfName(lookup, features, state)),
     Option.orElse(() => resolveFromNodeModulesWithTrace(lookup, state)),
-    Option.map(Option.map((resolved): Found => ({ resolved, isExternalLibraryImport: true }))),
+    Option.map(Option.map(external)),
   );
+};
 
 const resolveRelative = (lookup: ModuleLookup, state: ResolutionState): Option.Option<Found> => {
   const { resolved, insideNodeModules } = loadRelativeModule(lookup, state);
-  return resolved.pipe(
-    Option.map((value) => ({ resolved: value, isExternalLibraryImport: insideNodeModules })),
-  );
+  const found = foundAs(insideNodeModules);
+  return resolved.pipe(Option.map(found));
 };
 
 const tryResolve = (

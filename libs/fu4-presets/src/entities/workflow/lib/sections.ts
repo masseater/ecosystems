@@ -1,5 +1,5 @@
 import type { Position, YamlNode } from "@r_masseater/fu4";
-import { Predicate, Record as Rec } from "effect";
+import { Record as Rec } from "effect";
 
 import type { Env, Job } from "#/entities/workflow/model/job-types.ts";
 import type {
@@ -12,26 +12,17 @@ import type {
 import { optional } from "#/shared/record/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
-import { entryRecord, parseSection } from "./mapping.ts";
-import type { Entry } from "./mapping.ts";
+import {
+  caselessSection,
+  emptyableCaselessSection,
+  entryRecord,
+  entryText,
+  section,
+} from "./mapping.ts";
 import { parseBool, parseExpression, parseString } from "./scalar.ts";
 import { reportEmpty } from "./sequence.ts";
+import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
-
-const section =
-  (sink: Sink) =>
-  (name: string, node: YamlNode): readonly Entry[] =>
-    parseSection(sink)({ section: name, node, allowEmpty: false, caseSensitive: true });
-
-const caseless =
-  (sink: Sink) =>
-  (name: string, node: YamlNode): readonly Entry[] =>
-    parseSection(sink)({ section: name, node, allowEmpty: false, caseSensitive: false });
-
-const text =
-  (sink: Sink) =>
-  (entry: Entry): Permissions["scopes"][string]["value"] =>
-    parseString(sink)(entry.value, false);
 
 export const parsePermissions =
   (sink: Sink) =>
@@ -39,14 +30,11 @@ export const parsePermissions =
     if (node.kind === "scalar") {
       return { all: parseString(sink)(node, false), scopes: {} };
     }
-    const entries = parseSection(sink)({
-      section: "permissions",
-      node,
-      allowEmpty: true,
-      caseSensitive: false,
-    });
+    const entries = emptyableCaselessSection(sink)("permissions", node);
     return {
-      scopes: entryRecord((entry) => ({ name: entry.key, value: text(sink)(entry) }))(entries),
+      scopes: entryRecord((entry) => ({ name: entry.key, value: entryText(sink)(false)(entry) }))(
+        entries,
+      ),
     };
   };
 
@@ -63,7 +51,7 @@ export const parseEnv =
       vars: entryRecord((entry) => ({
         name: entry.key,
         value: parseString(sink)(entry.value, true),
-      }))(caseless(sink)("env", node)),
+      }))(caselessSection(sink)("env", node)),
     };
   };
 
@@ -75,8 +63,8 @@ const defaultsRun =
       entries: section(sink)("run", node),
       initial: {},
       handlers: [
-        ["shell", set("shell", text(sink))],
-        ["working-directory", set("workingDirectory", text(sink))],
+        ["shell", set("shell", entryText(sink)(false))],
+        ["working-directory", set("workingDirectory", entryText(sink)(false))],
       ],
       unknown: rejecting({ sink, section: "run", expected: ["shell", "working-directory"] }),
     });
@@ -93,9 +81,7 @@ export const parseDefaults =
       ],
       unknown: rejecting({ sink, section: "defaults", expected: ["run"] }),
     });
-    if (Predicate.isUndefined(defaults.run)) {
-      sink.error(node, '"defaults" section should have "run" section');
-    }
+    reportMissing(sink)(defaults.run, node, '"defaults" section should have "run" section');
     return defaults;
   };
 
@@ -110,7 +96,7 @@ export const parseConcurrency =
       entries: section(sink)("concurrency", node),
       initial: {},
       handlers: [
-        ["group", set("group", text(sink))],
+        ["group", set("group", entryText(sink)(false))],
         [
           "cancel-in-progress",
           setSome("cancelInProgress", (entry) => parseBool(sink)(entry.value)),
@@ -122,9 +108,7 @@ export const parseConcurrency =
         expected: ["group", "cancel-in-progress"],
       }),
     });
-    if (Predicate.isUndefined(concurrency.group)) {
-      sink.error(at, 'group name is missing in "concurrency" section');
-    }
+    reportMissing(sink)(concurrency.group, at, 'group name is missing in "concurrency" section');
     return concurrency;
   };
 
@@ -139,15 +123,13 @@ export const parseEnvironment =
       entries: section(sink)("environment", node),
       initial: {},
       handlers: [
-        ["name", set("name", text(sink))],
-        ["url", set("url", text(sink))],
+        ["name", set("name", entryText(sink)(false))],
+        ["url", set("url", entryText(sink)(false))],
         ["deployment", setSome("deployment", (entry) => parseBool(sink)(entry.value))],
       ],
       unknown: rejecting({ sink, section: "environment", expected: ["deployment", "name", "url"] }),
     });
-    if (Predicate.isUndefined(environment.name)) {
-      sink.error(at, 'name is missing in "environment" section');
-    }
+    reportMissing(sink)(environment.name, at, 'name is missing in "environment" section');
     return environment;
   };
 
@@ -155,7 +137,7 @@ export const parseOutputs =
   (sink: Sink) =>
   (node: YamlNode): Job["outputs"] => {
     const outputs = entryRecord((entry) => parseString(sink)(entry.value, true))(
-      caseless(sink)("outputs", node),
+      caselessSection(sink)("outputs", node),
     );
     if (Rec.isEmptyRecord(outputs)) {
       reportEmpty(sink)("outputs", node);

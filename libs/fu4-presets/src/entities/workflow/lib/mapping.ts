@@ -1,5 +1,6 @@
+import { sortedRecord } from "@masseater.dev/lint-host/collections";
 import type { Position, YamlNode } from "@r_masseater/fu4";
-import { Array as Arr, Option, Order, Record as Rec, String as Str, pipe } from "effect";
+import { Array as Arr, Option, Record as Rec, String as Str, pipe } from "effect";
 
 import { quote } from "#/shared/text/index.ts";
 import { describePosition, pairsOf } from "#/shared/yaml/index.ts";
@@ -104,27 +105,22 @@ export const parseMapping =
     return entries;
   };
 
-export interface SectionInput {
-  readonly section: string;
-  readonly node: YamlNode;
-  readonly allowEmpty: boolean;
-  readonly caseSensitive: boolean;
-}
-
-export const parseSection =
+const sectionWith =
+  (flags: Pick<MappingInput, "allowEmpty" | "caseSensitive">) =>
   (sink: Sink) =>
-  (input: SectionInput): readonly Entry[] =>
-    parseMapping(sink)({ ...input, place: `${quote(input.section)} section` });
+  (section: string, node: YamlNode): readonly Entry[] =>
+    parseMapping(sink)({ ...flags, node, place: `${quote(section)} section` });
 
-export const sortedRecord = <Value>(
-  entries: readonly (readonly [string, Value])[],
-): Readonly<Record<string, Value>> =>
-  Rec.fromEntries(
-    Arr.sort(
-      entries,
-      Order.mapInput(Order.String, ([key]: readonly [string, Value]) => key),
-    ),
-  );
+export const section = sectionWith({ allowEmpty: false, caseSensitive: true });
+export const caselessSection = sectionWith({ allowEmpty: false, caseSensitive: false });
+export const emptyableSection = sectionWith({ allowEmpty: true, caseSensitive: true });
+export const emptyableCaselessSection = sectionWith({ allowEmpty: true, caseSensitive: false });
+
+export const entryText =
+  (sink: Sink) =>
+  (allowEmpty: boolean) =>
+  (entry: Entry): Text =>
+    parseString(sink)(entry.value, allowEmpty);
 
 export const entryRecord =
   <Value>(parse: (entry: Entry) => Value) =>

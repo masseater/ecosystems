@@ -123,6 +123,7 @@
     "@r_masseater/fu4-presets": "workspace:*",
     "@r_masseater/h56m": "workspace:*",
     "@r_masseater/h56m-presets": "workspace:*",
+    "@r_masseater/node-main": "workspace:*",
     "@r_masseater/oxlint-plugin-decision": "workspace:*",
     "@r_masseater/oxlint-typed-rules": "catalog:",
     "@r_masseater/textlint-rule-preset-ja": "workspace:*",

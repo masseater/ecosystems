@@ -16,7 +16,7 @@ import type {
 } from "#generated/langium/ast.ts";
 
 import type { From } from "./problem.ts";
-import { countUp, failIn, frameHolding, isTopLevel, numberOf } from "./runtime.ts";
+import { countUp, declareIn, failIn, holderOf, isTopLevel, numberOf } from "./runtime.ts";
 import type { Frames, Scope } from "./runtime.ts";
 import { NOTHING } from "./values.ts";
 import type { Value } from "./values.ts";
@@ -89,17 +89,16 @@ const ifIn: From<Machine, From<If, Signal>> = (machine) => (node) => {
 const assignIn: From<Machine, From<readonly [Binding, Value], void>> =
   (machine) =>
   ([binding, value]) => {
-    const { state, frames } = machine.scope;
-    Option.match(frameHolding(frames)(binding), {
+    Option.match(holderOf(machine.scope)(binding), {
       onNone: () => {
-        if (state.globals.has(binding) || isTopLevel(binding)) {
-          state.globals.set(binding, value);
+        if (isTopLevel(binding)) {
+          machine.scope.state.globals.set(binding, value);
           return;
         }
-        failIn(state)({ node: binding, message: "この名前には代入できません" });
+        failIn(machine.scope.state)({ node: binding, message: "この名前には代入できません" });
       },
-      onSome: (frame) => {
-        frame.set(binding, value);
+      onSome: (holder) => {
+        holder.set(binding, value);
       },
     });
   };
@@ -157,15 +156,6 @@ const callStatementIn: From<Machine, From<CallStatement, Signal>> = (machine) =>
   return NEXT;
 };
 
-const setIn: From<Machine, From<readonly [Binding, Value], void>> =
-  (machine) =>
-  ([binding, value]) => {
-    Option.match(Arr.last(machine.scope.frames), {
-      onNone: () => machine.scope.state.globals.set(binding, value),
-      onSome: (frame) => frame.set(binding, value),
-    });
-  };
-
 export const runStatement: From<Machine, From<Statement, Signal>> = (machine) => (node) =>
   Match.value(node).pipe(
     Match.discriminatorsExhaustive("$type")({
@@ -175,7 +165,7 @@ export const runStatement: From<Machine, From<Statement, Signal>> = (machine) =>
       },
       Fn: () => NEXT,
       Let: (binding) => {
-        setIn(machine)([binding, machine.value(binding.value)]);
+        declareIn(machine.scope)([binding, machine.value(binding.value)]);
         return NEXT;
       },
       Assign: assignmentIn(machine),

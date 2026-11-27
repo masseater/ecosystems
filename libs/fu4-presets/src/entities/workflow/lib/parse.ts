@@ -1,14 +1,15 @@
 import type { Source, YamlNode } from "@r_masseater/fu4";
-import { Array as Arr, Option, Predicate, String as Str, pipe } from "effect";
+import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import type { Workflow } from "#/entities/workflow/model/job-types.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
 import { parseJob } from "./job.ts";
-import { entryRecord, parseSection } from "./mapping.ts";
+import { caselessSection, entryRecord, section } from "./mapping.ts";
 import { parseEvents } from "./on.ts";
 import { parseString } from "./scalar.ts";
 import { parseConcurrency, parseDefaults, parseEnv, parsePermissions } from "./sections.ts";
+import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
 
 const WORKFLOW_KEYS = [
@@ -30,12 +31,7 @@ const parseRoot =
   (root: YamlNode): Workflow => {
     const { set, setSome } = setters<Workflow>();
     const workflow = foldEntries<Workflow>({
-      entries: parseSection(sink)({
-        section: "workflow",
-        node: root,
-        allowEmpty: false,
-        caseSensitive: true,
-      }),
+      entries: section(sink)("workflow", root),
       initial: EMPTY_WORKFLOW,
       handlers: [
         ["name", set("name", (entry) => parseString(sink)(entry.value, true))],
@@ -51,12 +47,7 @@ const parseRoot =
           "jobs",
           set("jobs", (entry) =>
             entryRecord((job) => parseJob(sink)(job.key, job.value))(
-              parseSection(sink)({
-                section: "jobs",
-                node: entry.value,
-                allowEmpty: false,
-                caseSensitive: false,
-              }),
+              caselessSection(sink)("jobs", entry.value),
             ),
           ),
         ],
@@ -64,12 +55,8 @@ const parseRoot =
       ],
       unknown: rejecting({ sink, section: "workflow", expected: WORKFLOW_KEYS }),
     });
-    if (Predicate.isUndefined(workflow.on)) {
-      sink.error(root, '"on" section is missing in workflow');
-    }
-    if (Predicate.isUndefined(workflow.jobs)) {
-      sink.error(root, '"jobs" section is missing in workflow');
-    }
+    reportMissing(sink)(workflow.on, root, '"on" section is missing in workflow');
+    reportMissing(sink)(workflow.jobs, root, '"jobs" section is missing in workflow');
     return workflow;
   };
 

@@ -107,7 +107,6 @@ catalog:
   liquidjs: 10.30.1
   hast-util-from-html: 2.1.0
   hast-util-select: 6.0.5
-  hast-util-to-string: 3.0.1
   unist-util-visit: 5.2.0
   verovio: 6.4.1
   modern-web-guidance: 1.0.2

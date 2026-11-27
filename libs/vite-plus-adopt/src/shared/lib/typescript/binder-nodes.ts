@@ -12,9 +12,11 @@ import {
 import { SymbolFlags } from "typescript/sync";
 
 import {
-  declareBlockScoped,
   declareExport,
   declareSourceFileMember,
+  ALIAS,
+  inBlock,
+  inContainer,
 } from "./binder-declarations.ts";
 import type { FileBinding, Scope, SymbolFlagPair } from "./binder-declarations.ts";
 import { NON_INSTANTIATED, getModuleInstanceState, isConstEnum } from "./binder-module-state.ts";
@@ -27,7 +29,6 @@ export type NodeBinder = (binding: FileBinding, node: Node, scope: Scope) => voi
 
 const flagPair = (includes: number, excludes: number): SymbolFlagPair => ({ includes, excludes });
 
-const ALIAS = flagPair(SymbolFlags.Alias, SymbolFlags.AliasExcludes);
 const FUNCTION = flagPair(SymbolFlags.Function, SymbolFlags.FunctionExcludes);
 const VALUE_MODULE = flagPair(SymbolFlags.ValueModule, SymbolFlags.ValueModuleExcludes);
 const NAMESPACE_MODULE = flagPair(SymbolFlags.NamespaceModule, SymbolFlags.NamespaceModuleExcludes);
@@ -36,22 +37,6 @@ const REGULAR_ENUM = flagPair(SymbolFlags.RegularEnum, SymbolFlags.RegularEnumEx
 const EXPORT_STAR = flagPair(SymbolFlags.ExportStar, EMPTY);
 const EXPORT_ALIAS = flagPair(SymbolFlags.Alias, SymbolFlags.All);
 const EXPORT_PROPERTY = flagPair(SymbolFlags.Property, SymbolFlags.All);
-
-const inContainer =
-  (flags: SymbolFlagPair): NodeBinder =>
-  (binding, node, scope) => {
-    if (scope.containerIsFile) {
-      declareSourceFileMember(binding, node, flags);
-    }
-  };
-
-const inBlock =
-  (flags: SymbolFlagPair): NodeBinder =>
-  (binding, node, scope) => {
-    if (scope.blockIsFile) {
-      declareBlockScoped(binding, node, flags);
-    }
-  };
 
 const bindFunction: NodeBinder = (binding, node, scope) => {
   if (binding.strict) {

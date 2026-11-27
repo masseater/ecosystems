@@ -51,6 +51,7 @@
     "@effect/platform-node": "catalog:"
   },
   "devDependencies": {
+    "@masseater.dev/lint-host": "workspace:*",
     "@masseater.dev/path-kit": "workspace:*",
     "@r_masseater/fu4": "workspace:*",
     "@types/hast": "catalog:",
@@ -59,7 +60,6 @@
     "effect": "catalog:stack",
     "hast-util-from-html": "catalog:",
     "hast-util-select": "catalog:",
-    "hast-util-to-string": "catalog:",
     "liquidjs": "catalog:",
     "mdast-util-to-string": "catalog:",
     "minimatch": "catalog:",

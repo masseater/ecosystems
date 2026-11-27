@@ -83,25 +83,27 @@ const upstreamRuleOf = (id: string, importer: string): Option.Option<string> =>
     Option.map(({ plugin, rule }) => `${VIRTUAL_RULE}${plugin}/${rule}`),
   );
 
-const virtualRuleOf = (
-  prefix: string,
-  id: string,
-): Option.Option<{ readonly plugin: string; readonly rule: string }> =>
+const afterPrefix = (prefix: string, id: string): Option.Option<string> =>
   Option.liftPredicate(id, (candidate) => Str.startsWith(prefix)(candidate)).pipe(
-    Option.map((virtual) => Str.split(Str.slice(prefix.length)(virtual), "/")),
-    Option.flatMap(([plugin, rule]) => ruleParts({ plugin, rule })),
+    Option.map(Str.slice(prefix.length)),
   );
 
-const upstreamRuleModule = (id: string): Option.Option<string> =>
-  virtualRuleOf(VIRTUAL_RULE, id).pipe(
-    Option.map(({ plugin, rule }) =>
-      moduleSource(
-        pluginImport("src/app/react.ts"),
-        `export const RULE_NAME = ${toJson(rule)};`,
-        `export default plugin.rules[${toJson(`${plugin}-${rule}`)}];`,
-      ),
-    ),
-  );
+const ruleModule =
+  (prefix: string, build: (rule: { readonly plugin: string; readonly rule: string }) => string) =>
+  (id: string): Option.Option<string> =>
+    afterPrefix(prefix, id).pipe(
+      Option.map((rest) => Str.split(rest, "/")),
+      Option.flatMap(([plugin, rule]) => ruleParts({ plugin, rule })),
+      Option.map(build),
+    );
+
+const upstreamRuleModule = ruleModule(VIRTUAL_RULE, ({ plugin, rule }) =>
+  moduleSource(
+    pluginImport("src/app/react.ts"),
+    `export const RULE_NAME = ${toJson(rule)};`,
+    `export default plugin.rules[${toJson(`${plugin}-${rule}`)}];`,
+  ),
+);
 
 const upstreamReactRules = {
   name: "upstream-react-rules",
@@ -139,12 +141,12 @@ const tanstackRuleOf = (id: string): Option.Option<string> =>
   groupOf(UPSTREAM_TANSTACK_RULE, "rule", id);
 
 const tanstackModuleOf = (plugin: string, id: string): Option.Option<string> =>
-  Option.liftPredicate(id, (candidate) => Str.startsWith("../")(candidate)).pipe(
-    Option.map((relative) =>
-      tanstackRuleOf(relative).pipe(
+  afterPrefix("../", id).pipe(
+    Option.map((inside) =>
+      tanstackRuleOf(`../${inside}`).pipe(
         Option.match({
           onSome: (rule) => `${VIRTUAL_TANSTACK_RULE}${plugin}/${rule}`,
-          onNone: () => upstreamSource(plugin, Str.slice("../".length)(relative)),
+          onNone: () => upstreamSource(plugin, inside),
         }),
       ),
     ),
@@ -153,16 +155,17 @@ const tanstackModuleOf = (plugin: string, id: string): Option.Option<string> =>
     ),
   );
 
+const tanstackRules = ruleModule(VIRTUAL_TANSTACK_RULE, ({ plugin, rule }) =>
+  moduleSource(
+    pluginImport(`src/app/tanstack-${plugin}.ts`),
+    `export * from ${toJson(upstreamSource(plugin, `rules/${rule}/${rule}.rule`))};`,
+    `export const name = ${toJson(rule)};`,
+    `export const rule = plugin.rules[${toJson(rule)}];`,
+  ),
+);
+
 const tanstackRuleModule = (id: string): Option.Option<string> =>
-  virtualRuleOf(VIRTUAL_TANSTACK_RULE, id).pipe(
-    Option.map(({ plugin, rule }) =>
-      moduleSource(
-        pluginImport(`src/app/tanstack-${plugin}.ts`),
-        `export * from ${toJson(upstreamSource(plugin, `rules/${rule}/${rule}.rule`))};`,
-        `export const name = ${toJson(rule)};`,
-        `export const rule = plugin.rules[${toJson(rule)}];`,
-      ),
-    ),
+  tanstackRules(id).pipe(
     Option.orElse(() =>
       Option.liftPredicate('export const meta = { name: "oxc" };', () => id === VIRTUAL_PARSER),
     ),
@@ -193,11 +196,11 @@ const drizzleRuleOf = (id: string, importer: string): Option.Option<string> =>
   );
 
 const drizzleRuleModule = (id: string): Option.Option<string> =>
-  Option.liftPredicate(id, (candidate) => Str.startsWith(VIRTUAL_DRIZZLE_RULE)(candidate)).pipe(
-    Option.map((virtual) =>
+  afterPrefix(VIRTUAL_DRIZZLE_RULE, id).pipe(
+    Option.map((rule) =>
       moduleSource(
         pluginImport("src/app/drizzle.ts"),
-        `export default plugin.rules[${toJson(Str.slice(VIRTUAL_DRIZZLE_RULE.length)(virtual))}];`,
+        `export default plugin.rules[${toJson(rule)}];`,
       ),
     ),
   );

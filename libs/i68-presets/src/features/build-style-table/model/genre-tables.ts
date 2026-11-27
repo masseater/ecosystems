@@ -1,3 +1,4 @@
+import { sortedRecord } from "@masseater.dev/lint-host/collections";
 import {
   Array as Arr,
   Effect,
@@ -10,7 +11,6 @@ import {
 } from "effect";
 import { Csv } from "effect/encoding";
 
-import { sortedRecord } from "#/shared/lib/sorted-record.ts";
 import type { StyleTable } from "#/shared/lib/style-table.ts";
 
 import { tokensOf } from "./chordonomicon.ts";

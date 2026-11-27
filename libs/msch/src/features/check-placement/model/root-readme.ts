@@ -2,6 +2,7 @@ import { Array as Arr, Effect, Option, Predicate, Schema, String as Str, pipe } 
 
 import { namedWorkspaces, patternOf } from "#/entities/workspace/index.ts";
 import type { NamedWorkspace } from "#/entities/workspace/index.ts";
+import { problemAtPosition } from "#/shared/lib/problem.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
@@ -104,7 +105,7 @@ const problemsIn =
     const pattern = patternFor(plugins)(workspace);
     return pipe(
       Arr.fromIterable(Str.matchAll(pattern)(source)),
-      Arr.map((found) => ({ file, ...at(found.index ?? START), rule: RULE, message })),
+      Arr.map((found) => problemAtPosition(RULE)(file, at(found.index ?? START), message)),
     );
   };
 

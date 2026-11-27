@@ -1,4 +1,4 @@
-import { Option } from "effect";
+import { Option, Record as Rec, pipe } from "effect";
 
 export const WORD = 4;
 export const STRING_WORDS = 2;
@@ -19,6 +19,14 @@ export const wordAt =
   (index: number): number =>
     words[index] ?? EMPTY;
 
+export const fieldsOf =
+  (header: Uint32Array) =>
+  <Name extends string>(fields: Readonly<Record<Name, number>>): Readonly<Record<Name, number>> =>
+    pipe(
+      fields,
+      Rec.map((index) => wordAt(header)(index)),
+    );
+
 export const wordsOf =
   (buffer: Uint8Array) =>
   (at: number, count: number): Uint32Array =>
@@ -27,11 +35,17 @@ export const wordsOf =
 export const spanText =
   (words: Uint32Array) =>
   (blob: Uint8Array, encoding: string) =>
-  (spansAt: number, unit: number) =>
-  (index: number): string => {
-    const at = spansAt + index * STRING_WORDS;
-    const offset = wordAt(words)(at) * unit;
-    return new TextDecoder(encoding).decode(
-      blob.subarray(offset, offset + wordAt(words)(at + LENGTH) * unit),
-    );
+  (spansAt: number, unit: number): ((index: number) => string) => {
+    const decoder = new TextDecoder(encoding);
+    const cache = new Map<number, string>();
+    const read = (index: number): string => {
+      const at = spansAt + index * STRING_WORDS;
+      const offset = wordAt(words)(at) * unit;
+      const value = decoder.decode(
+        blob.subarray(offset, offset + wordAt(words)(at + LENGTH) * unit),
+      );
+      cache.set(index, value);
+      return value;
+    };
+    return (index) => Option.getOrElse(Option.fromNullishOr(cache.get(index)), () => read(index));
   };

@@ -1,5 +1,5 @@
 import { DockerfileParser } from "dockerfile-ast";
-import { Array as Arr, Effect, Number as Num, String as Str, pipe } from "effect";
+import { Array as Arr, Number as Num, String as Str, pipe } from "effect";
 import { parse as parseSql } from "sql-parser-cst";
 
 import {
@@ -9,22 +9,13 @@ import {
   yamlSourceComments,
 } from "#/shared/lib/config-comments.ts";
 
-import { trimmed, unreadable } from "./found-comment.ts";
-import type { Found } from "./found-comment.ts";
+import { commentsFrom } from "./found-comment.ts";
 
 const NEXT = 1;
 
-export const yamlComments = (source: string): Found =>
-  Effect.try({
-    try: () => pipe(yamlSourceComments(source), Arr.map(trimmed)),
-    catch: unreadable("yaml"),
-  });
+export const yamlComments = commentsFrom("yaml")(yamlSourceComments);
 
-export const tomlComments = (source: string): Found =>
-  Effect.try({
-    try: () => pipe(tomlSourceComments(source), Arr.map(trimmed)),
-    catch: unreadable("toml"),
-  });
+export const tomlComments = commentsFrom("toml")(tomlSourceComments);
 
 interface SqlComment {
   readonly text: string;
@@ -37,22 +28,18 @@ const isSqlComment = (value: unknown): value is SqlComment =>
   typeof value["text"] === "string" &&
   Arr.isArray(value["range"]);
 
-export const sqlComments = (source: string): Found =>
-  Effect.try({
-    try: () => {
-      const program = parseSql(source, {
-        dialect: "sqlite",
-        includeComments: true,
-        includeRange: true,
-        paramTypes: [],
-      });
-      return pipe(
-        collectNodes(isSqlComment)(program),
-        Arr.map(({ range: [start], text }) => trimmed({ index: start, text })),
-      );
-    },
-    catch: unreadable("sql"),
+export const sqlComments = commentsFrom("sql")((source) => {
+  const program = parseSql(source, {
+    dialect: "sqlite",
+    includeComments: true,
+    includeRange: true,
+    paramTypes: [],
   });
+  return pipe(
+    collectNodes(isSqlComment)(program),
+    Arr.map(({ range: [start], text }) => ({ index: start, text })),
+  );
+});
 
 const offsetAt =
   (lines: readonly string[]) =>
@@ -65,19 +52,13 @@ const offsetAt =
       Num.sumAll,
     );
 
-export const dockerfileComments = (source: string): Found =>
-  Effect.try({
-    try: () => {
-      const lines = Str.split(source, "\n");
-      return pipe(
-        DockerfileParser.parse(source).getComments(),
-        Arr.map((comment) =>
-          trimmed({
-            index: offsetAt(lines)(comment.getRange().start),
-            text: comment.toString(),
-          }),
-        ),
-      );
-    },
-    catch: unreadable("dockerfile"),
-  });
+export const dockerfileComments = commentsFrom("dockerfile")((source) => {
+  const lines = Str.split(source, "\n");
+  return pipe(
+    DockerfileParser.parse(source).getComments(),
+    Arr.map((comment) => ({
+      index: offsetAt(lines)(comment.getRange().start),
+      text: comment.toString(),
+    })),
+  );
+});

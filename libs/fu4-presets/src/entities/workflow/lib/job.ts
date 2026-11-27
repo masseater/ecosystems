@@ -10,6 +10,7 @@ import type { JobState } from "./job-fields.ts";
 import { generalHandlers } from "./job-general.ts";
 import { stepHandlers } from "./job-steps.ts";
 import { parseMapping } from "./mapping.ts";
+import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
 
 const JOB_KEYS = [
@@ -54,12 +55,8 @@ const finishSteps =
   (state: JobState): Job => {
     const { job, callOnly: key } = state;
     const id = quote(job.id.value);
-    if (Predicate.isUndefined(job.steps)) {
-      sink.error(job.id, `"steps" section is missing in job ${id}`);
-    }
-    if (Predicate.isUndefined(job.runsOn)) {
-      sink.error(job.id, `"runs-on" section is missing in job ${id}`);
-    }
+    reportMissing(sink)(job.steps, job.id, `"steps" section is missing in job ${id}`);
+    reportMissing(sink)(job.runsOn, job.id, `"runs-on" section is missing in job ${id}`);
     if (Predicate.isNotUndefined(key)) {
       sink.error(
         key,

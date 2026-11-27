@@ -8,6 +8,7 @@ import type {
   Toggle,
   Usage,
 } from "#/features/audit-workflows/model/coordinate.ts";
+import { isRepositoryBody } from "#/features/audit-workflows/model/step.ts";
 import type { StepView } from "#/features/audit-workflows/model/step.ts";
 
 import { evaluateControl } from "./control.ts";
@@ -65,7 +66,7 @@ export const usageOf =
   (coordinate: Coordinate) =>
   (step: StepView): Option.Option<Usage> => {
     const { body } = step;
-    if (body.type !== "uses" || body.uses.type !== "repository") {
+    if (!isRepositoryBody(body)) {
       return Option.none();
     }
     const { uses } = body;

@@ -54,6 +54,7 @@
   "devDependencies": {
     "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
+    "@masseater.dev/lint-host": "workspace:*",
     "@r_masseater/i68": "workspace:*",
     "@r_masseater/song-format": "workspace:*",
     "@types/node": "catalog:",

@@ -33,23 +33,22 @@ export const parsePackageName = (moduleName: string): PackageNameParts =>
     }),
   });
 
-export const mangleScopedPackageName = (packageName: string): string => {
-  if (!Str.startsWith("@")(packageName)) {
-    return packageName;
-  }
-  const replaced = Str.replace("/", SCOPE_SEPARATOR)(packageName);
-  if (replaced === packageName) {
-    return packageName;
-  }
-  return Str.slice(SCOPE_MARKER_LENGTH)(replaced);
-};
+const rewrittenWhen =
+  (applies: (name: string) => boolean, rewrite: (name: string) => string) =>
+  (name: string): string =>
+    Option.match(Option.liftPredicate(name, applies), { onNone: () => name, onSome: rewrite });
 
-export const unmangleScopedPackageName = (typesPackageName: string): string => {
-  if (!Str.includes(SCOPE_SEPARATOR)(typesPackageName)) {
-    return typesPackageName;
-  }
-  return `@${Str.replace(SCOPE_SEPARATOR, "/")(typesPackageName)}`;
-};
+const isScopedWithSlash = (name: string): boolean =>
+  Str.startsWith("@")(name) && Str.includes("/")(name);
+
+export const mangleScopedPackageName = rewrittenWhen(isScopedWithSlash, (name) =>
+  Str.slice(SCOPE_MARKER_LENGTH)(Str.replace("/", SCOPE_SEPARATOR)(name)),
+);
+
+export const unmangleScopedPackageName = rewrittenWhen(
+  Str.includes(SCOPE_SEPARATOR),
+  (name) => `@${Str.replace(SCOPE_SEPARATOR, "/")(name)}`,
+);
 
 export const getTypesPackageName = (packageName: string): string =>
   `@types/${mangleScopedPackageName(packageName)}`;
