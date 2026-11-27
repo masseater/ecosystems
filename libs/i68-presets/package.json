@@ -10,14 +10,14 @@
     "tanstack-intent",
     "voicing"
   ],
-  "homepage": "https://github.com/masseater/masseater.dev/tree/main/libs/i68-presets#readme",
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/i68-presets#readme",
   "bugs": {
-    "url": "https://github.com/masseater/masseater.dev/issues"
+    "url": "https://github.com/masseater/ecosystems/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masseater/masseater.dev.git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
     "directory": "libs/i68-presets"
   },
   "files": [

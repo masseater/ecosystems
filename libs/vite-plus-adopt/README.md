@@ -79,7 +79,7 @@ A key starting with `./` is a folder in this repository. It takes no commit and 
 Put `vpa --prepare` in `prepare`. To let Renovate update the commits, extend this preset in `renovate.json`.
 
 ```json
-{ "extends": ["github>masseater/masseater.dev//libs/vite-plus-adopt/renovate"] }
+{ "extends": ["github>masseater/ecosystems//libs/vite-plus-adopt/renovate"] }
 ```
 
 ## Feature-Sliced Design plugin

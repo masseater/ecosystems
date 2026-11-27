@@ -1,1 +1,28 @@
-../../../../../.claude-plugin/marketplace.json
+{
+  "name": "masseater-dev",
+  "owner": {
+    "name": "masseater",
+    "url": "https://github.com/masseater"
+  },
+  "metadata": {
+    "description": "masseater's monorepo: the masseater.dev sites, the owner's tools and published libraries."
+  },
+  "plugins": [
+    {
+      "name": "kogane",
+      "source": {
+        "source": "npm",
+        "package": "@r_masseater/kogane"
+      },
+      "description": "Claude Code plugin that suggests existing workspaces of the current pnpm monorepo for each prompt, ranked with EmbeddingGemma 2 on the user's machine."
+    },
+    {
+      "name": "watashi",
+      "source": {
+        "source": "npm",
+        "package": "@r_masseater/watashi"
+      },
+      "description": "CLI for watashi (watashi.masseater.dev). Sends Claude Code transcripts from a Stop hook after masking secrets locally with h56m, and manages login and API tokens."
+    }
+  ]
+}

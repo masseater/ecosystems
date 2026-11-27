@@ -43,9 +43,6 @@ if [ ! -d node_modules/.vite/task-cache ]; then
     gh api "repos/$repository/actions/artifacts/$artifact/zip" | tar -x >&2 || rm -rf node_modules/.vite/task-cache
   fi
 fi
-if ! claude mcp get sts2 >/dev/null 2>&1; then
-  claude mcp add --scope user sts2 -- node "$CLAUDE_PROJECT_DIR/tools/sts2-mcp/bin/sts2-mcp.ts" >&2
-fi
 
 settings="$HOME/.claude/settings.json"
 [ -s "$settings" ] || echo "{}" >"$settings"

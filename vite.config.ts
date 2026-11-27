@@ -1,14 +1,6 @@
 import { repositoryConfig } from "@r_masseater/msch/config";
-import {
-  INSTRUMENTATION,
-  cloudflareResourceSyntax,
-  decisionRules,
-  removalPolicySyntax,
-  requiredStack,
-  tracedRules,
-} from "@r_masseater/msch/lint";
+import { INSTRUMENTATION, decisionRules, requiredStack, tracedRules } from "@r_masseater/msch/lint";
 import { workspaceSettings } from "@r_masseater/msch/workspace-settings";
-import { restrictedSyntax as unguardedWorkersAi } from "@r_masseater/workers-tracing/oxlint";
 import { defineConfig } from "vite-plus";
 
 const workspace = await workspaceSettings({
@@ -20,26 +12,8 @@ const workspace = await workspaceSettings({
 export default defineConfig({
   ...repositoryConfig({
     workspace,
-    overrides: [
-      { files: [...workspace.lint.deployEntries], rules: tracedRules },
-      {
-        files: ["apps/*/src/**/*.{ts,tsx}"],
-        excludeFiles: ["**/*.test.ts", "**/*.test.tsx", "**/*.test.support.ts"],
-        rules: {
-          "eslint-js/no-restricted-syntax": [
-            "error",
-            ...cloudflareResourceSyntax,
-            removalPolicySyntax,
-            ...unguardedWorkersAi,
-          ],
-        },
-      },
-    ],
     secrets: {
-      lines: [
-        String.raw`\bOWNER_DISCORD_ID = "[0-9]{17,20}"`,
-        String.raw`untrusted comment: minisign public key: [0-9A-F]{16}`,
-      ],
+      lines: [],
       paths: [
         String.raw`(^|/)fixtures/[^/]+\.tgz!`,
         String.raw`/fixtures/actionlint/`,
@@ -48,7 +22,7 @@ export default defineConfig({
       ],
     },
     textlint: {
-      ignores: ["apps/zenn-articles/**", "**/.cache/**", "**/fixtures/**"],
+      ignores: ["**/.cache/**", "**/fixtures/**"],
       kanji: [
         "個人情報保護法",
         "中小企業基盤整備機構",
@@ -68,11 +42,8 @@ export default defineConfig({
       },
       rules: { "@r_masseater/preset-ja": { "no-taigendome": false } },
     },
-    markdown: { ignores: ["apps/zenn-articles/**"] },
     run: {
-      remoteCache: "https://task-cache.masseater.dev/projects/masseater.dev",
-      tasks: { "db-check-all": "vp run -r db:check" },
-      check: { launcher: "tsrs-effect", dependsOn: ["@masseater.dev/tsrs-effect#native"] },
+      remoteCache: "https://task-cache.masseater.dev/projects/ecosystems",
     },
   }),
   skills: {

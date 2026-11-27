@@ -11,6 +11,11 @@
       "description": "overrides は推移的な依存の下限を強制するもので、範囲のまま置き換える。",
       "matchDepTypes": ["pnpm-workspace.overrides", "pnpm.overrides", "overrides"],
       "rangeStrategy": "replace"
+    },
+    {
+      "description": "持ち主自身が公開するパッケージは待たせない。公開した版を、公開した直後に取り込む。",
+      "matchPackageNames": ["@r_masseater/**"],
+      "minimumReleaseAge": null
     }
   ]
 }

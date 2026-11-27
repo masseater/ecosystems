@@ -104,7 +104,8 @@ export const programOf = Effect.fn("programOf")(function* programOf(file: string
   return program;
 });
 
-interface WorkspaceConfig {
+/** @internal */
+export interface WorkspaceConfig {
   readonly file: string;
   readonly source: string;
   readonly program: unknown;

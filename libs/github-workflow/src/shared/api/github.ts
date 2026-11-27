@@ -10,9 +10,11 @@ const HEADERS = {
   "x-github-api-version": "2022-11-28",
 };
 
-type Failure = Config.ConfigError | HttpBody.HttpBodyError | HttpClientError.HttpClientError;
+/** @internal */
+export type Failure = Config.ConfigError | HttpBody.HttpBodyError | HttpClientError.HttpClientError;
 
-type Sent<Success> = Effect.Effect<Success, Failure, HttpClient.HttpClient>;
+/** @internal */
+export type Sent<Success> = Effect.Effect<Success, Failure, HttpClient.HttpClient>;
 
 const requestTo = Effect.fn("requestTo")(function* requestTo(
   method: HttpMethod.HttpMethod,
@@ -75,7 +77,8 @@ const postJsonOf =
 const removeAt = (path: string): Sent<void> =>
   requestTo("DELETE", path).pipe(Effect.flatMap(execute), Effect.asVoid);
 
-interface Write {
+/** @internal */
+export interface Write {
   readonly path: string;
   readonly body: unknown;
 }

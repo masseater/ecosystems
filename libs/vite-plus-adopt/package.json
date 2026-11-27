@@ -13,14 +13,14 @@
     "textlint",
     "vite-plus"
   ],
-  "homepage": "https://github.com/masseater/masseater.dev/tree/main/libs/vite-plus-adopt#readme",
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/vite-plus-adopt#readme",
   "bugs": {
-    "url": "https://github.com/masseater/masseater.dev/issues"
+    "url": "https://github.com/masseater/ecosystems/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masseater/masseater.dev.git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
     "directory": "libs/vite-plus-adopt"
   },
   "bin": {

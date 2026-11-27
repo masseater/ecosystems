@@ -1,13 +1,17 @@
-# masseater.dev
+# ecosystems
 
-このモノレポには、masseater の個人サイト [masseater.dev](https://masseater.dev) と、そこで公開しているものがある。masseater はこのサイトに、自作したものや執筆したものを投稿している。
+The toolchain behind masseater's repositories, published to npm as `@r_masseater/*`.
 
-masseater が作成したものの一覧は [masseater.dev/projects](https://masseater.dev/projects) にある。配布されている各アプリやパッケージのインストール手順は、そのディレクトリの README.md に記載されている。
+| Package                                                                                                                                                                                        | What it is                                                                                                            |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| [msch](libs/msch)                                                                                                                                                                              | The repository checks that every masseater repository runs.                                                           |
+| [vite-plus-adopt](libs/vite-plus-adopt)                                                                                                                                                        | Runs outside checks such as h56m through Vite+ with one command.                                                      |
+| [y8](libs/y8), [wism](libs/wism), [fu4](libs/fu4), [h56m](libs/h56m), [i68](libs/i68)                                                                                                          | Linters for Markdown, repository structure, GitHub Actions, secrets and music theory, each with a `-presets` package. |
+| [fumx-parser](libs/fumx-parser)                                                                                                                                                                | Parser and analysis for the `.fumx` text music format.                                                                |
+| [oxlint-plugin-decision](libs/oxlint-plugin-decision), [oxlint-typed-rules](libs/oxlint-typed-rules), [textlint-rule-preset-ja](libs/textlint-rule-preset-ja), [vitest-otlp](libs/vitest-otlp) | Lint plugins and a Vitest plugin that msch and the other repositories use.                                            |
 
-## 検査
+Every check of this repository runs through msch: `vp run verify`.
 
-このリポジトリのすべての検査は [msch](libs/msch) で実行される。msch は masseater の他のリポジトリにも同様の検査を持ち込む。
+## License
 
-## ライセンス
-
-[AGPL-3.0](LICENSE)
+[AGPL-3.0](LICENSE) for the repository. Each package states its own license in its own directory.

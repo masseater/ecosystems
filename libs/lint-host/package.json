@@ -5,7 +5,7 @@
   "description": "Runs a Rust linter from Node.js: builds and loads its napi addon, reads its vite.config.ts section and the files git tracks, resolves rule settings and passes the trace on.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/masseater/masseater.dev.git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
     "directory": "libs/lint-host"
   },
   "type": "module",

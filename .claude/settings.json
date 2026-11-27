@@ -11,14 +11,8 @@
   "permissions": {
     "deny": ["Bash(pnpm *)", "Bash(pnpx *)", "Bash(pn *)", "Bash(pnx *)"]
   },
-  "enabledMcpjsonServers": ["fallow", "sts2"],
+  "enabledMcpjsonServers": ["fallow"],
   "extraKnownMarketplaces": {
-    "masseater-dev": {
-      "source": {
-        "source": "github",
-        "repo": "masseater/masseater.dev"
-      }
-    },
     "cc-jev-teacher": {
       "source": {
         "source": "github",
@@ -28,8 +22,6 @@
     }
   },
   "enabledPlugins": {
-    "kogane@masseater-dev": true,
-    "watashi@masseater-dev": true,
     "cc-jev-teacher@cc-jev-teacher": true
   },
   "hooks": {

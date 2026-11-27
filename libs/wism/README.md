@@ -45,7 +45,7 @@ Run `wism` to check the files git tracks, or call `lint` from code.
 
 ## Comparison
 
-Measured on 2026-11-19 on linux x64, 4 CPUs with [lint-bench](https://github.com/masseater/masseater.dev/tree/main/tools/lint-bench), which keeps the full results in [results.md](https://github.com/masseater/masseater.dev/blob/main/tools/lint-bench/results/results.md). Cold runs drop the page cache and the tools' caches first. "Same as ours", "Only ours" and "Only theirs" compare findings by file, line and rule where both tools use the same rules.
+Measured on 2026-11-19 on linux x64, 4 CPUs with [lint-bench](https://github.com/masseater/ecosystems/tree/main/tools/lint-bench), which keeps the full results in [results.md](https://github.com/masseater/ecosystems/blob/main/tools/lint-bench/results/results.md). Cold runs drop the page cache and the tools' caches first. "Same as ours", "Only ours" and "Only theirs" compare findings by file, line and rule where both tools use the same rules.
 
 None of the tools finds a problem in this repository except steiger, whose recommended rules do not match the layout the repository uses. wism also checks file placement and Rust and Markdown imports, which the others do not.
 

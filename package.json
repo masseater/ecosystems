@@ -1,8 +1,8 @@
 {
-  "name": "masseater.dev",
+  "name": "ecosystems",
   "version": "0.0.1",
   "private": true,
-  "description": "masseater's monorepo: the masseater.dev sites, the owner's tools and published libraries.",
+  "description": "masseater's published toolchain: the linters and their presets, the fumx parser, msch and vite-plus-adopt.",
   "author": {
     "name": "masseater",
     "url": "https://github.com/masseater"
@@ -13,9 +13,7 @@
   },
   "devDependencies": {
     "@effect/tsgo": "catalog:stack",
-    "@masseater.dev/tsrs-effect": "workspace:*",
     "@r_masseater/msch": "workspace:*",
-    "@r_masseater/workers-tracing": "workspace:*",
     "@tanstack/intent": "catalog:",
     "@types/node": "catalog:",
     "effect": "catalog:stack",
@@ -38,19 +36,7 @@
   },
   "intent": {
     "skills": [
-      "@tanstack/devtools-vite",
-      "@tanstack/react-start",
-      "drizzle-kit",
-      "@tanstack/devtools",
-      "@tanstack/devtools-event-client",
-      "@tanstack/match-sorter-utils",
-      "@tanstack/router-core",
-      "@tanstack/start-client-core",
-      "@tanstack/virtual-file-routes",
-      "@tanstack/router-plugin",
-      "@tanstack/start-server-core",
       "fallow",
-      "workspace:@masseater.dev/effect2rs",
       "workspace:@r_masseater/msch"
     ]
   }

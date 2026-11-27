@@ -1,5 +1,4 @@
 [tools]
-dotnet = "11.0.100"
 "github:open-telemetry/weaver" = "0.28.0"
 
 [tools."github:open-telemetry/opentelemetry-collector-releases"]
