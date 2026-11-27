@@ -10,6 +10,9 @@ import { checkWorkerBundles } from "./worker-bundles.ts";
 const STACK = (main: string): string =>
   `import { Stack } from "alchemy";\n\nexport default Stack.make("worker", { main: "${main}" });\n`;
 
+const SITE = `import { Website } from "@alchemy.run/cloudflare";\n\nexport const site = Website.Vite("site", { main: "./src/app/site.ts" });\n`;
+const FRAMEWORK_ENTRY = `import { handler } from "#framework-entry";\n\nexport default { fetch: handler };\n`;
+
 const GOOD = `import { answer } from "./answer.ts";\nimport { env } from "cloudflare:workers";\n\nexport default { fetch: () => new Response(String(answer) + String(env)) };\n`;
 const BROKEN = `import { missing } from "#entry";\n\nexport default { fetch: () => new Response(String(missing)) };\n`;
 
@@ -45,9 +48,25 @@ const reportsOnlyWorkersThatFailToBundle = Effect.gen(
   },
 );
 
+const leavesFrameworkSitesToTheirBuild = Effect.gen(function* leavesFrameworkSitesToTheirBuild() {
+  const root = yield* gitRepositoryWith({
+    "pnpm-workspace.yaml": "packages:\n  - apps/*\n",
+    "package.json": '{ "name": "root", "private": true }\n',
+    "apps/site/package.json": '{ "name": "site", "private": true }\n',
+    "apps/site/alchemy.run.ts": SITE,
+    "apps/site/src/app/site.ts": FRAMEWORK_ENTRY,
+  });
+  const problems = yield* checkWorkerBundles(root);
+  expect(problems).toStrictEqual([]);
+});
+
 layer(fixtureLayer)("worker bundles", (it) => {
   it.effect(
     "reports a Worker entry that does not bundle and passes one that does",
     () => reportsOnlyWorkersThatFailToBundle,
+  );
+  it.effect(
+    "does not bundle the entry of a site that its framework builds with its own plugins",
+    () => leavesFrameworkSitesToTheirBuild,
   );
 });
