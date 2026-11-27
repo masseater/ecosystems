@@ -1,0 +1,24 @@
+diff a/.fallowrc.jsonc b/.fallowrc.jsonc	(rejected hunks)
+@@ -75,22 +74,10 @@
+       "libs/vite-plus-adopt": {
+         "ignoreDependencies": [
+           "@andrewbranch/untar.js",
+-          "@feature-sliced/filesystem",
+           "@loaderkit/resolve",
+-          "chokidar",
+           "cjs-module-lexer",
+-          "effector",
+-          "empathic",
+-          "fastest-levenshtein",
+           "fflate",
+-          "globby",
+-          "immer",
+-          "micromatch",
+-          "patronum",
+-          "pluralize",
+-          "tsconfck",
+           "validate-npm-package-name",
+-          "web-tree-sitter",
+         ],
+       },
+       "tools/seikin-dance": {
