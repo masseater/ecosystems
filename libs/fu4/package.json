@@ -1,13 +1,15 @@
 {
   "name": "@r_masseater/fu4",
   "version": "0.2.0",
-  "description": "The engine of a GitHub Actions linter: Rust parses workflows and TypeScript rules from @r_masseater/fu4-presets check them, configured from vite.config.ts.",
+  "description": "The engine of a GitHub Actions linter: Rust parses workflows and TypeScript rules from its presets subpath check them, configured from vite.config.ts.",
   "keywords": [
     "actionlint",
     "github-actions",
     "lint",
+    "shellcheck",
     "tanstack-intent",
-    "vite-plus"
+    "vite-plus",
+    "zizmor"
   ],
   "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/fu4#readme",
   "bugs": {
@@ -26,6 +28,7 @@
     "LICENSE",
     "dist",
     "logo.svg",
+    "skills/apply-fu4-presets",
     "skills/lint-workflows"
   ],
   "type": "module",
@@ -35,6 +38,7 @@
   },
   "exports": {
     ".": "./src/app/index.ts",
+    "./presets": "./src/app/presets.ts",
     "./vite": {
       "types": "./src/app/vite.ts"
     },
@@ -49,6 +53,10 @@
       ".": {
         "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"
+      },
+      "./presets": {
+        "types": "./dist/presets.d.mts",
+        "default": "./dist/presets.mjs"
       },
       "./vite": {
         "types": "./dist/vite.d.mts",
@@ -69,8 +77,19 @@
     "@masseater.dev/lint-host": "workspace:*",
     "@masseater.dev/path-kit": "workspace:*",
     "@r_masseater/vitest-otlp": "workspace:*",
+    "@types/hast": "catalog:",
+    "@types/mdast": "catalog:",
     "@types/node": "catalog:",
     "effect": "catalog:stack",
+    "hast-util-from-html": "catalog:",
+    "hast-util-select": "catalog:",
+    "liquidjs": "catalog:",
+    "mdast-util-to-string": "catalog:",
+    "minimatch": "catalog:",
+    "remark-gfm": "catalog:",
+    "remark-parse": "catalog:",
+    "unified": "catalog:",
+    "unist-util-visit": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:stack",
     "yaml": "catalog:"

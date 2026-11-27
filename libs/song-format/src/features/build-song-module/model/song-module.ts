@@ -1,9 +1,17 @@
-import { SongSchema, readSong } from "@r_masseater/fumx-parser";
-import type { Song, Named, Outline, SongSource, SourceIssue } from "@r_masseater/fumx-parser";
 import { nameLiteral, quoted, text } from "@r_masseater/mapped-import";
 import type { Segment } from "@r_masseater/mapped-import";
 import type { Issue, Mapped } from "@r_masseater/mapped-import/mapper";
 import { Array as Arr, Effect, Option, Record as Rec, Schema, pipe } from "effect";
+
+import { SongSchema } from "#/entities/song/index.ts";
+import type { Song } from "#/entities/song/index.ts";
+import { readSong } from "#/features/read-song/@x/build-song-module.ts";
+import type {
+  Named,
+  Outline,
+  SongSource,
+  SourceIssue,
+} from "#/features/read-song/@x/build-song-module.ts";
 
 export interface SongModuleSource<Failure> {
   readonly path: string;
@@ -32,7 +40,7 @@ const NAMED_FIELDS = {
   plugins: "Plugin",
 } as const satisfies Readonly<Record<NamedField, Named["$type"]>>;
 
-const SONG_MODULE = "@r_masseater/fumx-parser";
+const SONG_MODULE = "@r_masseater/song-format";
 
 const NEVER_SONG = "export declare const song: never;\n";
 

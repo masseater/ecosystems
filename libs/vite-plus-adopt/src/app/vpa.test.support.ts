@@ -1,4 +1,4 @@
-import { betterleaks } from "@r_masseater/h56m-presets";
+import { betterleaks } from "@r_masseater/h56m/presets";
 import {
   Effect,
   Function as Fn,

@@ -7,16 +7,16 @@ The engine of a GitHub Actions linter, configured from `vite.config.ts`.
 fu4 parses workflows, `action.yml` files, the Dependabot config and pre-commit configs in Rust,
 hands the YAML and tree-sitter trees to TypeScript rules without copying them, and runs those
 rules. It ships no rules of its own. Take the official ones from
-[`@r_masseater/fu4-presets`](https://www.npmjs.com/package/@r_masseater/fu4-presets): actionlint's
+the `@r_masseater/fu4/presets` subpath: actionlint's
 checks and zizmor's audits.
 
 ```sh
-npm install -D @r_masseater/fu4 @r_masseater/fu4-presets effect
+npm install -D @r_masseater/fu4 effect
 ```
 
 ```ts
 import "@r_masseater/fu4/vite";
-import { recommended } from "@r_masseater/fu4-presets";
+import { recommended } from "@r_masseater/fu4/presets";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
@@ -48,6 +48,39 @@ lint other files. From code, `lint({ root, files, config })` returns the diagnos
 Write your own rules with `defineRule` and group them with `definePlugin`. A rule receives the
 parsed source, can parse a `run:` script with `parseScript`, and reports positions with
 `report`.
+
+## Presets
+
+List the presets you want in `extends`, or take both with `recommended()`. Every rule of a chosen
+preset is an error. Override one in `rules`, such as `"zizmor/stale-action-refs": "warn"`.
+
+| Preset       | Rules                                                                                                      |
+| ------------ | ---------------------------------------------------------------------------------------------------------- |
+| `actionlint` | `actionlint/*`: what [actionlint](https://github.com/rhysd/actionlint) reports, with its shellcheck checks |
+| `zizmor`     | `zizmor/*`: the audits of [zizmor](https://github.com/zizmorcore/zizmor), with its findings and positions  |
+
+`actionlint()` takes the options of actionlint's `actionlint.yaml`.
+
+`zizmor()` takes these options.
+
+| Option          | Meaning                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------- |
+| `concerns`      | `injection`, `supply-chain`, `references`, `credentials`, `workflow` and `config`; all by default |
+| `persona`       | `regular`, `pedantic` or `auditor`, as zizmor's `--persona`                                       |
+| `minSeverity`   | The lowest severity to report                                                                     |
+| `minConfidence` | The lowest confidence to report                                                                   |
+| `rules`         | The `rules` section of a zizmor config                                                            |
+| `online`        | `false` skips the audits that query GitHub                                                        |
+| `githubHost`    | The GitHub host to query, such as a GitHub Enterprise Server host; `github.com` by default        |
+
+The audits that query GitHub read a token from `ZIZMOR_GITHUB_TOKEN`, `GH_TOKEN` or
+`GITHUB_TOKEN`, in that order, and are skipped without one. They list a repository's branches and
+tags through git's protocol, and list a public repository anonymously when GitHub rejects the token there.
+Commits found to be reachable are remembered in
+`node_modules/.cache/fu4/zizmor-reachable-commits.txt`, so later runs do not ask GitHub again.
+zizmor's auto-fixes are not included.
+
+The preset rules use only the rule API of fu4, so they need no native build of their own.
 
 ## Comparison
 

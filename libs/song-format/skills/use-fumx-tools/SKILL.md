@@ -17,7 +17,7 @@ sources:
 
 # use-fumx-tools
 
-`.fumx` is a text format for music. This package turns it into something TypeScript, an editor and an agent can use. The grammar and the reader are in `@r_masseater/fumx-parser`.
+`.fumx` is a text format for music. This package turns it into something TypeScript, an editor and an agent can use.
 
 ## Setup
 

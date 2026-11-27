@@ -1,2 +1,4 @@
 *.node
 npm/
+/presets/
+/THIRD-PARTY-NOTICES.txt

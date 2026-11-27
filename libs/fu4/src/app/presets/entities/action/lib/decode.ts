@@ -1,0 +1,58 @@
+import { Array as Arr, Option, Result, pipe } from "effect";
+
+import { EMPTY_ACTION } from "#/app/presets/entities/action/model/types.ts";
+import type { ActionMetadata } from "#/app/presets/entities/action/model/types.ts";
+import { decodeString, isPresent, readYaml, valueAt } from "#/app/presets/shared/yaml/index.ts";
+import type { Sink } from "#/app/presets/shared/yaml/index.ts";
+import type { Source, YamlNode } from "#/shared/config/index.ts";
+
+import { decodeInputs, decodeOutputs } from "./decode-inputs.ts";
+import { decodeBranding, decodeRuns } from "./decode-runs.ts";
+
+const SINGLE = 1;
+
+const section =
+  (node: YamlNode) =>
+  <Value>(key: string, decode: (value: YamlNode) => Value, fallback: Value): Value =>
+    Option.match(valueAt(key)(node), { onNone: () => fallback, onSome: decode });
+
+const metadataOf = (sink: Sink, node: YamlNode): ActionMetadata => {
+  if (!isPresent(sink)(node, "mapping", "actionlint.ActionMetadata")) {
+    return EMPTY_ACTION;
+  }
+  const at = section(node);
+  return {
+    ...EMPTY_ACTION,
+    name: at("name", decodeString(sink), ""),
+    description: at("description", decodeString(sink), ""),
+    inputs: at("inputs", decodeInputs(sink), {}),
+    outputs: at("outputs", decodeOutputs(sink), {}),
+    runs: at("runs", decodeRuns(sink), EMPTY_ACTION.runs),
+    branding: at("branding", decodeBranding(sink), EMPTY_ACTION.branding),
+  };
+};
+
+const failure = (errors: readonly string[]): string => {
+  if (errors.length === SINGLE) {
+    return Arr.join(errors, "");
+  }
+  return `yaml: unmarshal errors:  ${Arr.join(errors, "  ")}`;
+};
+
+export const decodeAction = readYaml((source: Source): Result.Result<ActionMetadata, string> => {
+  const root = Option.fromNullishOr(source.yaml);
+  if (Option.isNone(root)) {
+    return Result.succeed(EMPTY_ACTION);
+  }
+  const errors: string[] = [];
+  const metadata = metadataOf((message) => {
+    errors.push(message);
+  }, root.value);
+  return pipe(
+    Result.succeed(metadata),
+    Result.filterOrFail(
+      () => Arr.isReadonlyArrayEmpty(errors),
+      () => failure(errors),
+    ),
+  );
+});

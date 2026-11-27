@@ -1,6 +1,6 @@
 import { sortByPosition } from "@masseater.dev/lint-host";
-import { readSong } from "@r_masseater/fumx-parser";
-import type { SourceIssue } from "@r_masseater/fumx-parser";
+import { readSong } from "@r_masseater/song-format";
+import type { SourceIssue } from "@r_masseater/song-format";
 import { Array as Arr, Effect, pipe } from "effect";
 
 import { flattenConfig, resolve, unknownPlugins, unknownRules } from "#/entities/rule/index.ts";

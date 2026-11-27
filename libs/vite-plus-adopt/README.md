@@ -12,11 +12,11 @@ For Feature-Sliced Design and other structure rules, use [wism](https://www.npmj
 ## Usage
 
 ```sh
-vp add -D @r_masseater/vite-plus-adopt @r_masseater/h56m-presets
+vp add -D @r_masseater/vite-plus-adopt @r_masseater/h56m/presets
 ```
 
 ```ts
-import { betterleaks } from "@r_masseater/h56m-presets";
+import { betterleaks } from "@r_masseater/h56m/presets";
 import type {} from "@r_masseater/vite-plus-adopt";
 import { defineConfig } from "vite-plus";
 

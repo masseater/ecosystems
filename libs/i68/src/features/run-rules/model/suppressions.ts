@@ -1,4 +1,4 @@
-import type { SourceComment } from "@r_masseater/fumx-parser";
+import type { SourceComment } from "@r_masseater/song-format";
 import { Array as Arr, Match, Option, String as Str, pipe } from "effect";
 
 const DIRECTIVE =

@@ -7,12 +7,12 @@ The engine of a structure and dependency linter for TypeScript, Rust and Markdow
 
 A Rust addon reads every import, `use` path and Markdown link of the files git tracks into one
 graph. Rules are TypeScript plugins that check that graph, so a rule package runs on every OS
-without its own native build. `@r_masseater/wism-presets` holds the official presets.
+without its own native build. The official presets are the `@r_masseater/wism/presets` subpath.
 
 ```ts
 import "@r_masseater/wism/vite";
 import { definePlugin, defineRule } from "@r_masseater/wism";
-import { skill, structure, workspace } from "@r_masseater/wism-presets";
+import { skill, structure, workspace } from "@r_masseater/wism/presets";
 import { defineConfig } from "vite-plus";
 
 const noSharedToApp = defineRule({
@@ -42,6 +42,19 @@ export default defineConfig({
 ```
 
 Run `wism` to check the files git tracks, or call `lint` from code.
+
+## Presets
+
+| Preset      | Rules                                                                                      |
+| ----------- | ------------------------------------------------------------------------------------------ |
+| `fsd`       | `layer-name`, `loose-file`, `layer-import`, `cross-slice`, `public-api`, `wildcard-export` |
+| `placement` | `placement`                                                                                |
+| `links`     | `link-target`                                                                              |
+
+`presets` defaults to all of them. Every rule of a chosen preset is an error, named
+`structure/<rule>`. Override one with `rules`, such as `"structure/link-target": "warn"`.
+
+The preset rules run in TypeScript on the import graph that the engine has read, so they need no native build of their own.
 
 ## Comparison
 

@@ -49,6 +49,21 @@ content, the config and the y8 build, and reuses them on the next run. Set
 into the addon. `@r_masseater/y8/kuromojin` has the same exports as
 `kuromojin`, so textlint rules that use kuromojin can run on it.
 
+## Presets
+
+Pick the presets you want and list them in `extends`, or take every one with `recommended()`.
+
+| Preset          | Rules                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| `documents`     | `docs/*`: link targets, forward slashes, local paths, emails, placeholders in every file |
+| `readme`        | `readme/*`: the shape of `README.md`                                                     |
+| `agentsMd`      | `agents-md/*`: the shape of `AGENTS.md` and `CLAUDE.md`, written in English              |
+| `skillMd`       | `skill-md/*`: the shape of `skills/*/SKILL.md`                                           |
+| `markdownStyle` | Settings for the built-in `markdownlint/*` rules                                         |
+| `agentConfig`   | `agnix/*`: agent configuration checks built into y8                                      |
+
+The preset rules use only the rule API of y8, so they need no native build of their own.
+
 ## Comparison
 
 Measured on 2026-11-19 on linux x64, 4 CPUs with [lint-bench](https://github.com/masseater/ecosystems/tree/main/tools/lint-bench), which keeps the full results in [results.md](https://github.com/masseater/ecosystems/blob/main/tools/lint-bench/results/results.md). Cold runs drop the page cache and the tools' caches first. "Same as ours", "Only ours" and "Only theirs" compare findings by file, line and rule where both tools use the same rules.

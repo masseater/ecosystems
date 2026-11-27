@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 
-import { recommended } from "@r_masseater/fu4-presets";
+import { recommended } from "@r_masseater/fu4/presets";
 import { Option, Record as Rec, pipe } from "effect";
 import type { UserConfig } from "vite-plus";
 import type { OxlintOverride } from "vite-plus/lint";

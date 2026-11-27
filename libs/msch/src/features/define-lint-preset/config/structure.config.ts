@@ -1,5 +1,5 @@
 import type { WismConfig } from "@r_masseater/wism";
-import { rustCrate, skill, structure, workspace } from "@r_masseater/wism-presets";
+import { rustCrate, skill, structure, workspace } from "@r_masseater/wism/presets";
 import { Array as Arr, Predicate, String as Str, pipe } from "effect";
 
 const NEGATION = "!";

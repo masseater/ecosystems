@@ -15,15 +15,37 @@ export default defineConfig({
           "cargo fmt -p h56m-core -p h56m-node --check && cargo clippy -p h56m-core -p h56m-node --all-targets --locked -- -D warnings && cargo test -p h56m-core --release --locked",
         cache: { input: [...CARGO_INPUTS], output: [] },
       },
+      "extract-presets": {
+        command: "node bin/extract.ts",
+        cache: {
+          input: [
+            "package.json",
+            "bin/extract.ts",
+            { pattern: "pnpm-lock.yaml", base: "workspace" },
+          ],
+          output: ["presets/**", "THIRD-PARTY-NOTICES.txt"],
+        },
+      },
       ...addonTasks({
         command: "node bin/build-native.ts",
         inputs: CARGO_INPUTS,
         locked: [...LOCKED.input, ...DERIVATION_READS],
+        buildAfter: ["extract-presets"],
       }),
+      test: {
+        command: "vp test run",
+        dependsOn: ["native", "extract-presets"],
+        cache: LOCKED,
+      },
     },
   },
   pack: {
-    entry: { index: "src/app/index.ts", cli: "bin/h56m.ts", vite: "src/app/vite.ts" },
+    entry: {
+      index: "src/app/index.ts",
+      cli: "bin/h56m.ts",
+      vite: "src/app/vite.ts",
+      presets: "src/app/presets.ts",
+    },
     platform: "node",
     deps: { alwaysBundle: ["@masseater.dev/lint-host"] },
     sourcemap: true,

@@ -17,18 +17,18 @@ sources:
 # scan-secrets
 
 h56m finds secrets with its own engine, which follows Betterleaks. It has no rules of its own, so extend a preset from
-`@r_masseater/h56m-presets` or a TOML file of your own. It never sends a secret anywhere to check
+`@r_masseater/h56m/presets` or a TOML file of your own. It never sends a secret anywhere to check
 whether it is live.
 
 ## Setup
 
 ```sh
-vp add -D @r_masseater/h56m @r_masseater/h56m-presets
+vp add -D @r_masseater/h56m
 ```
 
 ```ts
 import "@r_masseater/h56m/vite";
-import { betterleaks } from "@r_masseater/h56m-presets";
+import { betterleaks } from "@r_masseater/h56m/presets";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({

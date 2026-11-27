@@ -7,6 +7,7 @@
     "lint",
     "music",
     "music-theory",
+    "preset",
     "tanstack-intent",
     "vite-plus",
     "voicing"
@@ -27,7 +28,8 @@
   "files": [
     "LICENSE",
     "dist",
-    "skills/lint-songs"
+    "skills/lint-songs",
+    "skills/use-i68-presets"
   ],
   "type": "module",
   "sideEffects": false,
@@ -36,6 +38,7 @@
   },
   "exports": {
     ".": "./src/app/index.ts",
+    "./presets": "./src/app/presets.ts",
     "./vite": {
       "types": "./src/app/vite.ts"
     },
@@ -49,6 +52,10 @@
       ".": {
         "types": "./dist/index.d.mts",
         "default": "./dist/index.mjs"
+      },
+      "./presets": {
+        "types": "./dist/presets.d.mts",
+        "default": "./dist/presets.mjs"
       },
       "./vite": {
         "types": "./dist/vite.d.mts",
@@ -64,8 +71,7 @@
   },
   "dependencies": {
     "@effect/platform-node": "catalog:",
-    "@r_masseater/fumx-parser": "workspace:*",
-    "langium": "catalog:"
+    "@r_masseater/song-format": "workspace:*"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
@@ -73,15 +79,21 @@
     "@r_masseater/vitest-otlp": "workspace:*",
     "@types/node": "catalog:",
     "effect": "catalog:stack",
+    "tonal": "catalog:",
+    "verovio": "catalog:",
     "vite": "catalog:",
     "vite-plus": "catalog:stack"
   },
   "peerDependencies": {
     "effect": "^4.1.0",
+    "tonal": ">=6.9.0",
     "vite": "*",
     "vite-plus": ">=1.8.0"
   },
   "peerDependenciesMeta": {
+    "tonal": {
+      "optional": true
+    },
     "vite": {
       "optional": true
     }

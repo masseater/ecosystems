@@ -2,11 +2,43 @@
 
 Tooling for `.fumx` songs: import a song from TypeScript with Vite, edit it with a language server, convert a MIDI file to `.fumx` with a check against the original, and print a report of its keys, chords and repeated bars.
 
-It requires [Vite+](https://viteplus.dev/) and Node.js 26 or later. `effect` and `vite-plus` are peer dependencies. The grammar and the reader live in [`@r_masseater/fumx-parser`](https://www.npmjs.com/package/@r_masseater/fumx-parser).
+It requires [Vite+](https://viteplus.dev/) and Node.js 26 or later. `effect` and `vite-plus` are peer dependencies. It also holds the grammar and the reader of `.fumx`.
 
 ```sh
 vp add @r_masseater/song-format effect vite-plus
 ```
+
+## Read a song
+
+```ts
+import { readSong } from "@r_masseater/song-format";
+import { Effect } from "effect";
+
+const text = `song "lint me"
+
+instrument lead sample "lead.flac" root C4
+
+track lead instrument lead
+
+bar meter 4/4 tempo 120bpm {
+  lead: C4 1/4, E4 1/4, B5 1/2 vel 0.9
+  lead.cc 64: 127 1/2, 0 1/2
+}
+`;
+
+const source = await Effect.runPromise(
+  readSong({ path: "/song.fumx", read: () => Effect.succeed(text) }),
+);
+if (source.status === "valid") {
+  const tooHigh = source.song.notes.filter((note) => note.midi > 79);
+}
+```
+
+`readSong` follows `import` statements through `read`, so the files can come from disk, memory or a network. An invalid file gives `issues` with a path, line and column. The messages are in Japanese. `outline.comments` lists the `//` and `/* */` comments of the entry file with their line and column, so tools such as linters can read directives from them.
+
+Times are integer ticks, `TICKS_PER_WHOLE` to a whole note; `fractionOf` prints them as `1/4`. `@r_masseater/song-format/analysis` estimates what the notes imply but the file does not write: the key of a range of bars (`keyIn`), the chord on each beat (`chordsOf`) and bars that repeat. `analyze` returns all of them for a song, and `soundingsOf` lists the notes of unmuted tracks with their track role, source line and column, and the spelling and pitch class as written. Chord names follow that spelling, so `E G C` is `CM/E`, not `Em#5`.
+
+`@r_masseater/song-format/language` exports the Langium grammar and modules for editors and language servers.
 
 ## Import a song
 
