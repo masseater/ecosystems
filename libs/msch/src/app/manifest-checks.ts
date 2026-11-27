@@ -11,6 +11,7 @@ import {
   checkScatteredDeviations,
   checkUpstreamExits,
 } from "#/features/check-upstream-exits/index.ts";
+import { checkWorkerBundles } from "#/features/check-worker-bundles/index.ts";
 import { checkWorkspaceDescriptions } from "#/features/check-workspace-descriptions/index.ts";
 
 /** @internal */
@@ -21,6 +22,7 @@ export const checkManifests = Effect.fn("checkManifests")(function* checkManifes
       checkPackageScope(root),
       checkPackSettings(root),
       checkUnusedWorkspaces(root),
+      checkWorkerBundles(root),
       checkExactVersions(root),
       checkUpstreamExits(root),
       checkScatteredDeviations(root),
