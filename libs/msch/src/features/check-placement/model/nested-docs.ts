@@ -13,6 +13,8 @@ const READ_CONCURRENCY = 64;
 const AGENT_DOCS = /^(?:AGENTS|CLAUDE)(?:\.[^/]+)?\.md$/iu;
 const WORKSPACE_AGENT_DOC = "AGENTS.md";
 const README = /^README(?:\.[^/]+)?$/iu;
+const MANIFEST = "package.json";
+const MISSING_RULE: RuleName = "workspace-agents-md";
 
 const RootConfig = Schema.Struct({
   msch: Schema.Struct({ workspaceAgentsMd: Schema.Literal(true) }),
@@ -33,6 +35,8 @@ const AGENT_DOCS_MESSAGE =
   "belongs only at the repository root. Move what agents need into the root AGENTS.md and delete this file.";
 const WORKSPACE_AGENT_DOCS_MESSAGE =
   "belongs only at the repository root or as AGENTS.md directly in a workspace, the directory that holds its package.json. Move what agents need there and delete this file.";
+const MISSING_MESSAGE =
+  "has no AGENTS.md next to it. This repository sets msch.workspaceAgentsMd, so every workspace describes what it is for and the rules that apply only there in its own AGENTS.md.";
 const README_MESSAGE =
   "is allowed below the root only in a workspace, the directory that holds its package.json. Move it into the workspace it describes.";
 
@@ -69,6 +73,27 @@ const readmeProblem = (
   }
   return Option.some(problemFor(file, `${base} ${README_MESSAGE}`));
 };
+
+interface Workspaces {
+  readonly required: boolean;
+  readonly directories: readonly string[];
+  readonly present: HashSet.HashSet<string>;
+  readonly join: (...parts: readonly string[]) => string;
+}
+
+const missingProblems = ({
+  required,
+  directories,
+  present,
+  join,
+}: Workspaces): readonly Problem[] =>
+  pipe(
+    directories,
+    Arr.filter(
+      (directory) => required && !HashSet.has(present, join(directory, WORKSPACE_AGENT_DOC)),
+    ),
+    Arr.map((directory) => problemInFile(MISSING_RULE)(join(directory, MANIFEST), MISSING_MESSAGE)),
+  );
 
 const problemIn = Effect.fn("problemIn")(function* problemIn(
   root: string,
@@ -120,5 +145,18 @@ export const checkNestedDocs = Effect.fn("checkNestedDocs")(function* checkNeste
   const found = yield* Effect.forEach(nested, (name) => problemIn(root, allowed, name), {
     concurrency: READ_CONCURRENCY,
   });
-  return Arr.getSomes(found);
+  const missing = missingProblems({
+    required: workspaceAgentDocs,
+    directories: pipe(
+      directories,
+      Arr.map((directory) => files.join(root, directory)),
+    ),
+    present: pipe(
+      names,
+      Arr.map((name) => files.join(root, name)),
+      HashSet.fromIterable,
+    ),
+    join: files.join,
+  });
+  return [...Arr.getSomes(found), ...missing];
 });

@@ -3,10 +3,10 @@ import { Array as Arr, Effect } from "effect";
 import { checkOverrides } from "#/features/check-overrides/index.ts";
 import { checkPlacement } from "#/features/check-placement/index.ts";
 import { checkWorkspaces } from "#/features/check-repository-layout/index.ts";
-import { checkTypescriptGeneration } from "#/features/check-typescript-generation/index.ts";
 import { checkPublishedPackages } from "#/features/measure-install-size/index.ts";
 import type { Problem } from "#/shared/lib/problem.ts";
 
+import { checkBuilds } from "./build-checks.ts";
 import { checkSources } from "./source-checks.ts";
 import { checkToolUse } from "./tool-use.ts";
 import { checkTrackedText } from "./tracked-text.ts";
@@ -38,7 +38,7 @@ export const checkAll: (
       checkPublishedPackages(root),
       checkWorkspaces(root),
       checkToolUse(root),
-      checkTypescriptGeneration(root),
+      checkBuilds(root),
     ],
     { concurrency: "unbounded" },
   );

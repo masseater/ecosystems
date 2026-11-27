@@ -84,6 +84,32 @@ const allowsWorkspaceAgentsMd = Effect.gen(function* allowsWorkspaceAgentsMd() {
   ]);
 });
 
+const flagsWorkspacesWithoutAgentsMd = Effect.gen(function* flagsWorkspacesWithoutAgentsMd() {
+  const findings = yield* findingsFor({
+    "vite.config.ts": WORKSPACE_AGENTS_ALLOWED,
+    "AGENTS.md": "# repo\n",
+    "apps/site/package.json": PRIVATE_PACKAGE,
+    "apps/site/AGENTS.md": "# site\n",
+    "apps/other/package.json": PRIVATE_PACKAGE,
+    "libs/published/package.json": PUBLIC_PACKAGE,
+    "libs/published/README.md": "# published\n",
+  });
+  expect(findings).toStrictEqual([
+    "apps/other/package.json workspace-agents-md",
+    "libs/published/package.json workspace-agents-md",
+  ]);
+});
+
+const leavesAgentsMdOptionalWithoutTheSetting = Effect.gen(
+  function* leavesAgentsMdOptionalWithoutTheSetting() {
+    const findings = yield* findingsFor({
+      "AGENTS.md": "# repo\n",
+      "apps/other/package.json": PRIVATE_PACKAGE,
+    });
+    expect(findings).toStrictEqual([]);
+  },
+);
+
 layer(fixtureLayer)("nested docs", (it) => {
   it.effect(
     "flags AGENTS.md and CLAUDE.md below the root, and README files outside a workspace directory",
@@ -96,5 +122,13 @@ layer(fixtureLayer)("nested docs", (it) => {
   it.effect(
     "passes AGENTS.md directly in a workspace when the root vite.config.ts sets msch.workspaceAgentsMd",
     () => allowsWorkspaceAgentsMd,
+  );
+  it.effect(
+    "flags a workspace without its own AGENTS.md when the root vite.config.ts sets msch.workspaceAgentsMd",
+    () => flagsWorkspacesWithoutAgentsMd,
+  );
+  it.effect(
+    "does not require AGENTS.md in a workspace without the setting",
+    () => leavesAgentsMdOptionalWithoutTheSetting,
   );
 });
