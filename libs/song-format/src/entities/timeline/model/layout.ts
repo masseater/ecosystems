@@ -97,28 +97,29 @@ const interpolated =
     return microsecondsOf(from + (to - from) * share);
   };
 
+const rampedAt =
+  (tempos: readonly TempoChange[]) =>
+  (tick: number, at: number): Option.Option<number> =>
+    pipe(
+      rampAt(tempos)(tick),
+      Option.map((ramp) => interpolated(ramp)(at)),
+    );
+
+const steadyAt =
+  (tempos: readonly TempoChange[]): From<number, number> =>
+  (tick) =>
+    pipe(
+      latestAt(tick)(tempos),
+      Option.match({
+        onNone: () => DEFAULT_MICROSECONDS,
+        onSome: (tempo) => tempo.microseconds,
+      }),
+    );
+
 const tempoAt =
   (tempos: readonly TempoChange[]): From<number, number> =>
   (tick) =>
-    Option.match(rampAt(tempos)(tick), {
-      onSome: (ramp) => interpolated(ramp)(tick),
-      onNone: () =>
-        pipe(
-          latestAt(tick)(tempos),
-          Option.match({
-            onNone: () => DEFAULT_MICROSECONDS,
-            onSome: (tempo) => tempo.microseconds,
-          }),
-        ),
-    });
-
-const targetAt =
-  (tempos: readonly TempoChange[]): From<readonly [number, number], Option.Option<number>> =>
-  ([tick, end]) =>
-    pipe(
-      rampAt(tempos)(tick),
-      Option.map((ramp) => interpolated(ramp)(end)),
-    );
+    Option.getOrElse(rampedAt(tempos)(tick, tick), () => steadyAt(tempos)(tick));
 
 const tempoStepsOf =
   (tempos: readonly TempoChange[]): From<Span, readonly LaidTempo[]> =>
@@ -141,7 +142,7 @@ const tempoStepsOf =
           offset: tick - bar.start,
           length: stepEnd - tick,
           microseconds: tempoAt(tempos)(tick),
-          target: targetAt(tempos)([tick, stepEnd]),
+          target: rampedAt(tempos)(tick, stepEnd),
         };
       }),
     );
