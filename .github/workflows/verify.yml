@@ -46,7 +46,7 @@ jobs:
           path: node_modules/.cache/msch
           key: msch-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
           restore-keys: msch-
-      - uses: masseater/typescript-template/.github/actions/verify@c116d175574f2f6917e2aa39caf83a141ef4bd94
+      - uses: masseater/typescript-template/.github/actions/verify@0aec18eb421e6fb6160d7342470e2a24fe61069a
         timeout-minutes: 30
         with:
           github-token: ${{ github.token }}
@@ -120,6 +120,6 @@ jobs:
       actions: read
       contents: read
     steps:
-      - uses: masseater/typescript-template/.github/actions/ci-telemetry@c116d175574f2f6917e2aa39caf83a141ef4bd94
+      - uses: masseater/typescript-template/.github/actions/ci-telemetry@0aec18eb421e6fb6160d7342470e2a24fe61069a
         with:
           github-token: ${{ github.token }}
