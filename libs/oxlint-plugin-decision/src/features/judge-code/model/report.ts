@@ -153,11 +153,6 @@ const explainPassOf = (
   durationMs,
 });
 
-const explainerOf = (
-  pass: ModelPass,
-  timed: Pick<ExplainPass, "request" | "durationMs">,
-): Explainer => explainerFor(explainPassOf(pass, timed));
-
 interface Prepared {
   readonly pass: ModelPass;
   readonly asking: Asking;
@@ -174,7 +169,7 @@ const reportAnswer = (
   { pass, asking, request }: Prepared,
   { decided, durationMs }: { readonly decided: DecideResult; readonly durationMs: number },
 ): void => {
-  const explainer = explainerOf(pass, { request, durationMs });
+  const explainer = explainerFor(explainPassOf(pass, { request, durationMs }));
   const result = verdictsOf(decided, request);
   if (!result.ok) {
     explainer.failure(pass.matches, result.reason);
