@@ -13,7 +13,12 @@ import type { Text } from "#/shared/yaml/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
 import type { Handler } from "./fold.ts";
-import { entryRecord, parseMapping, parseSection } from "./mapping.ts";
+import {
+  emptyableCaselessSection,
+  emptyableSection,
+  entryRecord,
+  parseMapping,
+} from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { checkString, parseBool, parseString } from "./scalar.ts";
 import { reportMissing } from "./sink.ts";
@@ -139,16 +144,6 @@ const callOutput =
     return output;
   };
 
-const section =
-  (sink: Sink, name: string) =>
-  (entry: Entry): readonly Entry[] =>
-    parseSection(sink)({
-      section: name,
-      node: entry.value,
-      allowEmpty: true,
-      caseSensitive: false,
-    });
-
 export const emptyCall = (at: Position): WorkflowCallEvent => ({
   type: "workflow_call",
   inputs: [],
@@ -162,25 +157,26 @@ export const parseWorkflowCall =
   (at: Position, node: YamlNode): WorkflowCallEvent => {
     const { set } = setters<WorkflowCallEvent>();
     return foldEntries<WorkflowCallEvent>({
-      entries: parseSection(sink)({
-        section: "workflow_call",
-        node,
-        allowEmpty: true,
-        caseSensitive: true,
-      }),
+      entries: emptyableSection(sink)("workflow_call", node),
       initial: emptyCall(at),
       handlers: [
         [
           "inputs",
-          set("inputs", (entry) => Arr.map(section(sink, "inputs")(entry), callInput(sink))),
+          set("inputs", (entry) =>
+            Arr.map(emptyableCaselessSection(sink)("inputs", entry.value), callInput(sink)),
+          ),
         ],
         [
           "secrets",
-          set("secrets", (entry) => entryRecord(callSecret(sink))(section(sink, "secrets")(entry))),
+          set("secrets", (entry) =>
+            entryRecord(callSecret(sink))(emptyableCaselessSection(sink)("secrets", entry.value)),
+          ),
         ],
         [
           "outputs",
-          set("outputs", (entry) => entryRecord(callOutput(sink))(section(sink, "outputs")(entry))),
+          set("outputs", (entry) =>
+            entryRecord(callOutput(sink))(emptyableCaselessSection(sink)("outputs", entry.value)),
+          ),
         ],
       ],
       unknown: rejecting({

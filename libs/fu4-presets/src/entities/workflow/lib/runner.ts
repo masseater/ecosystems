@@ -6,7 +6,7 @@ import type { Text } from "#/shared/yaml/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
 import type { Handler } from "./fold.ts";
-import { entryRecord, parseSection } from "./mapping.ts";
+import { caselessSection, entryRecord, section } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { mayParseExpression, parseString } from "./scalar.ts";
 import { parseStringOrSequence } from "./sequence.ts";
@@ -15,8 +15,13 @@ import type { Sink } from "./sink.ts";
 
 const labels =
   (sink: Sink) =>
-  (section: string, node: YamlNode): readonly Text[] =>
-    parseStringOrSequence(sink)({ section, node, allowEmpty: false, allowElementEmpty: false });
+  (name: string, node: YamlNode): readonly Text[] =>
+    parseStringOrSequence(sink)({
+      section: name,
+      node,
+      allowEmpty: false,
+      allowElementEmpty: false,
+    });
 
 const labelsHandler =
   (sink: Sink): Handler<Runner> =>
@@ -42,12 +47,7 @@ export const parseRunsOn =
       return { labels: labels(sink)("runs-on", node) };
     }
     return foldEntries<Runner>({
-      entries: parseSection(sink)({
-        section: "runs-on",
-        node,
-        allowEmpty: false,
-        caseSensitive: true,
-      }),
+      entries: section(sink)("runs-on", node),
       initial: { labels: [] },
       handlers: [
         ["labels", labelsHandler(sink)],
@@ -62,7 +62,7 @@ const snapshotMapping =
   (at: Position, node: YamlNode): Snapshot => {
     const { set } = setters<Snapshot>();
     const snapshot = foldEntries<Snapshot>({
-      entries: parseSection(sink)({ section: "on", node, allowEmpty: false, caseSensitive: true }),
+      entries: section(sink)("on", node),
       initial: {},
       handlers: [
         ["image-name", set("imageName", text(sink))],
@@ -97,8 +97,8 @@ export const parseSnapshot =
 
 export const parseCallValues =
   (sink: Sink) =>
-  (section: string, node: YamlNode): Readonly<Record<string, CallValue>> =>
+  (name: string, node: YamlNode): Readonly<Record<string, CallValue>> =>
     entryRecord((entry): CallValue => ({
       name: entry.key,
       value: parseString(sink)(entry.value, true),
-    }))(parseSection(sink)({ section, node, allowEmpty: false, caseSensitive: false }));
+    }))(caselessSection(sink)(name, node));

@@ -105,17 +105,16 @@ export const parseMapping =
     return entries;
   };
 
-export interface SectionInput {
-  readonly section: string;
-  readonly node: YamlNode;
-  readonly allowEmpty: boolean;
-  readonly caseSensitive: boolean;
-}
-
-export const parseSection =
+const sectionWith =
+  (flags: Pick<MappingInput, "allowEmpty" | "caseSensitive">) =>
   (sink: Sink) =>
-  (input: SectionInput): readonly Entry[] =>
-    parseMapping(sink)({ ...input, place: `${quote(input.section)} section` });
+  (section: string, node: YamlNode): readonly Entry[] =>
+    parseMapping(sink)({ ...flags, node, place: `${quote(section)} section` });
+
+export const section = sectionWith({ allowEmpty: false, caseSensitive: true });
+export const caselessSection = sectionWith({ allowEmpty: false, caseSensitive: false });
+export const emptyableSection = sectionWith({ allowEmpty: true, caseSensitive: true });
+export const emptyableCaselessSection = sectionWith({ allowEmpty: true, caseSensitive: false });
 
 export const entryRecord =
   <Value>(parse: (entry: Entry) => Value) =>

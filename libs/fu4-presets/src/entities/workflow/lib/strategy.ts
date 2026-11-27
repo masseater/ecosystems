@@ -5,7 +5,7 @@ import type { Strategy } from "#/entities/workflow/model/job-types.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
 import type { Entry } from "./mapping.ts";
-import { parseSection } from "./mapping.ts";
+import { section } from "./mapping.ts";
 import { parseMatrix } from "./matrix.ts";
 import { parseBool, parseInteger } from "./scalar.ts";
 import type { Sink } from "./sink.ts";
@@ -34,12 +34,7 @@ export const parseStrategy =
   (node: YamlNode): Strategy => {
     const { setSome } = setters<Strategy>();
     return foldEntries<Strategy>({
-      entries: parseSection(sink)({
-        section: "strategy",
-        node,
-        allowEmpty: false,
-        caseSensitive: true,
-      }),
+      entries: section(sink)("strategy", node),
       initial: {},
       handlers: [
         [

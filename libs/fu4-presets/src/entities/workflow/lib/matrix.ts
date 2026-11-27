@@ -7,7 +7,7 @@ import { optional } from "#/shared/record/index.ts";
 
 import { foldEntries, setters } from "./fold.ts";
 import type { Handler } from "./fold.ts";
-import { parseSection } from "./mapping.ts";
+import { caselessSection } from "./mapping.ts";
 import { combinations, row } from "./matrix-values.ts";
 import { parseExpression } from "./scalar.ts";
 import type { Sink } from "./sink.ts";
@@ -33,12 +33,7 @@ export const parseMatrix =
     }
     const { setSome } = setters<Matrix>();
     const matrix = foldEntries<Matrix>({
-      entries: parseSection(sink)({
-        section: "matrix",
-        node,
-        allowEmpty: false,
-        caseSensitive: false,
-      }),
+      entries: caselessSection(sink)("matrix", node),
       initial: emptyMatrix(at),
       handlers: [
         ["include", setSome("include", (entry) => combinations(sink)("include", entry))],

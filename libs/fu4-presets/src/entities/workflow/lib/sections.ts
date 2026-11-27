@@ -12,22 +12,12 @@ import type {
 import { optional } from "#/shared/record/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
-import { entryRecord, parseSection } from "./mapping.ts";
+import { caselessSection, emptyableCaselessSection, entryRecord, section } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { parseBool, parseExpression, parseString } from "./scalar.ts";
 import { reportEmpty } from "./sequence.ts";
 import { reportMissing } from "./sink.ts";
 import type { Sink } from "./sink.ts";
-
-const section =
-  (sink: Sink) =>
-  (name: string, node: YamlNode): readonly Entry[] =>
-    parseSection(sink)({ section: name, node, allowEmpty: false, caseSensitive: true });
-
-const caseless =
-  (sink: Sink) =>
-  (name: string, node: YamlNode): readonly Entry[] =>
-    parseSection(sink)({ section: name, node, allowEmpty: false, caseSensitive: false });
 
 const text =
   (sink: Sink) =>
@@ -40,12 +30,7 @@ export const parsePermissions =
     if (node.kind === "scalar") {
       return { all: parseString(sink)(node, false), scopes: {} };
     }
-    const entries = parseSection(sink)({
-      section: "permissions",
-      node,
-      allowEmpty: true,
-      caseSensitive: false,
-    });
+    const entries = emptyableCaselessSection(sink)("permissions", node);
     return {
       scopes: entryRecord((entry) => ({ name: entry.key, value: text(sink)(entry) }))(entries),
     };
@@ -64,7 +49,7 @@ export const parseEnv =
       vars: entryRecord((entry) => ({
         name: entry.key,
         value: parseString(sink)(entry.value, true),
-      }))(caseless(sink)("env", node)),
+      }))(caselessSection(sink)("env", node)),
     };
   };
 
@@ -150,7 +135,7 @@ export const parseOutputs =
   (sink: Sink) =>
   (node: YamlNode): Job["outputs"] => {
     const outputs = entryRecord((entry) => parseString(sink)(entry.value, true))(
-      caseless(sink)("outputs", node),
+      caselessSection(sink)("outputs", node),
     );
     if (Rec.isEmptyRecord(outputs)) {
       reportEmpty(sink)("outputs", node);

@@ -12,7 +12,12 @@ import type { Text } from "#/shared/yaml/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
 import type { Handler } from "./fold.ts";
-import { entryRecord, parseMapping, parseSection } from "./mapping.ts";
+import {
+  emptyableCaselessSection,
+  emptyableSection,
+  entryRecord,
+  parseMapping,
+} from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { checkString, parseBool, parseString } from "./scalar.ts";
 import { parseStringSequence } from "./sequence.ts";
@@ -98,25 +103,13 @@ export const parseWorkflowDispatch =
   (sink: Sink) =>
   (at: Position, node: YamlNode): WorkflowDispatchEvent =>
     foldEntries<WorkflowDispatchEvent>({
-      entries: parseSection(sink)({
-        section: "workflow_dispatch",
-        node,
-        allowEmpty: true,
-        caseSensitive: true,
-      }),
+      entries: emptyableSection(sink)("workflow_dispatch", node),
       initial: emptyDispatch(at),
       handlers: [
         [
           "inputs",
           setters<WorkflowDispatchEvent>().set("inputs", (entry) =>
-            entryRecord(dispatchInput(sink))(
-              parseSection(sink)({
-                section: "inputs",
-                node: entry.value,
-                allowEmpty: true,
-                caseSensitive: false,
-              }),
-            ),
+            entryRecord(dispatchInput(sink))(emptyableCaselessSection(sink)("inputs", entry.value)),
           ),
         ],
       ],
@@ -134,12 +127,7 @@ export const parseImageVersion =
   (node: YamlNode): ImageVersionEvent => {
     const { set } = setters<ImageVersionEvent>();
     return foldEntries<ImageVersionEvent>({
-      entries: parseSection(sink)({
-        section: "image_version",
-        node,
-        allowEmpty: true,
-        caseSensitive: true,
-      }),
+      entries: emptyableSection(sink)("image_version", node),
       initial: EMPTY_IMAGE_VERSION,
       handlers: [
         ["names", set("names", strings(sink, "names"))],

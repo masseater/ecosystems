@@ -5,7 +5,7 @@ import type { Container, Credentials, Services } from "#/entities/workflow/model
 import { quote } from "#/shared/text/index.ts";
 
 import { foldEntries, rejecting, setters } from "./fold.ts";
-import { entryRecord, parseSection } from "./mapping.ts";
+import { caselessSection, entryRecord, section } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { mayParseExpression, parseString } from "./scalar.ts";
 import { parseEnv } from "./sections.ts";
@@ -27,12 +27,7 @@ const parseCredentials =
     }
     const { set } = setters<Credentials>();
     const credentials = foldEntries<Credentials>({
-      entries: parseSection(sink)({
-        section: "credentials",
-        node: entry.value,
-        allowEmpty: false,
-        caseSensitive: true,
-      }),
+      entries: section(sink)("credentials", entry.value),
       initial: {},
       handlers: [
         ["username", set("username", text(sink, false))],
@@ -54,10 +49,10 @@ const parseCredentials =
   };
 
 const strings =
-  (sink: Sink, section: string) =>
+  (sink: Sink, name: string) =>
   (entry: Entry): Container["ports"] =>
     parseStringSequence(sink)({
-      section,
+      section: name,
       node: entry.value,
       allowEmpty: true,
       allowElementEmpty: false,
@@ -67,10 +62,10 @@ const CONTAINER_KEYS = ["image", "credentials", "env", "ports", "volumes", "opti
 
 const containerMapping =
   (sink: Sink) =>
-  (section: string, node: YamlNode): Container => {
+  (name: string, node: YamlNode): Container => {
     const { set, setSome } = setters<Container>();
     return foldEntries<Container>({
-      entries: parseSection(sink)({ section, node, allowEmpty: false, caseSensitive: true }),
+      entries: section(sink)(name, node),
       initial: { ports: [], volumes: [] },
       handlers: [
         ["image", set("image", text(sink, false))],
@@ -80,18 +75,18 @@ const containerMapping =
         ["volumes", set("volumes", strings(sink, "volumes"))],
         ["options", set("options", text(sink, true))],
       ],
-      unknown: rejecting({ sink, section, expected: CONTAINER_KEYS }),
+      unknown: rejecting({ sink, section: name, expected: CONTAINER_KEYS }),
     });
   };
 
 export const parseContainer =
   (sink: Sink) =>
-  (section: string, at: Position, node: YamlNode): Container => {
+  (name: string, at: Position, node: YamlNode): Container => {
     if (node.kind === "scalar") {
       return { ports: [], volumes: [], image: parseString(sink)(node, false) };
     }
-    const container = containerMapping(sink)(section, node);
-    reportMissing(sink)(container.image, at, `"image" is missing in ${quote(section)} section`);
+    const container = containerMapping(sink)(name, node);
+    reportMissing(sink)(container.image, at, `"image" is missing in ${quote(name)} section`);
     return container;
   };
 
@@ -102,12 +97,7 @@ export const parseServices =
     if (Option.isSome(expression)) {
       return { value: {}, expression: expression.value };
     }
-    const entries = parseSection(sink)({
-      section: "services",
-      node,
-      allowEmpty: false,
-      caseSensitive: false,
-    });
+    const entries = caselessSection(sink)("services", node);
     return {
       value: entryRecord((entry) => ({
         name: entry.key,

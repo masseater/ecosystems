@@ -6,7 +6,7 @@ import type { Text } from "#/shared/yaml/index.ts";
 
 import { foldEntries, keep, rejecting, setters } from "./fold.ts";
 import type { Handler, Handlers } from "./fold.ts";
-import { parseSection } from "./mapping.ts";
+import { caselessSection } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { parseString } from "./scalar.ts";
 import type { Sink } from "./sink.ts";
@@ -46,12 +46,7 @@ const parseWith =
   (sink: Sink, docker: boolean): Handler<ExecAction> =>
   (action, entry) => {
     const state = foldEntries<WithState>({
-      entries: parseSection(sink)({
-        section: "with",
-        node: entry.value,
-        allowEmpty: false,
-        caseSensitive: false,
-      }),
+      entries: caselessSection(sink)("with", entry.value),
       initial: { action, inputs: [] },
       handlers: [],
       unknown: withInput(sink, docker),

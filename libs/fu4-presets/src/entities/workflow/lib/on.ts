@@ -10,7 +10,7 @@ import {
   parseWorkflowDispatch,
 } from "./dispatch.ts";
 import { emptyWebhook, parseRepositoryDispatch, parseSchedule, parseWebhook } from "./events.ts";
-import { parseSection } from "./mapping.ts";
+import { section } from "./mapping.ts";
 import type { Entry } from "./mapping.ts";
 import { parseString } from "./scalar.ts";
 import { checkNotEmpty } from "./sequence.ts";
@@ -87,12 +87,7 @@ export const parseEvents =
       return withoutConfig(sink)(node).pipe(Option.toArray, Option.some);
     }
     if (node.kind === "mapping") {
-      const entries = parseSection(sink)({
-        section: "on",
-        node,
-        allowEmpty: false,
-        caseSensitive: true,
-      });
+      const entries = section(sink)("on", node);
       return Option.some(each(configured(sink))(entries));
     }
     if (node.kind === "sequence") {
