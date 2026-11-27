@@ -42,16 +42,11 @@ const TYPE_ORDER: readonly string[] = [
 ];
 
 const OTHER = "other";
-const SCOPE_MARK = /^@/u;
-const SEPARATORS = /[/\\]+/gu;
 const MARKDOWN_SUFFIX = /\.md$/u;
 const REQUIRE_SEPARATOR = "#";
 const NO_DEPTH = 0;
 const ONE_LEVEL = 1;
 const DATA_FIRST_ARITY = 2;
-
-export const slugOf = (packageName: string): string =>
-  pipe(packageName, Str.replace(SCOPE_MARK, ""), Str.replaceAll(SEPARATORS, "-"));
 
 export const requiredName = (requirement: string): string =>
   pipe(

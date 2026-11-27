@@ -87,7 +87,7 @@ const book = Effect.gen(function* makeBook() {
   return value;
 });
 
-export const AUTH_PAGE = "trpc-server/auth/index.html";
+export const AUTH_PAGE = "@trpc/server/auth/index.html";
 
 export const build = (base = "/"): Effect.Effect<readonly SiteFile[], Schema.SchemaError | Error> =>
   Effect.gen(function* built() {

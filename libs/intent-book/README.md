@@ -10,10 +10,10 @@ vp dlx @r_masseater/intent-book ./path/to/package --out book
 
 ## What it builds
 
-- One page per skill and one page per file in the skill's `references/`, each at its own URL such as `/<package>/<skill>/`. The skill name is the page title, the `description` is the lead, and the Intent fields `type` and `library_version` show as chips.
+- One page per skill and one page per file in the skill's `references/`, each at its own URL under the package name, such as `/@scope/name/<skill>/`. The skill name is the page title, the `description` is the lead, and the Intent fields `type` and `library_version` show as chips.
 - A left navigation grouped by skill `type`, a table of contents of the page on the right, previous and next links in reading order, and a search dialog.
 - `requires` shows as "Read first" links. `sources` link to their files in the repository unless they are globs. Headings that start with `CRITICAL`, `HIGH`, `MEDIUM` or `LOW` under Common Mistakes carry a severity mark.
-- The `SKILL.md` an agent reads, unchanged, next to each page as `/<package>/<skill>.md`.
+- The `SKILL.md` an agent reads, unchanged, next to each page as `/@scope/name/<skill>.md`.
 - Light and dark themes that follow the system setting, and code highlighted with Shiki.
 
 Links between skill files and to references become links between pages. Raw HTML in a skill is dropped.

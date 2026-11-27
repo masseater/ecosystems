@@ -2,7 +2,7 @@ import { Array as Arr, Boolean as Bool, pipe, Record as Rec, String as Str } fro
 import type { Element } from "hast";
 import { h } from "hastscript";
 
-import { groupSkills, routeOf, slugOf } from "#/entities/book/index.ts";
+import { groupSkills, routeOf } from "#/entities/book/index.ts";
 import type { Book, Group, Skill } from "#/entities/book/index.ts";
 import { charset, htmlDocument, when } from "#/shared/lib/html.ts";
 import type { Heading } from "#/shared/lib/render-markdown.ts";
@@ -55,7 +55,7 @@ const currentMark = (active: boolean): Readonly<Record<string, string>> =>
   Bool.match(active, { onTrue: () => ({ ariaCurrent: "page" }), onFalse: () => ({}) });
 
 const overviewRoute = (shell: Shell, book: Book): string =>
-  withBase(shell.base)(routeOf(slugOf(book.name), { kind: "overview" }));
+  withBase(shell.base)(routeOf(book.name, { kind: "overview" }));
 
 const isCurrentSkill = (current: Current, skill: Skill): boolean =>
   current.kind !== "overview" && current.skill.name === skill.name;
@@ -67,7 +67,7 @@ const isActiveReference = (current: Current, skill: Skill, file: string): boolea
   current.kind === "reference" && current.skill.name === skill.name && current.file === file;
 
 const skillLink = (shell: Shell, skill: Skill): Element => {
-  const route = routeOf(slugOf(shell.book.name), { kind: "skill", name: skill.name });
+  const route = routeOf(shell.book.name, { kind: "skill", name: skill.name });
   const mark = currentMark(isActiveSkill(shell.current, skill));
   return h("a", { href: withBase(shell.base)(route), ...mark }, skill.name);
 };
@@ -76,7 +76,7 @@ const referenceLabel = (file: string): string =>
   pipe(file, Str.replace(REFERENCES_PREFIX, ""), Str.replace(MARKDOWN_SUFFIX, ""));
 
 const referenceLink = (shell: Shell, skill: Skill, file: string): Element => {
-  const route = routeOf(slugOf(shell.book.name), { kind: "reference", name: skill.name, file });
+  const route = routeOf(shell.book.name, { kind: "reference", name: skill.name, file });
   const mark = currentMark(isActiveReference(shell.current, skill, file));
   return h("a", { href: withBase(shell.base)(route), ...mark }, referenceLabel(file));
 };

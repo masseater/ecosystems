@@ -1,7 +1,7 @@
 import { Array as Arr, Option, pipe } from "effect";
 import { expect, test } from "vite-plus/test";
 
-import { entrySkills, groupSkills, orderedSkills, routeOf, slugOf } from "./book.ts";
+import { entrySkills, groupSkills, orderedSkills, routeOf } from "./book.ts";
 import type { Skill } from "./skill.ts";
 
 const skill = (
@@ -45,11 +45,6 @@ const typesOf = (skills: readonly Skill[]): readonly string[] =>
     groupSkills(skills),
     Arr.map((group) => group.type),
   );
-
-test("slugs drop the scope marker and keep one segment", () => {
-  expect(slugOf("@trpc/server")).toBe("trpc-server");
-  expect(slugOf("plain")).toBe("plain");
-});
 
 test("groups follow the documented type order and unknown types come last", () => {
   expect(typesOf(SKILLS)).toStrictEqual([

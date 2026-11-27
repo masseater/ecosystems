@@ -4,7 +4,6 @@ export {
   orderedSkills,
   requiredName,
   routeOf,
-  slugOf,
   typeOf,
 } from "./model/book.ts";
 export type { Book, Group } from "./model/book.ts";
