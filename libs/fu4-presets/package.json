@@ -71,9 +71,9 @@
   },
   "peerDependencies": {
     "@r_masseater/fu4": "workspace:^",
-    "effect": "^4.1.2"
+    "effect": "^4.1.0"
   },
   "engines": {
-    "node": "v26.13.1"
+    "node": ">=26.13.0"
   }
 }

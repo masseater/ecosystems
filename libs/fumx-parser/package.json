@@ -72,9 +72,9 @@
     "vite-plus": "catalog:stack"
   },
   "peerDependencies": {
-    "effect": "^4.1.4"
+    "effect": "^4.1.0"
   },
   "engines": {
-    "node": "v26.13.1"
+    "node": ">=26.13.0"
   }
 }
