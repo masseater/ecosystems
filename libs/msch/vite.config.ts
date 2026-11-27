@@ -13,9 +13,7 @@ export default defineConfig({
         {
           files: ["src/app/oxlint.ts"],
           rules: {
-            "node/no-sync": "off",
-            "effecttsgo/node-builtin-import": "off",
-            "effecttsgo/schema-sync": "off",
+            "baseline-js/use-baseline": ["error", { ignoreFeatures: ["top-level-await"] }],
           },
         },
       ],
