@@ -33,7 +33,7 @@ catalog:
   langium: 4.4.2
   langium-cli: 4.4.1
   vscode-languageserver: 11.0.1
-  "@r_masseater/oxlint-typed-rules": 0.4.3
+  "@r_masseater/oxlint-typed-rules": 0.5.0
   "@r_masseater/vite-plus-adopt": 0.12.0
   oxlint-plugin-eslint: 1.95.0
   "@cloudflare/workers-types": 5.20261124.1
@@ -232,6 +232,7 @@ minimumReleaseAgeExclude:
   - "@r_masseater/h56m-win32-x64-msvc@0.2.0"
   - "@r_masseater/h56m@0.2.0"
   - "@r_masseater/vite-plus-adopt@0.12.0"
+  - "@r_masseater/oxlint-typed-rules@0.5.0"
 
 cargo:
   enabled: true

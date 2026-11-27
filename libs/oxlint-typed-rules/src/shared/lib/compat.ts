@@ -17,6 +17,7 @@ export interface CompatChecker {
 }
 
 export interface CompatProgram {
+  readonly native: Project;
   readonly getSourceFile: (fileName: string) => SourceFile | undefined;
   readonly getSourceFiles: () => readonly SourceFile[];
   readonly getTypeChecker: () => CompatChecker;
@@ -57,6 +58,7 @@ export const internProgram = (project: Project): CompatProgram =>
       const { program } = project;
       const checker = compatChecker(project, project.checker);
       const created: CompatProgram = {
+        native: project,
         getSourceFile: program.getSourceFile.bind(program),
         getSourceFiles: () => ownSourceFiles(program),
         getTypeChecker: () => checker,

@@ -21,7 +21,6 @@ import {
 import type { FileBinding, Scope, SymbolFlagPair } from "./binder-declarations.ts";
 import { NON_INSTANTIATED, getModuleInstanceState, isConstEnum } from "./binder-module-state.ts";
 import { isAmbientModule } from "./binder-names.ts";
-import { setValueDeclaration } from "./binder-symbols.ts";
 import { isAliasableExpression } from "./binder-syntax.ts";
 import { EMPTY } from "./flags.ts";
 
@@ -109,7 +108,7 @@ const bindExportAssignment: NodeBinder = (binding, node, scope) => {
   );
   const symbol = declareExport(binding, node, flags);
   if (node.isExportEquals) {
-    setValueDeclaration(symbol, node);
+    symbol.setValueDeclaration(node);
   }
 };
 
