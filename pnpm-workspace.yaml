@@ -222,9 +222,7 @@ minimumReleaseAgeExclude:
   - "@effect/tsgo-win32-arm64@0.73.7"
   - "@effect/tsgo-win32-x64@0.73.7"
   - "@effect/tsgo@0.73.7"
-  - "@r_masseater/vite-plus-adopt@0.13.0"
-  - "@r_masseater/oxlint-typed-rules@0.5.0"
-  - "@r_masseater/node-main@0.1.0"
+  - "@r_masseater/*"
 
 cargo:
   enabled: true
