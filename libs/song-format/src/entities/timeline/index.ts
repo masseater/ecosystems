@@ -11,5 +11,6 @@ export type {
   TimelineControl,
   TimelineNote,
 } from "./model/events.ts";
+export { microsecondsOf } from "./model/tempo-units.ts";
 export { writeFumx } from "./model/write.ts";
 export type { Written } from "./model/write.ts";

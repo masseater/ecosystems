@@ -4,13 +4,13 @@ import { Array as Arr, Option, pipe } from "effect";
 import type { From } from "#/shared/lib/from.ts";
 
 import type { Meter, TempoChange, Text, Timeline } from "./events.ts";
+import { bpmOf, microsecondsOf } from "./tempo-units.ts";
 
 const NONE = 0;
 const NEXT = 1;
 const QUARTER = 4;
 const DEFAULT_METER = { numerator: QUARTER, denominator: QUARTER };
 const DEFAULT_MICROSECONDS = 500_000;
-const MICROSECONDS_PER_MINUTE = 60_000_000;
 const MAX_DECIMALS = 9;
 
 export interface LaidTempo {
@@ -59,10 +59,6 @@ const meterText =
     }
     return fractionOf(length);
   };
-
-const bpmOf: From<number, number> = (microseconds) => MICROSECONDS_PER_MINUTE / microseconds;
-
-const microsecondsOf: From<number, number> = (bpm) => Math.round(MICROSECONDS_PER_MINUTE / bpm);
 
 interface Ramp {
   readonly start: TempoChange;
@@ -186,13 +182,11 @@ export const barsOf: From<Timeline, readonly LaidBar[]> = (timeline) =>
   });
 
 export const bpmText: From<number, string> = (microseconds) => {
-  const exact = MICROSECONDS_PER_MINUTE / microseconds;
+  const exact = bpmOf(microseconds);
   const text = pipe(
     Arr.range(NONE, MAX_DECIMALS),
     Arr.map((decimals) => String(Number(exact.toFixed(decimals)))),
-    Arr.findFirst(
-      (candidate) => Math.round(MICROSECONDS_PER_MINUTE / Number(candidate)) === microseconds,
-    ),
+    Arr.findFirst((candidate) => microsecondsOf(Number(candidate)) === microseconds),
     Option.getOrElse(() => String(exact)),
   );
   return `${text}bpm`;
