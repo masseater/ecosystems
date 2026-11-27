@@ -34,3 +34,13 @@ export const groupedUnder =
         ),
       ),
     );
+
+export const ancestorsBy =
+  <Node>(parentOf: (node: Node) => Option.Option<Node>) =>
+  (node: Node): readonly Node[] =>
+    Arr.unfold(parentOf(node), (current) =>
+      pipe(
+        current,
+        Option.map((found) => [found, parentOf(found)] as const),
+      ),
+    );
