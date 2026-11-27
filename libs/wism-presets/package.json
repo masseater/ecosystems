@@ -48,9 +48,6 @@
   "scripts": {
     "prepublishOnly": "vp run build"
   },
-  "dependencies": {
-    "minimatch": "catalog:"
-  },
   "devDependencies": {
     "@effect/platform-node": "catalog:",
     "@masseater.dev/path-kit": "workspace:*",

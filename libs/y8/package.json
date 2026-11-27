@@ -68,7 +68,6 @@
   },
   "dependencies": {
     "@effect/platform-node": "catalog:",
-    "minimatch": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {
