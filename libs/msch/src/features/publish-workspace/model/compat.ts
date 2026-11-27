@@ -14,7 +14,7 @@ import semver from "semver";
 
 import {
   IncompatiblePackage,
-  CompatManifestJson,
+  compatManifestIn,
   compatCasesOf,
   smokeTargetsOf,
 } from "./compat-manifest.ts";
@@ -173,11 +173,7 @@ const runCase = Effect.fn("compat.case")(function* runCase({ manifest, tarballs,
 
 /** @internal */
 export const checkCompat = Effect.fn("publish.compat")(function* checkCompat(directory: string) {
-  const fileSystem = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const manifest = yield* fileSystem
-    .readFileString(path.join(directory, MANIFEST_FILE))
-    .pipe(Effect.flatMap(Schema.decodeEffect(CompatManifestJson)));
+  const manifest = yield* compatManifestIn(directory);
   const cases = compatCasesOf(manifest);
   if (Arr.isReadonlyArrayEmpty(cases)) {
     return yield* IncompatiblePackage.make({

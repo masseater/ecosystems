@@ -40,7 +40,8 @@
   "exports": {
     "./cli": "./bin/msch.ts",
     "./cargo-inputs": "./src/features/derive-cargo-inputs/index.ts",
-    "./locked-inputs": "./src/features/derive-locked-inputs/index.ts",
+    "./library": "./src/features/define-library/index.ts",
+    "./locked-inputs": "./src/shared/lib/locked-inputs.ts",
     "./config": "./src/app/repository-config.ts",
     "./decision-rules": "./src/app/decision-rules.ts",
     "./lint-rules": "./src/features/define-lint-rules/index.ts",
@@ -64,6 +65,10 @@
       "./cargo-inputs": {
         "types": "./dist/cargo-inputs.d.mts",
         "default": "./dist/cargo-inputs.mjs"
+      },
+      "./library": {
+        "types": "./dist/library.d.mts",
+        "default": "./dist/library.mjs"
       },
       "./locked-inputs": {
         "types": "./dist/locked-inputs.d.mts",

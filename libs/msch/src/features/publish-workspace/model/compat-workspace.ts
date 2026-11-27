@@ -7,16 +7,13 @@ import {
   Path,
   Predicate,
   Record as Rec,
-  Schema,
   pipe,
 } from "effect";
 
-import { CompatManifestJson } from "./compat-manifest.ts";
+import { compatManifestIn } from "./compat-manifest.ts";
 import type { CompatManifest } from "./compat-manifest.ts";
 import { nativeTarballs } from "./compat-native.ts";
 import { pack } from "./pack.ts";
-
-const MANIFEST_FILE = "package.json";
 
 interface Workspace {
   readonly directory: string;
@@ -63,8 +60,7 @@ const workspacesBeside = Effect.fn("compat.workspaces")(function* workspacesBesi
   const found = yield* Effect.forEach(
     entries,
     (entry) =>
-      fileSystem.readFileString(path.join(parent, entry, MANIFEST_FILE)).pipe(
-        Effect.flatMap(Schema.decodeEffect(CompatManifestJson)),
+      compatManifestIn(path.join(parent, entry)).pipe(
         Effect.map((manifest): readonly Workspace[] => [
           { directory: path.join(parent, entry), manifest },
         ]),

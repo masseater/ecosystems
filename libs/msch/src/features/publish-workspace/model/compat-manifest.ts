@@ -1,6 +1,9 @@
 import {
   Array as Arr,
+  Effect,
+  FileSystem,
   Option,
+  Path,
   Predicate,
   Record as Rec,
   Schema,
@@ -191,3 +194,13 @@ export const smokeTargetsOf = (manifest: CompatManifest): SmokeTargets => {
     bins: binFilesOf(bin),
   };
 };
+
+/** @internal */
+export const compatManifestIn = Effect.fn("compat.manifestIn")(function* compatManifestIn(
+  directory: string,
+) {
+  const fileSystem = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const text = yield* fileSystem.readFileString(path.join(directory, "package.json"));
+  return yield* Schema.decodeEffect(CompatManifestJson)(text);
+});

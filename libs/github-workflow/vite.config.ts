@@ -1,21 +1,3 @@
-import { LOCKED } from "@r_masseater/msch/locked-inputs";
-import { defineConfig } from "vite-plus";
+import { library } from "@r_masseater/msch/library";
 
-export default defineConfig({
-  run: {
-    tasks: {
-      test: { command: "vp test run", cache: LOCKED },
-      build: { command: "vp pack", cache: LOCKED },
-    },
-  },
-  pack: {
-    entry: ["src/app/index.ts"],
-    platform: "node",
-    sourcemap: true,
-    publint: { strict: true },
-    dts: true,
-  },
-  test: {
-    include: ["src/**/*.test.ts"],
-  },
-});
+export default library({ entry: { index: "src/app/index.ts" } });

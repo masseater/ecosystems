@@ -1,24 +1,15 @@
-import { LOCKED } from "@r_masseater/msch/locked-inputs";
-import { defineConfig } from "vite-plus";
+import { library } from "@r_masseater/msch/library";
 
-export default defineConfig({
-  run: {
-    tasks: {
-      test: { command: "vp test run", cache: LOCKED },
-      build: { command: "vp pack", cache: LOCKED },
-      grammar: "langium generate",
-      "grammar:check": "langium generate && git diff --exit-code -- generated",
-      verify: { command: [], dependsOn: ["grammar:check", "test", "build"] },
-    },
+export default library({
+  entry: {
+    index: "src/app/index.ts",
+    analysis: "src/app/analysis.ts",
+    language: "src/app/language.ts",
   },
-  pack: {
-    entry: ["src/app/index.ts", "src/app/analysis.ts", "src/app/language.ts"],
-    platform: "neutral",
-    sourcemap: true,
-    publint: { strict: true },
-    dts: true,
-  },
-  test: {
-    include: ["src/**/*.test.ts"],
+  platform: "neutral",
+  tasks: {
+    grammar: "langium generate",
+    "grammar:check": "langium generate && git diff --exit-code -- generated",
+    verify: { command: [], dependsOn: ["grammar:check", "test", "build"] },
   },
 });

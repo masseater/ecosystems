@@ -30,6 +30,9 @@
   "ignoreDependencies": ["@effect/language-service", "fallow-similar-code", "oxlint-tsgolint"],
   "workspaces": {
     "settings": {
+      "libs/fumx-parser": {
+        "ignoreDependencies": ["langium-cli"],
+      },
       "libs/h56m-presets": {
         "ignoreDependencies": ["betterleaks"],
       },
