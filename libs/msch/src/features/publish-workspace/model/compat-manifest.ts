@@ -17,7 +17,9 @@ const PATTERN = "*";
 const ROOT_EXPORT = ".";
 const UNVERSIONED = "0.0.0";
 const VITE = "vite";
-const VITE_PLUS = "vite-plus";
+
+/** @internal */
+export const VITE_PLUS = "vite-plus";
 const TYPES = "types";
 
 const taggedError = Schema.TaggedError;
@@ -29,6 +31,10 @@ export class IncompatiblePackage extends taggedError<
 >()("IncompatiblePackage", { message: Schema.String }) {}
 
 const Declared = Schema.Record(Schema.String, Schema.String);
+
+const VitePlusManifestJson = Schema.fromJsonString(
+  Schema.Struct({ dependencies: Schema.optionalKey(Declared) }),
+);
 
 const Bin = Schema.Union([Schema.String, Declared]);
 
@@ -119,6 +125,15 @@ const withoutViteOfVitePlus = (
   }
   return peers;
 };
+
+/** @internal */
+export const viteAliasOf = (vitePlusManifest: string): Option.Option<string> =>
+  pipe(
+    Schema.decodeOption(VitePlusManifestJson)(vitePlusManifest),
+    Option.flatMapNullishOr(({ dependencies }) => dependencies),
+    Option.flatMap(Rec.get(VITE)),
+    Option.map((spec) => `${VITE}@${spec}`),
+  );
 
 const casesOf = (manifest: CompatManifest, floor: string): readonly CompatCase[] => {
   const declared = withoutViteOfVitePlus(manifest.peerDependencies ?? {});
