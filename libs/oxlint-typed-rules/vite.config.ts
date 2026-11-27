@@ -36,9 +36,14 @@ const attwModule = {
 const VIRTUAL_TYPESCRIPT = "\0typescript-default";
 const TS_COMPAT = toJson(local("src/shared/lib/ts-compat.ts"));
 
-const TYPESCRIPT_DEFAULT_MODULE = pipe(
-  [`import { ts } from ${TS_COMPAT};`, `export * from ${TS_COMPAT};`, "export default ts;"],
-  Arr.join("\n"),
+const moduleSource = (...lines: readonly string[]): string => Arr.join(lines, "\n");
+
+const pluginImport = (path: string): string => `import plugin from ${toJson(local(path))};`;
+
+const TYPESCRIPT_DEFAULT_MODULE = moduleSource(
+  `import { ts } from ${TS_COMPAT};`,
+  `export * from ${TS_COMPAT};`,
+  "export default ts;",
 );
 
 const shims: Readonly<Record<string, string>> = {
@@ -90,13 +95,10 @@ const virtualRuleOf = (
 const upstreamRuleModule = (id: string): Option.Option<string> =>
   virtualRuleOf(VIRTUAL_RULE, id).pipe(
     Option.map(({ plugin, rule }) =>
-      pipe(
-        [
-          `import plugin from ${toJson(local("src/app/react.ts"))};`,
-          `export const RULE_NAME = ${toJson(rule)};`,
-          `export default plugin.rules[${toJson(`${plugin}-${rule}`)}];`,
-        ],
-        Arr.join("\n"),
+      moduleSource(
+        pluginImport("src/app/react.ts"),
+        `export const RULE_NAME = ${toJson(rule)};`,
+        `export default plugin.rules[${toJson(`${plugin}-${rule}`)}];`,
       ),
     ),
   );
@@ -154,14 +156,11 @@ const tanstackModuleOf = (plugin: string, id: string): Option.Option<string> =>
 const tanstackRuleModule = (id: string): Option.Option<string> =>
   virtualRuleOf(VIRTUAL_TANSTACK_RULE, id).pipe(
     Option.map(({ plugin, rule }) =>
-      pipe(
-        [
-          `import plugin from ${toJson(local(`src/app/tanstack-${plugin}.ts`))};`,
-          `export * from ${toJson(upstreamSource(plugin, `rules/${rule}/${rule}.rule`))};`,
-          `export const name = ${toJson(rule)};`,
-          `export const rule = plugin.rules[${toJson(rule)}];`,
-        ],
-        Arr.join("\n"),
+      moduleSource(
+        pluginImport(`src/app/tanstack-${plugin}.ts`),
+        `export * from ${toJson(upstreamSource(plugin, `rules/${rule}/${rule}.rule`))};`,
+        `export const name = ${toJson(rule)};`,
+        `export const rule = plugin.rules[${toJson(rule)}];`,
       ),
     ),
     Option.orElse(() =>
@@ -196,12 +195,9 @@ const drizzleRuleOf = (id: string, importer: string): Option.Option<string> =>
 const drizzleRuleModule = (id: string): Option.Option<string> =>
   Option.liftPredicate(id, (candidate) => Str.startsWith(VIRTUAL_DRIZZLE_RULE)(candidate)).pipe(
     Option.map((virtual) =>
-      pipe(
-        [
-          `import plugin from ${toJson(local("src/app/drizzle.ts"))};`,
-          `export default plugin.rules[${toJson(Str.slice(VIRTUAL_DRIZZLE_RULE.length)(virtual))}];`,
-        ],
-        Arr.join("\n"),
+      moduleSource(
+        pluginImport("src/app/drizzle.ts"),
+        `export default plugin.rules[${toJson(Str.slice(VIRTUAL_DRIZZLE_RULE.length)(virtual))}];`,
       ),
     ),
   );

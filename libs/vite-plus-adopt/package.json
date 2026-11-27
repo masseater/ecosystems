@@ -112,7 +112,7 @@
     {
       "name": "attw",
       "path": "dist/attw.mjs",
-      "limit": "47200 B"
+      "limit": "47272 B"
     }
   ],
   "engines": {

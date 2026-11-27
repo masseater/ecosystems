@@ -1,7 +1,4 @@
-import { isToolVersions } from "#/shared/lib/scanned-files.ts";
-import type { Listed } from "#/shared/lib/scanned-files.ts";
-
-import { checkBannedTool, isProgramSource, spawnPattern } from "./banned-tool.ts";
+import { checkBannedTool, patternsBy, spawnPattern } from "./banned-tool.ts";
 import type { BannedTool } from "./banned-tool.ts";
 
 const PYTHON_FILE =
@@ -26,21 +23,15 @@ const TOOL_PATTERNS: readonly RegExp[] = [
   /^[ \t]*["']?(?:python|uv|pipx|poetry|ruff|pdm|hatch|pipx:[^"'\s=]+)["']?[ \t]*(?:=|[ \t]+\S)/gmu,
 ];
 
-const patternsFor = (entry: Listed): readonly RegExp[] => {
-  if (isProgramSource(entry)) {
-    return SPAWN_PATTERNS;
-  }
-  if (isToolVersions(entry)) {
-    return [...COMMAND_PATTERNS, ...TOOL_PATTERNS];
-  }
-  return COMMAND_PATTERNS;
-};
-
 const PYTHON: BannedTool = {
   fileRule: "python-file",
   commandRule: "python-command",
   isFile: ({ name }) => PYTHON_FILE.test(name),
-  patternsFor,
+  patternsFor: patternsBy({
+    spawn: SPAWN_PATTERNS,
+    command: COMMAND_PATTERNS,
+    toolVersions: TOOL_PATTERNS,
+  }),
   fileMessage: () =>
     "Python is not used in this repository. Replace this file with TypeScript or Rust.",
   commandMessage: (command) =>
