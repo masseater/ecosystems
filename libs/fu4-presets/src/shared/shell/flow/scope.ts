@@ -2,6 +2,8 @@ import { Array as Arr, Option, pipe } from "effect";
 
 export type Status = "clean" | "dirty" | "empty";
 
+const EMPTY_STATUS: Status = "empty";
+
 export interface Scope {
   readonly statuses: ReadonlyMap<string, Status>;
 }
@@ -74,21 +76,14 @@ const append = (left: Status, right: Status): Status => {
   return "dirty";
 };
 
-export const mergeAll = (statuses: readonly Status[]): Status => {
-  let merged: Status = "empty";
-  for (const status of statuses) {
-    merged = joinStatus(merged, status);
-  }
-  return merged;
-};
+const foldStatuses =
+  (combine: (left: Status, right: Status) => Status) =>
+  (statuses: readonly Status[]): Status =>
+    Arr.reduce(statuses, EMPTY_STATUS, combine);
 
-export const appendAll = (statuses: readonly Status[]): Status => {
-  let appended: Status = "empty";
-  for (const status of statuses) {
-    appended = append(appended, status);
-  }
-  return appended;
-};
+export const mergeAll = foldStatuses(joinStatus);
+
+export const appendAll = foldStatuses(append);
 
 export const statusOf =
   (name: string) =>

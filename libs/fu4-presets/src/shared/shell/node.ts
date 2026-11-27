@@ -2,6 +2,8 @@ import { ancestorsBy } from "@masseater.dev/lint-host/collections";
 import type { SyntaxNode } from "@r_masseater/fu4";
 import { Array as Arr, Option, pipe } from "effect";
 
+import { anyWithin } from "#/shared/syntax/index.ts";
+
 export const parentOf = (node: SyntaxNode): Option.Option<SyntaxNode> =>
   Option.fromNullishOr(node.parent);
 
@@ -27,10 +29,9 @@ const isMissingName = (node: SyntaxNode): boolean =>
       ),
   );
 
-export const hasError = (node: SyntaxNode): boolean =>
-  node.isError ||
-  (node.isMissing && !isMissingName(node)) ||
-  pipe(node.children, Arr.some(hasError));
+export const hasError = anyWithin(
+  (node) => node.isError || (node.isMissing && !isMissingName(node)),
+);
 
 export const ancestors = ancestorsBy(parentOf);
 
