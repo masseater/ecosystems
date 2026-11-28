@@ -1,0 +1,9 @@
+{
+  "name": "explicit-import-path-fixture",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*",
+    "#package.json": "./package.json"
+  }
+}

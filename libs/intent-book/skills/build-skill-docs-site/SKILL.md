@@ -39,6 +39,7 @@ vp dlx @r_masseater/intent-book . --out book --base /docs/
 - Write `description` as sentences. The first sentence is the summary on the overview.
 - Put `type` in `metadata`. Pages are grouped and ordered by it: `lifecycle`, `core`, `sub-skill`, `framework`, `composition`, `security`.
 - Link another skill by the relative path to its SKILL.md. The link becomes a page link.
+- Every other Markdown file in the skill directory, such as `references/` or `scripts/`, becomes a page. A link to a file that is not a page points to that file on GitHub when `repository` is a GitHub URL.
 
 ## Common mistakes
 

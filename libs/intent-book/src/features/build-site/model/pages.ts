@@ -13,6 +13,7 @@ import {
 import type { Book, Skill } from "#/entities/book/index.ts";
 import { charset, htmlDocument, optional, when } from "#/shared/lib/html.ts";
 
+import { STYLE_PATH } from "./asset-paths.ts";
 import { withBase } from "./links.ts";
 
 export interface SkillPage {
@@ -173,11 +174,7 @@ export const skillMain = (input: SkillPage): readonly Element[] => {
 export const referenceMain = (input: SkillPage): readonly Element[] => {
   const { base, book, skill } = input;
   const parent = h("a", { href: skillRoute(base, book, skill) }, skill.name);
-  return [
-    crumbs([bookLink(base, book), parent, "references"]),
-    h("h1", input.title),
-    prose(input.tree),
-  ];
+  return [crumbs([bookLink(base, book), parent]), h("h1", input.title), prose(input.tree)];
 };
 
 const rowLink = (href: string, name: string, description: string): Element =>
@@ -271,7 +268,7 @@ export const landingPage = (input: {
     h("meta", { name: "viewport", content: "width=device-width, initial-scale=1" }),
     ...refresh,
     h("title", "Skills"),
-    h("link", { rel: "stylesheet", href: `${input.base}assets/book.css` }),
+    h("link", { rel: "stylesheet", href: `${input.base}${STYLE_PATH}` }),
   ];
   const body = h("main", [h("article", [h("h1", "Skills"), h("ul", { class: "rows" }, rows)])]);
   return htmlDocument({ head, body: [body] });

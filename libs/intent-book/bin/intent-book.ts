@@ -4,11 +4,10 @@ import { Array as Arr, Boolean as Bool, Console, Effect, Path } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 
 import { buildSite } from "#/features/build-site/index.ts";
-import { readBook } from "#/features/read-book/index.ts";
+import { readBooks } from "#/features/read-book/index.ts";
 import { writeSite } from "#/features/write-site/index.ts";
 
 const CURRENT_DIRECTORY = ".";
-const READ_CONCURRENCY = 4;
 
 const directoriesOf = (given: readonly string[]): readonly string[] =>
   Bool.match(Arr.isReadonlyArrayEmpty(given), {
@@ -20,14 +19,17 @@ const build = Effect.fn("build")(function* build(input: {
   readonly directories: readonly string[];
   readonly out: string;
   readonly base: string;
+  readonly landing: boolean;
 }) {
   const path = yield* Path.Path;
-  const books = yield* Effect.forEach(
-    directoriesOf(input.directories),
-    (directory) => readBook(path.resolve(directory)),
-    { concurrency: READ_CONCURRENCY },
+  const { books, skipped } = yield* readBooks(
+    Arr.map(directoriesOf(input.directories), (directory) => path.resolve(directory)),
   );
-  const files = yield* buildSite({ books, base: input.base });
+  const files = yield* buildSite({ books, base: input.base, landing: input.landing });
+  yield* Bool.match(Arr.isReadonlyArrayNonEmpty(skipped), {
+    onTrue: () => Console.log(`skipped (no skills): ${Arr.join(skipped, ", ")}`),
+    onFalse: () => Effect.void,
+  });
   yield* writeSite(path.resolve(input.out), files);
   yield* Console.log(`${books.length} package(s), ${files.length} files -> ${input.out}`);
 });
@@ -47,8 +49,19 @@ const command = Command.make(
       Flag.withDescription("Path the site is served under, with a leading and trailing slash"),
       Flag.withDefault("/"),
     ),
+    noLanding: Flag.Boolean("no-landing").pipe(
+      Flag.withDescription(
+        "Do not write index.html at the root, for a site that lives inside another site",
+      ),
+    ),
   },
-  build,
+  (input) =>
+    build({
+      directories: input.directories,
+      out: input.out,
+      base: input.base,
+      landing: !input.noLanding,
+    }),
 );
 
 runMain("intent-book")(Command.run(command, { version: manifest.version }));
