@@ -30,10 +30,10 @@ Commit the `bun.lock` that `bun add` writes. Claude Code installs the dependenci
 ```ts
 import { isRecord, parseJson } from "@r_masseater/plugin-kit";
 
-const payload = parseJson(text);
-if (isRecord(payload)) {
-  console.log(payload["tool_name"]);
+const parsed = parseJson(text);
+if (parsed._tag === "Some" && isRecord(parsed.value)) {
+  console.log(parsed.value["tool_name"]);
 }
 ```
 
-`parseJson` returns `undefined` when the text is not JSON. `isRecord` is false for `null`, arrays and primitives, so check it before reading keys.
+`parseJson` returns `{ _tag: "None" }` when the text is not JSON and never throws. `isRecord` is false for `null`, arrays and primitives, so check it before reading keys.

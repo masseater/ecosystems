@@ -1,11 +1,14 @@
-export function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
+import type { Option } from "effect/Option";
+import {
+  Record as RecordSchema,
+  String as StringSchema,
+  Unknown,
+  decodeOption,
+  fromJsonString,
+  is,
+} from "effect/Schema";
 
-export function parseJson(text: string): unknown {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return undefined;
-  }
-}
+export const isRecord = is(RecordSchema(StringSchema, Unknown));
+
+export const parseJson = (text: string): Option<unknown> =>
+  decodeOption(fromJsonString(Unknown))(text);
