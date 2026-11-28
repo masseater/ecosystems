@@ -9,6 +9,17 @@ const CPU_LIMIT_MESSAGE =
 const UNATTRIBUTED_MODEL_CALL =
   "モデルの呼び出しは AI Gateway を通し、呼び出し元を metadata に載せる。載せないと、費用やエラーを後から呼び出し元で引けない";
 
+const UNGATED_MODEL_CALL =
+  "モデルの呼び出しは AI Gateway を通す。通らない呼び出しには日ごとの費用の上限が掛からず、無料枠を超えた分がそのまま請求される";
+
+const MODEL_RUN =
+  'CallExpression[callee.property.name="run"]:matches([callee.object.name="AI"], [callee.object.property.name="AI"])';
+
+const AI_RUN_URL =
+  ":matches(Literal[value=/ai.run/], TemplateLiteral:has(TemplateElement[value.raw=/ai.run/]))";
+
+const AI_RUN_REQUEST = `CallExpression:has(> ${AI_RUN_URL})`;
+
 export const cloudflareResourceSyntax: readonly Readonly<{ selector: string; message: string }>[] =
   [
     {
@@ -28,9 +39,20 @@ export const cloudflareResourceSyntax: readonly Readonly<{ selector: string; mes
       message: CPU_LIMIT_MESSAGE,
     },
     {
-      selector:
-        'CallExpression[callee.property.name="run"][callee.object.property.name="AI"][arguments.length<3]',
+      selector: `${MODEL_RUN}[arguments.length<3]`,
       message: UNATTRIBUTED_MODEL_CALL,
+    },
+    {
+      selector: `${MODEL_RUN} > .arguments:nth-child(3):not(Identifier[name="options"])`,
+      message: `${UNGATED_MODEL_CALL}。AI.run の第 3 引数には、runWorkersAi の call が受け取る options をそのまま渡す`,
+    },
+    {
+      selector: `${AI_RUN_REQUEST} > ObjectExpression.arguments:not(:has(Property[key.name="headers"]))`,
+      message: `${UNGATED_MODEL_CALL}。REST の /ai/run を呼ぶときは、headers に cf-aig-gateway-id を付ける`,
+    },
+    {
+      selector: `${AI_RUN_REQUEST} > ObjectExpression.arguments > Property[key.name="headers"] > ObjectExpression:not(:has(Property[key.value="cf-aig-gateway-id"]))`,
+      message: `${UNGATED_MODEL_CALL}。REST の /ai/run を呼ぶときは、headers に cf-aig-gateway-id を付ける`,
     },
     {
       selector:
