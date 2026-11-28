@@ -7,7 +7,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/vitest-otlp"
-  library_version: 0.2.0
 sources:
   - src/app/**
   - src/features/receive-otlp/**

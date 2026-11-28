@@ -7,7 +7,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/i68"
-  library_version: 0.1.0
 sources:
   - src/app/presets.ts
   - src/app/presets/features/check-pop/model/preset.ts

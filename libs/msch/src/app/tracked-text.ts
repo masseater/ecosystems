@@ -15,7 +15,6 @@ import {
 } from "#/features/check-version-downgrades/index.ts";
 import { checkHiddenUnicode } from "#/features/find-invisible-characters/index.ts";
 import {
-  checkAlchemyPatch,
   checkAppliedPackages,
   checkReplacedTools,
   checkUnneededFiles,
@@ -34,7 +33,6 @@ export const checkTrackedText = Effect.fn("checkTrackedText")(function* checkTra
       checkDocker(root),
       checkUnneededFiles(root),
       checkReplacedTools(root),
-      checkAlchemyPatch(root),
       checkManifests(root),
       checkSkillFiles(root),
       checkSkillEntry(root),

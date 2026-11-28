@@ -85,5 +85,4 @@ export const shadcnRestyleContracts = [
   { pattern: "^TableCaption$", allow: ["caption", "text-alignment", "mt-*", "mb-*"] },
 ];
 
-export { COMMENT_DIRECTIVES } from "#/shared/lib/comment-directives.ts";
 export { webGuidanceRules } from "./web-guidance.config.ts";

@@ -15,7 +15,6 @@ metadata:
     send far more paid requests than intended.
   type: core
   library: "@r_masseater/oxlint-plugin-decision"
-  library_version: 0.0.1
 sources:
   - src/**
   - README.md

@@ -7,7 +7,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/msch"
-  library_version: 0.31.0
 sources:
   - src/app/repository-config.ts
   - src/app/repository-tasks.ts

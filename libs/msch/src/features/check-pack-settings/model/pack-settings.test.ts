@@ -8,42 +8,8 @@ import { fixtureLayer, gitRepositoryWith } from "#/shared/lib/repository.test.su
 
 import { checkPackSettings } from "./pack-settings.ts";
 
-const STRICT_CONFIG =
-  'export default { pack: { entry: ["src/index.ts"], publint: { strict: true } } };\n';
-const PREPUBLISH = "vp exec msch-publish prepublish .";
-
-const published = (name: string, prepublish = PREPUBLISH): string =>
-  `{ "name": "@r_masseater/${name}", "scripts": { "prepublishOnly": "${prepublish}" }, "publishConfig": { "access": "public" } }\n`;
-
-const flagsPublishedPackagesWithoutTheSharedPrepublish = Effect.gen(
-  function* flagsPublishedPackagesWithoutTheSharedPrepublish() {
-    const repositoryFiles = yield* RepositoryFiles;
-    const root = yield* gitRepositoryWith({
-      "package.json": '{ "name": "root", "private": true }\n',
-      "libs/shared/package.json": published("shared"),
-      "libs/shared/vite.config.ts": STRICT_CONFIG,
-      "libs/build-only/package.json": published("build-only", "vp run build"),
-      "libs/build-only/vite.config.ts": STRICT_CONFIG,
-      "libs/none/package.json":
-        '{ "name": "@r_masseater/none", "publishConfig": { "access": "public" } }\n',
-      "libs/none/vite.config.ts": STRICT_CONFIG,
-      "libs/kept/package.json": '{ "name": "kept", "private": true, "publishConfig": {} }\n',
-    });
-    const problems = yield* checkPackSettings(root);
-    expect(
-      pipe(
-        sortProblems(problems),
-        Arr.map(
-          (problem) =>
-            `${repositoryFiles.relative(root, problem.file)}:${String(problem.line)} ${problem.rule}`,
-        ),
-      ),
-    ).toStrictEqual([
-      "libs/build-only/package.json:1 prepublish-script",
-      "libs/none/package.json:1 prepublish-script",
-    ]);
-  },
-);
+const published = (name: string): string =>
+  `{ "name": "@r_masseater/${name}", "publishConfig": { "access": "public" } }\n`;
 
 const flagsPublishedPackagesWithoutStrictPublint = Effect.gen(
   function* flagsPublishedPackagesWithoutStrictPublint() {
@@ -90,9 +56,5 @@ layer(fixtureLayer)("published packages check their packed manifest", (it) => {
   it.effect(
     "flags a published package whose pack does not run publint in strict mode",
     () => flagsPublishedPackagesWithoutStrictPublint,
-  );
-  it.effect(
-    "flags a published package whose prepublishOnly is not the shared command",
-    () => flagsPublishedPackagesWithoutTheSharedPrepublish,
   );
 });

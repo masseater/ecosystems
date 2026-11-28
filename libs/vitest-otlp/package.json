@@ -70,9 +70,6 @@
     "access": "public",
     "provenance": true
   },
-  "scripts": {
-    "prepublishOnly": "vp exec msch-publish prepublish ."
-  },
   "devDependencies": {
     "@bufbuild/buf": "catalog:",
     "@bufbuild/protobuf": "catalog:",

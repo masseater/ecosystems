@@ -7,7 +7,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/mapped-import"
-  library_version: 0.1.0
 sources:
   - src/**
   - README.md

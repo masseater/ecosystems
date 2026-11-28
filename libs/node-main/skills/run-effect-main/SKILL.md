@@ -7,7 +7,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/node-main"
-  library_version: 0.1.0
 sources:
   - src/app/**
   - src/features/**

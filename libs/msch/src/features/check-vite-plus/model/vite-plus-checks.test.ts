@@ -76,8 +76,7 @@ const flagsPackageManagersInEveryCommandSurface = Effect.gen(
 const passesCommandsThatOnlyNameAPackageManager = Effect.gen(
   function* passesCommandsThatOnlyNameAPackageManager() {
     const findings = yield* findingsFor({
-      "package.json":
-        '{\n  "scripts": {\n    "prepublishOnly": "vp exec msch-publish prepublish ."\n  }\n}\n',
+      "package.json": '{\n  "scripts": {\n    "prepare": "vp config"\n  }\n}\n',
       "vite.config.ts":
         'export default {\n  run: { tasks: { pack: "vp pm pack", audit: "vp exec pnpm-audit-export" } },\n};\n',
       ".github/workflows/verify.yml":
