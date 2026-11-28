@@ -75,7 +75,11 @@ const lintOf = ({
       rules: { "react/jsx-props-no-spreading": "off" },
     },
     {
-      files: [...workspace.lint.publicEntries, ...workspace.lint.deployEntries],
+      files: [
+        ...workspace.lint.publicEntries,
+        ...workspace.lint.deployEntries,
+        ...workspace.lint.siteEntries,
+      ],
       rules: { "import/no-default-export": "off" },
     },
     ...overrides,
