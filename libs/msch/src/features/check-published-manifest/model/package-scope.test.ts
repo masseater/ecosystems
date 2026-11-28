@@ -6,7 +6,7 @@ import { sortProblems } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { fixtureLayer, gitRepositoryWith } from "#/shared/lib/repository.test.support.ts";
 
-import { checkPackageScope } from "./package-scope.ts";
+import { checkPublishedManifests } from "./published-manifests.ts";
 
 const flagsPublishedPackagesOutsideTheScope = Effect.gen(
   function* flagsPublishedPackagesOutsideTheScope() {
@@ -21,10 +21,14 @@ const flagsPublishedPackagesOutsideTheScope = Effect.gen(
       "libs/other/package.json": '{ "name": "@other/tool", "publishConfig": {} }\n',
       "libs/kept/package.json": '{ "name": "kept", "private": true, "publishConfig": {} }\n',
     });
-    const problems = yield* checkPackageScope(root);
+    const problems = yield* checkPublishedManifests(root);
+    const scopeProblems = pipe(
+      problems,
+      Arr.filter((problem) => problem.rule === "package-scope"),
+    );
     expect(
       pipe(
-        sortProblems(problems),
+        sortProblems(scopeProblems),
         Arr.map(
           (problem) =>
             `${repositoryFiles.relative(root, problem.file)}:${String(problem.line)} ${problem.rule}`,

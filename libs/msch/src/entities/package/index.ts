@@ -23,3 +23,5 @@ export {
   specifiedIn,
 } from "./model/specifiers.ts";
 export type { Fields, Specified } from "./model/specifiers.ts";
+export { publishedManifestOf, scanPublishedManifests } from "./model/published-manifest.ts";
+export type { PublishedFile, PublishedManifest } from "./model/published-manifest.ts";
