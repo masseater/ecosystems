@@ -74,7 +74,7 @@ const lookupSymbolForPropertyAccess = (
   if (!isAccessExpression(node)) {
     return Option.none();
   }
-  return memberOfAccess(node, lookupSymbolForPropertyAccess(binding, node.expression));
+  return memberOfAccess(lookupSymbolForPropertyAccess(binding, node.expression))(node);
 };
 
 const isAliasSymbol = (symbol: Option.Option<BoundSymbol>): boolean =>
