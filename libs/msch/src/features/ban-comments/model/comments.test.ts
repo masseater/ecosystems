@@ -66,7 +66,7 @@ const flagsCommentsInEveryLanguage = Effect.gen(function* flagsCommentsInEveryLa
 const passesDirectivesAndSkippedFiles = Effect.gen(function* passesDirectivesAndSkippedFiles() {
   const findings = yield* findingsFor({
     "src/main.ts":
-      "// oxlint-disable-next-line eslint/no-console -- prints the report\nconsole.log(1);\n/** @internal */\nconst A = 1;\n/** @msch status */\nconst B = 2;\n",
+      "// oxlint-disable-next-line eslint/no-console -- prints the report\nconsole.log(1);\n/** @internal */\nconst A = 1;\n/** @msch status */\nconst B = 2;\n/** @stability experimental */\nexport const E = 5;\n",
     "src/cli.ts": "#!/usr/bin/env node\nconst C = 3;\n",
     "src/env.d.ts": '/// <reference types="vite/client" />\n',
     "src/fetch.ts":

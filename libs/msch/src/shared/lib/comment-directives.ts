@@ -5,6 +5,7 @@ export const COMMENT_DIRECTIVES: readonly string[] = [
   "textlint-enable",
   String.raw`\* @internal \*?$`,
   String.raw`\* @msch \S+ \*?$`,
+  String.raw`\* @stability (?:experimental|unstable) \*?$`,
   "/usr/bin/env node$",
   String.raw`shellcheck \w`,
   String.raw`zizmor: ignore\[`,
