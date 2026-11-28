@@ -1,15 +1,12 @@
-import { spanText } from "@masseater.dev/lint-host";
+import { STRING_WORDS, WORD, spanText, wordAt } from "@masseater.dev/lint-host";
 import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import type { GraphEdge, ImportTarget } from "#/shared/config/index.ts";
 
 const HEADER_WORDS = 3;
 const EDGE_WORDS = 7;
-const STRING_WORDS = 2;
-const WORD = 4;
 const UTF8 = "utf8";
 const BYTE = 1;
-const NOTHING = 0;
 const HEADER = { edges: 0, strings: 1 } as const;
 const FIELD = {
   from: 0,
@@ -24,14 +21,11 @@ const MODULE = 1;
 const WILDCARD = 1;
 const MODULE_SEPARATOR = "::";
 
-const at = (words: Uint32Array, index: number): number =>
-  Option.getOrElse(Option.fromNullishOr(words.at(index)), () => NOTHING);
-
 const stringsOf = (words: Uint32Array): ((index: number) => string) => {
-  const spans = HEADER_WORDS + at(words, HEADER.edges) * EDGE_WORDS;
+  const spans = HEADER_WORDS + wordAt(words)(HEADER.edges) * EDGE_WORDS;
   const blob = new Uint8Array(
     words.buffer,
-    words.byteOffset + (spans + at(words, HEADER.strings) * STRING_WORDS) * WORD,
+    words.byteOffset + (spans + wordAt(words)(HEADER.strings) * STRING_WORDS) * WORD,
   );
   return spanText(words)(blob, UTF8)(spans, BYTE);
 };
@@ -47,8 +41,9 @@ export const decodeGraph =
   (files: readonly string[]) =>
   (words: Uint32Array): readonly GraphEdge[] => {
     const text = stringsOf(words);
-    const field = (base: number, name: keyof typeof FIELD): number => at(words, base + FIELD[name]);
-    const count = at(words, HEADER.edges);
+    const field = (base: number, name: keyof typeof FIELD): number =>
+      wordAt(words)(base + FIELD[name]);
+    const count = wordAt(words)(HEADER.edges);
     return pipe(
       Arr.makeBy(count, (index) => HEADER_WORDS + index * EDGE_WORDS),
       Arr.take(count),

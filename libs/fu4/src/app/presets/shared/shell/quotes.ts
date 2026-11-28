@@ -6,7 +6,7 @@ import type { SyntaxNode } from "#/shared/config/index.ts";
 import { basenameOf, commandNameOf, literalOf } from "./command-name.ts";
 import { report } from "./finding.ts";
 import type { State } from "./finding.ts";
-import { ancestors, keywordOf } from "./node.ts";
+import { ancestors, assignmentNameOf, keywordOf } from "./node.ts";
 
 const QUOTE = 1;
 const PATH_DEPTH = 2;
@@ -151,8 +151,7 @@ const isOkAssignment = (node: SyntaxNode): boolean =>
     Arr.take(PATH_DEPTH),
     Arr.some(
       (parent) =>
-        (parent.type === "variable_assignment" &&
-          Option.exists(fieldOf("name")(parent), (name) => COMMONLY_QUOTED.has(name.text))) ||
+        Option.exists(assignmentNameOf(parent), (name) => COMMONLY_QUOTED.has(name)) ||
         (parent.type === "unary_expression" &&
           pipe(
             parent.children,

@@ -1,6 +1,6 @@
-import { Array as Arr, Option, pipe } from "effect";
+import { Option, pipe } from "effect";
 
-import { pairsOf, valueAt } from "#/app/presets/shared/yaml/index.ts";
+import { valueAt } from "#/app/presets/shared/yaml/index.ts";
 import type { Project } from "#/shared/config/index.ts";
 
 const LOCKFILE = ".github/workflows/actions.lock";
@@ -12,5 +12,6 @@ export const isLocked =
       project.parse(LOCKFILE),
       Option.flatMap((source) => Option.fromNullishOr(source.yaml)),
       Option.flatMap(valueAt("workflows")),
-      Option.exists((workflows) => Arr.some(pairsOf(workflows), (pair) => pair.key.value === path)),
+      Option.flatMap(valueAt(path)),
+      Option.isSome,
     );

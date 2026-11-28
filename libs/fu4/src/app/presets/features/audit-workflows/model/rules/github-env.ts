@@ -21,8 +21,9 @@ import type {
 } from "#/app/presets/features/audit-workflows/model/audit.ts";
 import type { StepView } from "#/app/presets/features/audit-workflows/model/step.ts";
 import {
-  descendants,
+  descendantsOfType,
   fieldOf,
+  fieldTextOf,
   fieldsOf,
   isType,
   namedOfType,
@@ -70,7 +71,7 @@ const isSafeArg = (arg: SyntaxNode): boolean =>
     pipe(arg.namedChildren, Arr.every(isType("string_content"))));
 
 const isStaticEcho = (command: SyntaxNode): boolean =>
-  Option.exists(fieldOf("name")(command), (name) => ECHOES.has(name.text)) &&
+  Option.exists(fieldTextOf("name")(command), (name) => ECHOES.has(name)) &&
   pipe(
     fieldsOf("argument")(command),
     Arr.filter((arg) => arg.named),
@@ -164,19 +165,14 @@ const pwshWriters = (pipeline: SyntaxNode): readonly string[] =>
     Arr.flatMap((command) => matching(PWSH_DESTINATION)(pwshArguments(command))),
   );
 
-const collect =
-  (root: SyntaxNode) =>
-  (type: string, extract: (node: SyntaxNode) => readonly string[]): readonly string[] =>
-    pipe(descendants(root), Arr.filter(isType(type)), Arr.flatMap(extract));
-
 const bashWrites = (root: SyntaxNode): readonly string[] => [
-  ...collect(root)("redirected_statement", bashRedirects),
-  ...collect(root)("pipeline", bashTees),
+  ...Arr.flatMap(descendantsOfType("redirected_statement")(root), bashRedirects),
+  ...Arr.flatMap(descendantsOfType("pipeline")(root), bashTees),
 ];
 
 const pwshWrites = (root: SyntaxNode): readonly string[] => [
-  ...collect(root)("redirection", pwshRedirects),
-  ...collect(root)("pipeline", pwshWriters),
+  ...Arr.flatMap(descendantsOfType("redirection")(root), pwshRedirects),
+  ...Arr.flatMap(descendantsOfType("pipeline")(root), pwshWriters),
 ];
 
 const cmdWrites = (run: string): readonly string[] =>

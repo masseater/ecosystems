@@ -84,24 +84,32 @@ const DIGITS = /^\d+$/u;
 const noStrings = (): readonly string[] => [];
 const noEntries = <Value>(): ReadonlyMap<string, Value> => new Map();
 
-const u64 = (value: number, isInteger: boolean): Result.Result<number, string> =>
+interface Counted {
+  readonly value: number;
+  readonly isInteger: boolean;
+}
+
+const u64 = ({ value, isInteger }: Counted): Result.Result<number, string> =>
   Result.liftPredicate(
     value,
     (each) => isInteger && each >= MINIMUM,
     () => "expected u64",
   );
 
-const unsigned: Decoder<number> = (node) =>
-  pipe(
-    number(node),
-    Result.flatMap((value) => u64(value, node.tag === "!!int")),
-  );
+const unsignedFrom =
+  <Read>(read: Decoder<Read>, counted: (value: Read, tag: string) => Counted): Decoder<number> =>
+  (node) =>
+    pipe(
+      read(node),
+      Result.flatMap((value) => u64(counted(value, node.tag))),
+    );
 
-const lenientUnsigned: Decoder<number> = (node) =>
-  pipe(
-    anyScalar(node),
-    Result.flatMap((text) => u64(Number(text), DIGITS.test(text))),
-  );
+const unsigned = unsignedFrom(number, (value, tag) => ({ value, isInteger: tag === "!!int" }));
+
+const lenientUnsigned = unsignedFrom(anyScalar, (text) => ({
+  value: Number(text),
+  isInteger: DIGITS.test(text),
+}));
 
 const strings = sequence(string);
 const intervals = literal(INTERVALS);

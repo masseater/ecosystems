@@ -1,3 +1,5 @@
+import { Function as Fn, Match } from "effect";
+
 import type { Event } from "#/app/presets/entities/workflow/index.ts";
 import { checkCallDefaults } from "#/app/presets/features/check-workflows/lib/events/call.ts";
 import { checkDispatch } from "#/app/presets/features/check-workflows/lib/events/dispatch.ts";
@@ -10,22 +12,17 @@ import {
 } from "#/app/presets/features/check-workflows/lib/workflow-rule.ts";
 import type { Fail, Visitor } from "#/app/presets/features/check-workflows/lib/workflow-rule.ts";
 
-const checkEvent =
-  (fail: Fail) =>
-  (event: Event): void => {
-    if (event.type === "schedule") {
-      checkSchedule(fail)(event);
-    }
-    if (event.type === "workflow_dispatch") {
-      checkDispatch(fail)(event);
-    }
-    if (event.type === "workflow_call") {
-      checkCallDefaults(fail)(event);
-    }
-    if (event.type === "webhook") {
-      checkWebhook(fail)(event);
-    }
-  };
+const checkEvent = (fail: Fail): ((event: Event) => void) =>
+  Match.type<Event>().pipe(
+    Match.discriminatorsExhaustive("type")({
+      schedule: checkSchedule(fail),
+      workflow_dispatch: checkDispatch(fail),
+      workflow_call: checkCallDefaults(fail),
+      webhook: checkWebhook(fail),
+      repository_dispatch: Fn.constVoid,
+      image_version: Fn.constVoid,
+    }),
+  );
 
 export const events = workflowRule({
   description: "Reports invalid triggers, filters, schedules and inputs in the on section",

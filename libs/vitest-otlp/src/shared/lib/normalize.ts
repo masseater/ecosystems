@@ -1,5 +1,5 @@
 import type { JsonObject, JsonValue } from "@bufbuild/protobuf";
-import { Array, Option, Predicate, Record, Result, pipe } from "effect";
+import { Array, Option, Predicate, Record, Result, identity, pipe } from "effect";
 import { Base64, Hex } from "effect/encoding";
 
 type Reader = (value: JsonValue) => JsonValue;
@@ -24,6 +24,14 @@ const whenString =
       onNone: () => value,
     });
 
+const readAs =
+  (readers: Readonly<Record<string, Reader>>, fallback: Reader) =>
+  (inner: JsonValue, key: string): JsonValue =>
+    Option.match(Record.get(readers, key), {
+      onSome: (read) => read(inner),
+      onNone: () => fallback(inner),
+    });
+
 const mapTree =
   (readers: Readonly<Record<string, Reader>>) =>
   (value: JsonValue): JsonValue => {
@@ -33,12 +41,7 @@ const mapTree =
         onNone: () =>
           Option.match(Option.liftPredicate(node, isObject), {
             onNone: () => node,
-            onSome: Record.map((inner, key) =>
-              Option.match(Record.get(readers, key), {
-                onSome: (read) => read(inner),
-                onNone: () => walk(inner),
-              }),
-            ),
+            onSome: Record.map(readAs(readers, walk)),
           }),
       });
     return walk(value);
@@ -69,12 +72,7 @@ const anyValue = (value: JsonValue): JsonValue => {
   return pipe(
     Option.liftPredicate(value, isObject),
     Option.flatMap((object) => Array.head(Record.toEntries(object))),
-    Option.map(([kind, inner]) =>
-      Option.match(Record.get(readers, kind), {
-        onSome: (read) => read(inner),
-        onNone: () => inner,
-      }),
-    ),
+    Option.map(([kind, inner]) => readAs(readers, identity)(inner, kind)),
     Option.getOrNull,
   );
 };

@@ -12,6 +12,8 @@ import {
 } from "effect";
 import semver from "semver";
 
+import { foldExports } from "./export-targets.ts";
+
 const PACKAGE_JSON_EXPORT = "./package.json";
 const PATTERN = "*";
 const ROOT_EXPORT = ".";
@@ -164,23 +166,24 @@ const isTypesOnly = (target: Option.Option<unknown>): boolean =>
       ),
   });
 
-const subpathsOf = (exports: unknown): readonly string[] => {
-  if (Predicate.isString(exports)) {
+const exportedSubpaths = (exports: Readonly<Record<string, unknown>>): readonly string[] => {
+  const keys = Rec.keys(exports);
+  if (!pipe(keys, Arr.every(Str.startsWith(ROOT_EXPORT)))) {
     return [ROOT_EXPORT];
   }
-  if (Predicate.isReadonlyObject(exports)) {
-    const keys = Rec.keys(exports);
-    if (pipe(keys, Arr.every(Str.startsWith(ROOT_EXPORT)))) {
-      return pipe(
-        keys,
-        Arr.filter((key) => key !== PACKAGE_JSON_EXPORT && !Str.includes(PATTERN)(key)),
-        Arr.filter((key) => !isTypesOnly(Rec.get(exports, key))),
-      );
-    }
-    return [ROOT_EXPORT];
-  }
-  return [];
+  return pipe(
+    keys,
+    Arr.filter((key) => key !== PACKAGE_JSON_EXPORT && !Str.includes(PATTERN)(key)),
+    Arr.filter((key) => !isTypesOnly(Rec.get(exports, key))),
+  );
 };
+
+const subpathsOf = foldExports<readonly string[]>({
+  string: () => [ROOT_EXPORT],
+  array: () => [ROOT_EXPORT],
+  object: exportedSubpaths,
+  other: () => [],
+});
 
 const specifierOf = (name: string, subpath: string): string => {
   if (subpath === ROOT_EXPORT) {

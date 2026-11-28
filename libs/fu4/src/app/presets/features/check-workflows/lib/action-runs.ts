@@ -1,5 +1,5 @@
 import { baseName } from "@masseater.dev/path-kit";
-import { Array as Arr, Option, Order, String as Str, pipe } from "effect";
+import { Array as Arr, Option, Order, Record as Rec, String as Str, pipe } from "effect";
 
 import { cleanJoin, joinPath } from "#/app/presets/entities/action/index.ts";
 import type { ActionRuns, LocalAction } from "#/app/presets/entities/action/index.ts";
@@ -204,6 +204,12 @@ const checkUnknownRunner = (local: Local, using: string): void => {
   }
 };
 
+const RUNNERS: Readonly<Record<string, (local: Local) => void>> = {
+  ...Rec.fromIterableWith(RUNTIMES, (runtime) => [runtime, checkJavaScript]),
+  docker: checkDocker,
+  composite: checkComposite,
+};
+
 export const checkRuns = (local: Local): void => {
   const { using } = local.action.metadata.runs;
   if (Str.isEmpty(using)) {
@@ -211,13 +217,14 @@ export const checkRuns = (local: Local): void => {
       local.uses,
       `"runs.using" is missing in local action ${name(local)} defined at ${dir(local)}`,
     );
-  } else if (using === "docker") {
-    checkDocker(local);
-  } else if (using === "composite") {
-    checkComposite(local);
-  } else if (Arr.contains(RUNTIMES, using)) {
-    checkJavaScript(local);
-  } else {
-    checkUnknownRunner(local, using);
+    return;
   }
+  Option.match(Rec.get(RUNNERS, using), {
+    onNone: () => {
+      checkUnknownRunner(local, using);
+    },
+    onSome: (run) => {
+      run(local);
+    },
+  });
 };

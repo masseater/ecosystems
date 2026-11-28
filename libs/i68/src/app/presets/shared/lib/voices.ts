@@ -72,10 +72,14 @@ export const reporterOf = (context: RuleContext): Reporter => {
   };
 };
 
+const groupedBy = (
+  soundings: readonly Sounding[],
+  key: (sounding: Sounding) => string,
+): readonly Arr.NonEmptyReadonlyArray<Sounding>[] => Rec.values(Arr.groupBy(soundings, key));
+
 export const tracksOf = (soundings: readonly Sounding[]): readonly (readonly Sounding[])[] =>
   pipe(
-    Arr.groupBy(soundings, (sounding) => sounding.track),
-    Rec.values,
+    groupedBy(soundings, (sounding) => sounding.track),
     Arr.map(sortByStart),
   );
 
@@ -92,10 +96,9 @@ export type Onset = Arr.NonEmptyReadonlyArray<Sounding>;
 const byOnset = Order.mapInput(byStart, (group: Onset) => Arr.headNonEmpty(group));
 
 export const onsetsOf = (soundings: readonly Sounding[]): readonly Onset[] =>
-  pipe(
-    Arr.groupBy(soundings, (sounding) => String(sounding.start)),
-    Rec.values,
-    (groups) => Arr.sort(groups, byOnset),
+  Arr.sort(
+    groupedBy(soundings, (sounding) => String(sounding.start)),
+    byOnset,
   );
 
 export const topLineOf = (soundings: readonly Sounding[]): readonly Sounding[] =>

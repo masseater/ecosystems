@@ -69,28 +69,21 @@ interface Consumer {
   readonly tarballs: Tarballs;
 }
 
-const fileEntries = (tarballs: Tarballs): readonly (readonly [string, string])[] =>
-  pipe(
-    Rec.toEntries(tarballs),
-    Arr.map(([name, file]): readonly [string, string] => [name, `file:${file}`]),
-  );
-
-const siblingOverrides = (tarballs: Tarballs): readonly (readonly [string, string])[] =>
-  pipe(
-    Rec.keys(tarballs),
-    Arr.map((sibling): readonly [string, string] => [sibling, `$${sibling}`]),
-  );
-
 const consumerJson = Effect.fn("compat.json")(function* consumerJson({
   peers,
   tarballs,
 }: Consumer) {
-  const dependencies = Rec.fromEntries([...Rec.toEntries(peers), ...fileEntries(tarballs)]);
   return yield* Schema.encodeEffect(ConsumerJson)({
     private: true,
     type: "module",
-    dependencies,
-    overrides: Rec.fromEntries(siblingOverrides(tarballs)),
+    dependencies: {
+      ...peers,
+      ...pipe(
+        tarballs,
+        Rec.map((file) => `file:${file}`),
+      ),
+    },
+    overrides: Rec.fromIterableWith(Rec.keys(tarballs), (sibling) => [sibling, `$${sibling}`]),
   });
 });
 

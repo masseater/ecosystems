@@ -172,11 +172,20 @@ const decoded = (path: string): string =>
     Option.getOrElse(() => path),
   );
 
-export const isExternal = (destination: string): boolean =>
+const isExternal = (destination: string): boolean =>
   SCHEME.test(destination) || Str.startsWith(PROTOCOL_RELATIVE)(destination);
 
-export const destinationOf = (node: MarkdownNode): Option.Option<string> =>
+const destinationOf = (node: MarkdownNode): Option.Option<string> =>
   pipe(Option.fromNullishOr(node.data["destination"]), Option.filter(Predicate.isString));
+
+export const externalDestinationOf = (node: MarkdownNode): Option.Option<string> =>
+  pipe(destinationOf(node), Option.filter(isExternal));
+
+export const internalDestinationOf = (node: MarkdownNode): Option.Option<string> =>
+  pipe(
+    destinationOf(node),
+    Option.filter((destination) => !isExternal(destination)),
+  );
 
 export const linksOf = (context: RuleContext): readonly MarkdownNode[] =>
   pipe(
@@ -188,10 +197,8 @@ export const localTargetOf =
   (context: RuleContext) =>
   (node: MarkdownNode): Option.Option<string> =>
     pipe(
-      destinationOf(node),
-      Option.filter(
-        (destination) => !isExternal(destination) && !Str.startsWith(SEPARATOR)(destination),
-      ),
+      internalDestinationOf(node),
+      Option.filter((destination) => !Str.startsWith(SEPARATOR)(destination)),
       Option.map((destination) => decoded(Str.replace(SUFFIX, "")(destination))),
       Option.filter(Str.isNonEmpty),
       Option.flatMap((target) => normalized(joinPath(directoryOf(context.filename), target))),

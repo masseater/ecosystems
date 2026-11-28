@@ -1,5 +1,7 @@
 import { Array as Arr, Effect, Option, Record as Rec, Schema, String as Str, pipe } from "effect";
 
+import { decodeManifest, fieldsOf, namedCatalogsOf } from "#/entities/package/index.ts";
+import type { Fields } from "#/entities/package/index.ts";
 import { lockedPackages, workspaceManifest } from "#/entities/workspace/index.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
@@ -28,15 +30,8 @@ interface CatalogEntry {
   readonly name: string;
 }
 
-type Fields = Readonly<Record<string, unknown>>;
-
-const FieldsSchema = Schema.Record(Schema.String, Schema.Unknown);
-const decodeManifest = Schema.decodeUnknownOption(Schema.fromJsonString(FieldsSchema));
-const decodeFields = Schema.decodeUnknownOption(FieldsSchema);
 const decodeString = Schema.decodeUnknownOption(Schema.String);
 const decodeStrings = Schema.decodeUnknownOption(Schema.Array(Schema.String));
-
-const fieldsOf = (value: unknown): Fields => Option.getOrElse(decodeFields(value), () => ({}));
 
 const entriesOf =
   (catalog: string) =>
@@ -49,7 +44,7 @@ const entriesOf =
 const catalogEntries = (settings: Fields): readonly CatalogEntry[] => [
   ...entriesOf(DEFAULT_CATALOG)(settings["catalog"]),
   ...pipe(
-    Rec.toEntries(fieldsOf(settings["catalogs"])),
+    namedCatalogsOf(settings),
     Arr.flatMap(([catalog, held]) => entriesOf(catalog)(held)),
   ),
 ];
@@ -84,18 +79,20 @@ const versionsOf = (raw: string | undefined): readonly string[] =>
     Option.getOrElse((): readonly string[] => []),
   );
 
+const hasKeyWith =
+  (keys: readonly string[]) =>
+  (prefix: string): boolean =>
+    pipe(keys, Arr.some(Str.startsWith(prefix)));
+
 const isLocked =
   (keys: readonly string[]) =>
   (resolved: string): boolean =>
-    pipe(
-      keys,
-      Arr.some((key) => key === resolved || Str.startsWith(`${resolved}(`)(key)),
-    );
+    Arr.contains(keys, resolved) || hasKeyWith(keys)(`${resolved}(`);
 
 const hasPackage =
   (keys: readonly string[]) =>
   (name: string): boolean =>
-    pipe(keys, Arr.some(Str.startsWith(`${name}@`)));
+    hasKeyWith(keys)(`${name}@`);
 
 const lockedVersion =
   (keys: readonly string[], name: string) =>

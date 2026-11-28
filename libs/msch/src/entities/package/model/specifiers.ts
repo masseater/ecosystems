@@ -18,6 +18,10 @@ export const fieldsOf = (value: unknown): Fields =>
   Option.getOrElse(decodeFields(value), () => ({}));
 
 /** @internal */
+export const namedCatalogsOf = (settings: Fields): readonly (readonly [string, unknown])[] =>
+  Rec.toEntries(fieldsOf(settings["catalogs"]));
+
+/** @internal */
 export interface Specified {
   readonly name: string;
   readonly specifier: string;
