@@ -17,6 +17,12 @@
       "rangeStrategy": "replace"
     },
     {
+      "description": "msch は版が上がるたびに検査が増え、利用側は同じ変更で移行しないと main の verify が落ちる（msch 0.60.1 の #1703 で masseater.dev の main が赤になった）。bump だけを自動マージしない。bump と移行を同じ PR で出す。",
+      "matchPackageNames": ["@r_masseater/msch"],
+      "groupName": "msch",
+      "automerge": false
+    },
+    {
       "description": "持ち主自身が公開するパッケージは待たせない。公開した版を、公開した直後に取り込む。",
       "matchPackageNames": ["@r_masseater/**"],
       "minimumReleaseAge": null
