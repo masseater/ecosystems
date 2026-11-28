@@ -1,7 +1,7 @@
 import type { TextlintKernelFilterRule, TextlintMessage, TextlintResult } from "@textlint/kernel";
 import { Array as Arr, Match, Option, String as Str, pipe } from "effect";
 
-type Reporter = TextlintKernelFilterRule["rule"];
+export type Reporter = TextlintKernelFilterRule["rule"];
 
 type FirstParameter<Fn> = Fn extends (first: infer First, ...rest: readonly never[]) => unknown
   ? First
@@ -15,7 +15,7 @@ const WILDCARD = "*";
 const FIRST = 1;
 const START = 0;
 
-interface Ignored {
+export interface Ignored {
   readonly file: string;
   readonly range: Range;
   readonly ruleId: string;
