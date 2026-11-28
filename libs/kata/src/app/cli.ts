@@ -4,10 +4,11 @@ import { runMain } from "@effect/platform-node/NodeRuntime";
 import { layer as nodeServices } from "@effect/platform-node/NodeServices";
 import { Array as Arr, Console, Effect, FileSystem, Option, Path, Schema } from "effect";
 
-import { renderFigure } from "#/app/render.ts";
-import { FormatSchema, ThemeSchema } from "#/entities/figure/model/request.ts";
-import type { Format, Theme } from "#/entities/figure/model/request.ts";
+import { FormatSchema, ThemeSchema } from "#/entities/figure/index.ts";
+import type { Format, Theme } from "#/entities/figure/index.ts";
 import { RenderError, failWith } from "#/shared/lib/errors.ts";
+
+import { renderFigure } from "./render.ts";
 
 const ARGUMENTS_START = 2;
 const FILE_POSITION = 1;

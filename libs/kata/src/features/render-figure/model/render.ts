@@ -5,7 +5,7 @@ import type {
 } from "@myriaddreamin/typst-ts-node-compiler";
 import { Array as Arr, Effect, Option, Schema, pipe } from "effect";
 
-import type { Format, Rendered, Theme } from "#/entities/figure/model/request.ts";
+import type { Format, Rendered, Theme } from "#/entities/figure/index.ts";
 import { RenderError, failWith } from "#/shared/lib/errors.ts";
 
 const encoder = new TextEncoder();

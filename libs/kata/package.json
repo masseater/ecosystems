@@ -5,6 +5,7 @@
   "keywords": [
     "diagram",
     "infographic",
+    "tanstack-intent",
     "typst"
   ],
   "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/kata#readme",
@@ -23,6 +24,7 @@
   "files": [
     "LICENSE",
     "dist",
+    "skills/draw-infographic",
     "typ"
   ],
   "type": "module",

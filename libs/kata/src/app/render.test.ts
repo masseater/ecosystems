@@ -2,10 +2,11 @@ import { it } from "@effect/vitest";
 import { Effect, String as Str } from "effect";
 import { expect } from "vite-plus/test";
 
-import { renderFigure } from "#/app/render.ts";
-import type { Format, Theme } from "#/entities/figure/model/request.ts";
+import type { Format, Theme } from "#/entities/figure/index.ts";
 import { failWith } from "#/shared/lib/errors.ts";
 import type { RenderError } from "#/shared/lib/errors.ts";
+
+import { renderFigure } from "./render.ts";
 
 const PDF_HEADER = "%PDF";
 const decoder = new TextDecoder();

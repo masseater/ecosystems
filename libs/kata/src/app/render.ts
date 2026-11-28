@@ -10,9 +10,9 @@ import {
   pipe,
 } from "effect";
 
-import type { Rendered, RenderRequest } from "#/entities/figure/model/request.ts";
-import { compileFigure } from "#/features/render-figure/model/render.ts";
-import type { Mounted } from "#/features/render-figure/model/render.ts";
+import type { Rendered, RenderRequest } from "#/entities/figure/index.ts";
+import { compileFigure } from "#/features/render-figure/index.ts";
+import type { Mounted } from "#/features/render-figure/index.ts";
 import type { RenderError } from "#/shared/lib/errors.ts";
 import { failWith } from "#/shared/lib/errors.ts";
 
