@@ -23,7 +23,7 @@ const destinationOf = (node: MarkdownNode): Option.Option<string> =>
   );
 
 const linkNodes = (node: MarkdownNode): readonly MarkdownNode[] => {
-  const below = Arr.flatMap(node.children, linkNodes);
+  const below = pipe(node.children, Arr.flatMap(linkNodes));
   if (node.type === "link") {
     return [node, ...below];
   }

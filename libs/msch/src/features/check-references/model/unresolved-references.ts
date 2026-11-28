@@ -26,11 +26,14 @@ interface Occurrence {
 }
 
 const occurrencesIn = (links: readonly LinkAt[]): readonly Occurrence[] =>
-  Arr.flatMap(links, ({ path, line, destination }) =>
-    pipe(
-      referenceOf(destination),
-      Option.map((reference): Occurrence => ({ file: path, line, reference })),
-      Option.toArray,
+  pipe(
+    links,
+    Arr.flatMap(({ path, line, destination }) =>
+      pipe(
+        referenceOf(destination),
+        Option.map((reference): Occurrence => ({ file: path, line, reference })),
+        Option.toArray,
+      ),
     ),
   );
 
