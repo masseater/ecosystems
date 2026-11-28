@@ -8,3 +8,12 @@ export type { RecommendedOptions } from "./model/recommended.ts";
 export { skillMd, skillMdPlugin } from "./model/skill-md-preset.ts";
 export type { SkillMdOptions } from "./model/skill-md-preset.ts";
 export type { SkillNameOptions } from "./lib/preset.ts";
+export {
+  GRAMMAR as REFERENCE_GRAMMAR,
+  NO_PATH,
+  branchLinkReference,
+  describeReference,
+  parseReference,
+  referenceOf,
+} from "./lib/source-reference.ts";
+export type { GithubReference, NpmReference, Reference } from "./lib/source-reference.ts";

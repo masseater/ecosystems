@@ -987,9 +987,6 @@ importers:
       oxlint-plugin-eslint:
         specifier: 'catalog:'
         version: 1.95.0
-      remark-parse:
-        specifier: 'catalog:'
-        version: 11.0.0(supports-color@10.2.2)
       semver:
         specifier: 'catalog:'
         version: 7.8.6
@@ -1005,12 +1002,6 @@ importers:
       toml-eslint-parser:
         specifier: 'catalog:'
         version: 1.0.3
-      unified:
-        specifier: 'catalog:'
-        version: 11.0.5
-      unist-util-visit:
-        specifier: 'catalog:'
-        version: 5.2.0
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
@@ -1021,6 +1012,9 @@ importers:
       '@effect/vitest':
         specifier: 'catalog:'
         version: 4.1.5(effect@4.1.5)(vitest@5.1.1)
+      '@masseater.dev/lint-host':
+        specifier: workspace:*
+        version: link:../lint-host
       '@masseater.dev/path-kit':
         specifier: workspace:*
         version: link:../path-kit
@@ -1033,9 +1027,6 @@ importers:
       '@r_masseater/vitest-otlp':
         specifier: workspace:*
         version: link:../vitest-otlp
-      '@types/mdast':
-        specifier: 'catalog:'
-        version: 4.0.4
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.10

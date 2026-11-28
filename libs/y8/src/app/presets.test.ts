@@ -195,3 +195,21 @@ test("a long line is not reported, because documents keep one sentence per line"
     });
     expect(errorsOf(diagnostics)).toStrictEqual([]);
   }).pipe(services.runPromise));
+
+test("a github: or npm: link must be written in a form that can be looked up", () =>
+  Effect.gen(function* pointers() {
+    const diagnostics = yield* lintRepository({
+      "package.json": PACKAGE,
+      "README.md": README,
+      "AGENTS.md": ROOT_AGENTS,
+      "docs/pointers.md":
+        "# Pointers\n\n[ok](github:o/r/libs/a.ts#Name) and [ok](npm:effect@4.0.0).\n\n[line](github:o/r/a.ts#L10)\n\n[range](npm:effect@^4)\n",
+    });
+    expect(
+      pipe(
+        diagnostics,
+        Arr.filter(({ rule }) => rule === "docs/source-reference"),
+        Arr.map(({ path, line }) => `${path}:${String(line)}`),
+      ),
+    ).toStrictEqual(["docs/pointers.md:5", "docs/pointers.md:7"]);
+  }).pipe(services.runPromise));

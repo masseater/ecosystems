@@ -1,7 +1,7 @@
+import { groupOf } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Effect, Option, Predicate, Schema, String as Str, pipe } from "effect";
 
 import { MANIFEST_FILE } from "#/entities/package/index.ts";
-import { groupOf } from "#/shared/lib/match-groups.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { isToolVersions, listedFiles, scanText } from "#/shared/lib/scanned-files.ts";

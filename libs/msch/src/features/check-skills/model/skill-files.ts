@@ -1,7 +1,7 @@
+import { groupOf } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Effect, Option, Schema, String as Str, pipe } from "effect";
 import { parse } from "yaml";
 
-import { groupOf } from "#/shared/lib/match-groups.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";

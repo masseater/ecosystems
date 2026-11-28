@@ -39,9 +39,9 @@ For a met condition, remove the entry and its patch file and run verify. If veri
 
 ## Reference links
 
-A Markdown link whose destination is `github:<owner>/<repo>[/<path>][#<symbol>]` or `npm:<package>` points at a source. msch checks the shape of every such link. A link to a path of a branch on github.com (`https://github.com/<owner>/<repo>/blob/<branch>/<path>`) is checked as the same kind of pointer, so a README can keep a link that readers can click.
+A Markdown link whose destination is `github:<owner>/<repo>[/<path>][#<symbol>]` or `npm:<package>[@<version>]` points at a source. The version is an exact version or a dist-tag, not a range. The `docs/source-reference` rule of the y8 markdown check reports a destination in a form that cannot be looked up. A link to a path of a branch on github.com (`https://github.com/<owner>/<repo>/blob/<branch>/<path>`) is checked as the same kind of pointer, so a README can keep a link that readers can click.
 
-Run `vp exec msch-refs` at the repository root to look each target up on GitHub and npm. It reports a repository that moved or was archived, a path or symbol that is gone and a deprecated package, and exits with 1 when it finds one or cannot check one. `--json` prints the results as JSON. The root `daily` task runs it, and a private repository needs `GH_TOKEN` to be readable.
+Run `vp exec msch-refs` at the repository root to look each target up on GitHub and npm. It reports a repository that moved or was archived, a path or symbol that is gone, a package or version that is not published and a deprecated version, and exits with 1 when it finds one or cannot check one. `--json` prints the results as JSON. The root `daily` task runs it, and a private repository needs `GH_TOKEN` to be readable.
 
 ## Git hooks
 

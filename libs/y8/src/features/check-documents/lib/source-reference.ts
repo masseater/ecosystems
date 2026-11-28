@@ -1,6 +1,5 @@
+import { groupOf } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Match, Option, Result, String as Str, pipe } from "effect";
-
-import { groupOf } from "#/shared/lib/match-groups.ts";
 
 export interface GithubReference {
   readonly kind: "github";
@@ -14,6 +13,7 @@ export interface GithubReference {
 export interface NpmReference {
   readonly kind: "npm";
   readonly name: string;
+  readonly version: Option.Option<string>;
 }
 
 export type Reference = GithubReference | NpmReference;
@@ -24,7 +24,10 @@ const BRANCH_LINK =
 const COMMIT = /^[0-9a-f]{40}$/u;
 const GITHUB_REFERENCE =
   /^github:(?<owner>[A-Za-z\d](?:[A-Za-z\d-]*[A-Za-z\d])?)\/(?<repo>[\w.-]+)(?:\/(?<path>[^#]+))?(?:#(?<symbol>.+))?$/u;
-const NPM_REFERENCE = /^npm:(?<name>(?:@[a-z\d~-][a-z\d._~-]*\/)?[a-z\d~-][a-z\d._~-]*)$/u;
+const NPM_REFERENCE =
+  /^npm:(?<name>(?:@[a-z\d~-][a-z\d._~-]*\/)?[a-z\d~-][a-z\d._~-]*)(?:@(?<version>\S+))?$/u;
+const EXACT_VERSION = /^\d+\.\d+\.\d+(?:-[\da-z.-]+)?(?:\+[\da-z.-]+)?$/iu;
+const DIST_TAG = /^[a-z][\w.-]*$/iu;
 const SYMBOL = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*$/u;
 const LINE_ANCHOR = /^L\d+(?:-L\d+)?$/u;
 const UNUSABLE_SEGMENT = /^\.{0,2}$/u;
@@ -33,7 +36,7 @@ const SEPARATOR = "/";
 export const NO_PATH = "";
 
 export const GRAMMAR =
-  "`github:<owner>/<repo>[/<path>][#<symbol>]` or `npm:<package>`, where the path names a file or directory of the default branch and the symbol is a declared name such as `Config` or `Config.validate`";
+  "`github:<owner>/<repo>[/<path>][#<symbol>]` or `npm:<package>[@<version>]`, where the path names a file or directory of the default branch and the symbol is a declared name such as `Config` or `Config.validate`, and the version is an exact version such as `1.2.3` or a dist-tag such as `latest`";
 
 const pathProblem = (path: string): Option.Option<string> => {
   const segments = Str.split(path, SEPARATOR);
@@ -95,12 +98,29 @@ const githubReference = (destination: string): Result.Result<Reference, string> 
   );
 };
 
-const npmReference = (destination: string): Result.Result<Reference, string> =>
-  pipe(
-    groupOf("name")(NPM_REFERENCE.exec(destination)),
-    Option.map((name): Reference => ({ kind: "npm", name })),
-    Result.fromOption(() => `${destination} is not a package name. Write ${GRAMMAR}.`),
+const versionProblem = (version: string): Option.Option<string> =>
+  Option.liftPredicate(
+    `@${version} is neither an exact version nor a dist-tag. Write a version such as @1.2.3 or a tag such as @latest.`,
+    () => !EXACT_VERSION.test(version) && !DIST_TAG.test(version),
   );
+
+const npmReference = (destination: string): Result.Result<Reference, string> => {
+  const found = NPM_REFERENCE.exec(destination);
+  const version = groupOf("version")(found);
+  return pipe(
+    version,
+    Option.flatMap(versionProblem),
+    Option.match({
+      onNone: () =>
+        pipe(
+          groupOf("name")(found),
+          Option.map((name): Reference => ({ kind: "npm", name, version })),
+          Result.fromOption(() => `${destination} is not a package name. Write ${GRAMMAR}.`),
+        ),
+      onSome: (problem) => Result.fail(problem),
+    }),
+  );
+};
 
 export const parseReference = (destination: string): Result.Result<Reference, string> => {
   if (Option.contains(groupOf("scheme")(REFERENCE_SCHEME.exec(destination)), "npm")) {
@@ -125,11 +145,17 @@ const githubDescription = ({ owner, repo, path, symbol, ref }: GithubReference):
   return `github:${place}${fragment}${branch}`;
 };
 
+const npmDescription = ({ name, version }: NpmReference): string =>
+  Option.match(version, {
+    onNone: () => `npm:${name}`,
+    onSome: (found) => `npm:${name}@${found}`,
+  });
+
 export const describeReference = (reference: Reference): string =>
   Match.value(reference).pipe(
     Match.discriminatorsExhaustive("kind")({
       github: githubDescription,
-      npm: ({ name }) => `npm:${name}`,
+      npm: npmDescription,
     }),
   );
 
@@ -151,3 +177,21 @@ export const branchLinkReference = (destination: string): Option.Option<Referenc
     })),
   );
 };
+
+export const referenceOf = (destination: string): Option.Option<Reference> =>
+  pipe(
+    Option.liftPredicate(destination, (text) => REFERENCE_SCHEME.test(text)),
+    Option.flatMap((text) => Result.getSuccess(parseReference(text))),
+    Option.orElse(() => branchLinkReference(destination)),
+  );
+
+export const referenceProblem = (destination: string): Option.Option<string> =>
+  pipe(
+    Option.liftPredicate(destination, (text) => REFERENCE_SCHEME.test(text)),
+    Option.flatMap((text) =>
+      Result.match(parseReference(text), {
+        onFailure: Option.some,
+        onSuccess: () => Option.none(),
+      }),
+    ),
+  );
