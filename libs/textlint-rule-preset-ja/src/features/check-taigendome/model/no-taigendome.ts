@@ -3,7 +3,9 @@ import type { Morpheme } from "@r_masseater/y8";
 import type { TxtNode } from "@textlint/ast-node-types";
 import type { TextlintRuleModule } from "@textlint/types";
 import { Array as Arr, Effect, Option, String as Str, pipe } from "effect";
-import { SentenceSplitterSyntax, split } from "sentence-splitter";
+
+import { sentenceRanges } from "#/shared/lib/index.ts";
+import type { Range } from "#/shared/lib/index.ts";
 
 const COMMA = /[、，]/u;
 const PARENTHESES = /[(（](?<inner>[^()（）]*)[)）]/gu;
@@ -25,7 +27,6 @@ const TOPIC_MESSAGE =
   "短い主題の直後で読点を打つ変な区切りです。読点を外してください。たとえば「人は、」「OSSでは、」がこれに当たります。";
 
 type Token = Morpheme;
-type Range = readonly [number, number];
 type Finding = Readonly<{ message: string; range: Range }>;
 type Check = Readonly<{ message: string; test: (sentence: string) => Effect.Effect<boolean> }>;
 
@@ -101,13 +102,6 @@ const CHECKS = [
   { message: TAIGENDOME_MESSAGE, test: containsTaigendome, slideOnly: false },
   { message: TOPIC_MESSAGE, test: isShortTopicLead, slideOnly: true },
 ] as const;
-
-const sentenceRanges = (text: string): readonly Range[] =>
-  pipe(
-    split(text),
-    Arr.filter((child) => child.type === SentenceSplitterSyntax.Sentence),
-    Arr.map(({ range }): Range => range),
-  );
 
 const matchedRanges = (ranges: readonly Range[], results: readonly boolean[]): readonly Range[] =>
   pipe(
