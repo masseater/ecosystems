@@ -9,6 +9,7 @@ import { positionOf } from "#/shared/lib/text-position.ts";
 const RULE: RuleName = "skill-file";
 const SKILL_FILE = /(?:^|\/)SKILL\.md$/u;
 const INSTALLED = /(?:^|\/)\.(?:agents|claude|codex)\/skills\//u;
+const FIXTURE = /(?:^|\/)fixtures\//u;
 const MARKDOWN = ".md";
 const LICENSE_FILE = /^LICEN[CS]E(?:\.[^/]+)?$/iu;
 const FRONTMATTER = /^---\n(?<yaml>[\s\S]*?)\n---\n/u;
@@ -50,7 +51,8 @@ const offsetOf = (source: string, pattern: RegExp | string): number =>
 const frontmatterOf = (source: string): Option.Option<typeof Frontmatter.Type> =>
   pipe(
     groupOf("yaml")(FRONTMATTER.exec(source)),
-    Option.flatMap((yaml) => decodeFrontmatter(parse(yaml))),
+    Option.flatMap(Option.liftThrowable((yaml: string): unknown => parse(yaml))),
+    Option.flatMap(decodeFrontmatter),
   );
 
 const bodyStartOf = (source: string): number =>
@@ -255,7 +257,7 @@ export const checkSkillFiles = Effect.fn("checkSkillFiles")(function* checkSkill
   const listed = yield* files.listedFiles(root);
   const skills = pipe(
     listed,
-    Arr.filter((name) => SKILL_FILE.test(name) && !INSTALLED.test(name)),
+    Arr.filter((name) => SKILL_FILE.test(name) && !INSTALLED.test(name) && !FIXTURE.test(name)),
   );
   const found = yield* Effect.forEach(skills, (name) => problemsIn(root, listed, name), {
     concurrency: READ_CONCURRENCY,
