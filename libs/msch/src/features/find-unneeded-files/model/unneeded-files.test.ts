@@ -70,6 +70,20 @@ const flagsFilesPnpmReplaces = Effect.gen(function* flagsFilesPnpmReplaces() {
   ]);
 });
 
+const keepsLockfilesOfPlugins = Effect.gen(function* keepsLockfilesOfPlugins() {
+  const findings = yield* findingsFor({
+    "pnpm-workspace.yaml": PNPM_ONLY,
+    "plugins/mod/.claude-plugin/plugin.json": "{}\n",
+    "plugins/mod/bun.lock": "{}\n",
+    "plugins/mod/package-lock.json": "{}\n",
+    "plugins/other/bun.lock": "{}\n",
+  });
+  expect(findings).toStrictEqual([
+    "plugins/mod/package-lock.json:1 unneeded-file",
+    "plugins/other/bun.lock:1 unneeded-file",
+  ]);
+});
+
 const flagsToolchainSetup = Effect.gen(function* flagsToolchainSetup() {
   const findings = yield* findingsFor({
     "pnpm-workspace.yaml": PNPM_CARGO,
@@ -150,6 +164,10 @@ layer(fixtureLayer)("files pnpm makes unneeded", (it) => {
   it.effect(
     "flags other lockfiles, member Cargo.lock files, .cargo/config, a pnpm-only .cargo/config.toml and .pnpm, and keeps the lockfile of a workspace inside the root workspace",
     () => flagsFilesPnpmReplaces,
+  );
+  it.effect(
+    "keeps the bun.lock that Claude Code installs a plugin's dependencies from, and flags every other lockfile",
+    () => keepsLockfilesOfPlugins,
   );
   it.effect(
     "flags toolchain installs, crate fetches, cargo installs and mise Rust tools once pnpm manages Cargo",
