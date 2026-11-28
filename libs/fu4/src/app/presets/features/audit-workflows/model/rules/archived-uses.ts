@@ -1,11 +1,11 @@
-import { Option, String as Str, pipe } from "effect";
+import { Option, String as Str } from "effect";
 
 import {
   at,
   confidence,
-  finding,
   persona,
   severity,
+  singleDraft,
 } from "#/app/presets/features/audit-workflows/lib/finding.ts";
 import {
   repoTargetCheck,
@@ -34,16 +34,14 @@ const check = (target: UsesTarget): Drafts => {
   if (!isArchived(target.ref)) {
     return [];
   }
-  return [
-    pipe(
-      finding(meta),
-      confidence("high"),
-      severity("medium"),
-      persona("regular"),
-      at(target.grip),
-      at(target.at("repository is archived")),
-    ),
-  ];
+  return singleDraft(
+    meta,
+    confidence("high"),
+    severity("medium"),
+    persona("regular"),
+    at(target.grip),
+    at(target.at("repository is archived")),
+  );
 };
 
 const step = stepTargetCheck(check);

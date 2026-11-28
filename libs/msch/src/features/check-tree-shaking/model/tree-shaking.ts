@@ -12,7 +12,7 @@ import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
 import type { BundleFailed, BundleScope } from "./consumer-bundle.ts";
-import { declaredBy, dependencyNames, manifestOf } from "./manifest.ts";
+import { declaredBy, manifestOf } from "./manifest.ts";
 import type { Declared, Manifest } from "./manifest.ts";
 import { optionalPeerProblems } from "./optional-peers.ts";
 import type { Located } from "./optional-peers.ts";
@@ -95,7 +95,7 @@ const analyse = Effect.fn("analyse")(function* analyse(pack: Package) {
   return [
     ...sideEffectProblems({ file: located.file, source: located.source, excesses }),
     ...effects,
-    ...optionalPeerProblems({ located, dependencies: dependencyNames(manifest), used }),
+    ...optionalPeerProblems({ located, dependencies: manifest.dependencies, used }),
   ];
 });
 

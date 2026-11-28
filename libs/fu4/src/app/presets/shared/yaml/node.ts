@@ -21,8 +21,11 @@ export const isQuoted = (node: YamlNode): boolean =>
 
 export const isNull = (node: YamlNode): boolean => node.kind === "scalar" && node.tag === "!!null";
 
-export const pairsOf = (node: YamlNode): readonly Pair[] =>
-  pipe(
+export const pairsOf = (node: YamlNode): readonly Pair[] => {
+  if (node.kind !== "mapping") {
+    return [];
+  }
+  return pipe(
     Arr.chunksOf(node.children, PAIR),
     Arr.flatMap((chunk) =>
       pipe(
@@ -31,6 +34,13 @@ export const pairsOf = (node: YamlNode): readonly Pair[] =>
         Option.toArray,
       ),
     ),
+  );
+};
+
+export const keysOf = (node: YamlNode): readonly string[] =>
+  pipe(
+    pairsOf(node),
+    Arr.map((pair) => pair.key.value),
   );
 
 export const valueAt =

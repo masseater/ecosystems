@@ -9,22 +9,27 @@ const TAIL = 1;
 
 type Comparison = "child" | "match";
 
-const comparePart = (pattern: string, part: Expr): boolean => {
-  if (pattern === "*") {
-    return true;
-  }
-  if (part.type === "identifier") {
-    return Str.toLowerCase(pattern) === Str.toLowerCase(part.name);
-  }
+const stringIndex = (part: Expr): Option.Option<string> => {
   if (
     part.type === "index" &&
     part.inner.expr.type === "literal" &&
     part.inner.expr.literal.kind === "string"
   ) {
-    return Str.toLowerCase(pattern) === Str.toLowerCase(part.inner.expr.literal.value);
+    return Option.some(part.inner.expr.literal.value);
   }
-  return false;
+  return Option.none();
 };
+
+const tailName = (last: Expr): Option.Option<string> => {
+  if (last.type === "identifier") {
+    return Option.some(last.name);
+  }
+  return stringIndex(last);
+};
+
+const comparePart = (pattern: string, part: Expr): boolean =>
+  pattern === "*" ||
+  Option.exists(tailName(part), (name) => Str.toLowerCase(pattern) === Str.toLowerCase(name));
 
 const compare = (pattern: string, context: ContextExpr): Option.Option<Comparison> => {
   if (!PATTERN.test(pattern)) {
@@ -57,24 +62,6 @@ export const childOf =
   (context: ContextExpr): boolean =>
     Option.isSome(compare(pattern, context));
 
-const stringIndex = (part: Expr): Option.Option<string> => {
-  if (
-    part.type === "index" &&
-    part.inner.expr.type === "literal" &&
-    part.inner.expr.literal.kind === "string"
-  ) {
-    return Option.some(part.inner.expr.literal.value);
-  }
-  return Option.none();
-};
-
-const tailName = (last: Expr): Option.Option<string> => {
-  if (last.type === "identifier") {
-    return Option.some(last.name);
-  }
-  return stringIndex(last);
-};
-
 export const singleTail = (context: ContextExpr): Option.Option<string> => {
   if (context.parts.length !== PAIR) {
     return Option.none();
@@ -87,21 +74,12 @@ export const singleTail = (context: ContextExpr): Option.Option<string> => {
   );
 };
 
-const partPattern = (part: Expr): Option.Option<string> => {
-  if (part.type === "identifier") {
-    return Option.some(part.name);
-  }
-  if (part.type === "star") {
-    return Option.some("*");
-  }
-  if (part.type === "index") {
-    if (part.inner.expr.type === "literal" && part.inner.expr.literal.kind === "string") {
-      return Option.some(part.inner.expr.literal.value);
-    }
-    return Option.some("*");
-  }
-  return Option.none();
-};
+const partPattern = (part: Expr): Option.Option<string> =>
+  tailName(part).pipe(
+    Option.orElse(() =>
+      Option.liftPredicate("*", () => part.type === "star" || part.type === "index"),
+    ),
+  );
 
 const ASCII_UPPER = /^[A-Z]$/u;
 

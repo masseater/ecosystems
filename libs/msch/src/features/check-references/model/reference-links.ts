@@ -49,23 +49,21 @@ export const linksIn = (source: string): readonly LinkAt[] => {
   return found;
 };
 
-/** @internal */
-export const referenceMessage = (destination: string): Option.Option<string> =>
+const parsedReference = (destination: string): Option.Option<Result.Result<Reference, string>> =>
   pipe(
     Option.liftPredicate(destination, (text) => REFERENCE_SCHEME.test(text)),
-    Option.flatMap((text) =>
-      Result.match(parseReference(text), {
-        onFailure: Option.some,
-        onSuccess: () => Option.none(),
-      }),
-    ),
+    Option.map(parseReference),
   );
+
+/** @internal */
+export const referenceMessage = (destination: string): Option.Option<string> =>
+  pipe(parsedReference(destination), Option.flatMap(Result.getFailure));
 
 /** @internal */
 export const referenceOf = (destination: string): Option.Option<Reference> =>
   pipe(
-    Option.liftPredicate(destination, (text) => REFERENCE_SCHEME.test(text)),
-    Option.flatMap((text) => Result.getSuccess(parseReference(text))),
+    parsedReference(destination),
+    Option.flatMap(Result.getSuccess),
     Option.orElse(() => branchLinkReference(destination)),
   );
 

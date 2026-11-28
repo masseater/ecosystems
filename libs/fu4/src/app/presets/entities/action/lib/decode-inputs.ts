@@ -10,6 +10,7 @@ import {
   lowerKey,
   typeError,
   isNull,
+  keysOf,
   pairsOf,
   valueAt,
 } from "#/app/presets/shared/yaml/index.ts";
@@ -57,16 +58,6 @@ const fieldsFor = (sink: Sink, node: YamlNode): Option.Option<Fields> => {
     sink(message);
   }, node);
   return Option.liftPredicate(fields, () => !failed);
-};
-
-const keysOf = (node: YamlNode): readonly string[] => {
-  if (node.kind !== "mapping") {
-    return [];
-  }
-  return pipe(
-    pairsOf(node),
-    Arr.map((pair) => pair.key.value),
-  );
 };
 
 const unexpectedOf = (name: string, node: YamlNode): Option.Option<string> =>

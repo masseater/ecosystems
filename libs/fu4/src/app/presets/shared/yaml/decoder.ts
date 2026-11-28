@@ -37,17 +37,18 @@ const shown = (node: YamlNode): string => {
   return `${node.tag} \`${head}\``;
 };
 
-export const custom =
+const reporter =
+  (describe: (node: YamlNode, detail: string) => string) =>
   (sink: Sink) =>
-  (node: YamlNode, message: string): void => {
-    sink(`line ${String(node.line)}: ${message}`);
+  (node: YamlNode, detail: string): void => {
+    sink(`line ${String(node.line)}: ${describe(node, detail)}`);
   };
 
-export const typeError =
-  (sink: Sink) =>
-  (node: YamlNode, target: string): void => {
-    custom(sink)(node, `cannot unmarshal ${shown(node)} into ${target}`);
-  };
+export const custom = reporter((_node, message) => message);
+
+export const typeError = reporter(
+  (node, target) => `cannot unmarshal ${shown(node)} into ${target}`,
+);
 
 export const decodeString =
   (sink: Sink) =>

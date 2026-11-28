@@ -3,7 +3,7 @@ import { Option, Result } from "effect";
 import type { ExprError, Token, TokenKind } from "#/app/presets/entities/expression/model/ast.ts";
 import { quoteChar } from "#/app/presets/shared/text/index.ts";
 
-import { advance, isChar, isDigit, peek, tokenAt } from "./cursor.ts";
+import { advance, isChar, isDigit, isHex, peek, tokenAt } from "./cursor.ts";
 import type { Cursor, Scan } from "./cursor.ts";
 
 export interface Lexed {
@@ -75,15 +75,20 @@ export const skipWhile =
     return at;
   };
 
-export const digitsFrom =
+const runFrom =
+  (accepts: (char: Option.Option<string>) => boolean, expected: string) =>
   (place: string) =>
   (scan: Scan) =>
   (at: Cursor): Result.Result<Cursor, Lexed> => {
-    if (!isDigit(peek(scan.src)(at))) {
-      return Result.fail(unexpected(scan)({ at, place, expected: DIGITS }));
+    if (!accepts(peek(scan.src)(at))) {
+      return Result.fail(unexpected(scan)({ at, place, expected }));
     }
-    return Result.succeed(skipWhile(isDigit)(scan.src)(at));
+    return Result.succeed(skipWhile(accepts)(scan.src)(at));
   };
+
+export const digitsFrom = runFrom(isDigit, DIGITS);
+
+export const hexDigitsFrom = runFrom(isHex, `${DIGITS}, 'a'..'f', 'A'..'F'`);
 
 export const optionally =
   (char: string) =>

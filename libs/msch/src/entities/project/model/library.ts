@@ -171,10 +171,7 @@ const mergeIndexes = (indexes: readonly LibraryIndex[]): LibraryIndex => ({
 });
 
 const isNamespace = (symbol: TypeSymbol): boolean =>
-  pipe(
-    declarationsOf(symbol),
-    Arr.some((declaration) => isModuleDeclaration(declaration)),
-  );
+  Arr.some(declarationsOf(symbol), isModuleDeclaration);
 
 const typeNameIndex = (visit: Visit, symbol: TypeSymbol): LibraryIndex => {
   const declarations = declarationsOf(symbol);

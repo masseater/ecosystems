@@ -54,6 +54,13 @@ const passesOf: From<AlsClip, readonly Pass[]> = (clip) => {
   return walk(NONE, first, []);
 };
 
+const releaseOf = (offVelocity: number | undefined): number =>
+  pipe(
+    Option.fromUndefinedOr(offVelocity),
+    Option.filter((off) => off !== NONE),
+    Option.match({ onNone: () => DEFAULT_RELEASE, onSome: Math.round }),
+  );
+
 const sourceNotesOf: From<AlsClip, readonly SourceNote[]> = (clip) =>
   pipe(
     clip.Notes.KeyTracks.KeyTrack ?? [],
@@ -66,11 +73,7 @@ const sourceNotesOf: From<AlsClip, readonly SourceNote[]> = (clip) =>
           end: note.Time + note.Duration,
           midi: keyTrack.MidiKey.Value,
           velocity: Math.round(note.Velocity),
-          release: pipe(
-            Option.fromUndefinedOr(note.OffVelocity),
-            Option.filter((off) => off !== NONE),
-            Option.match({ onNone: () => DEFAULT_RELEASE, onSome: Math.round }),
-          ),
+          release: releaseOf(note.OffVelocity),
         })),
       ),
     ),
@@ -96,12 +99,11 @@ const byStartThenPitch = Order.combine(
   Order.mapInput(Order.Number, (note: PlayedNote) => note.midi),
 );
 
+const isDisabled: From<AlsClip, boolean> = (clip) =>
+  Option.exists(Option.fromUndefinedOr(clip.Disabled), (flag) => flag.Value === "true");
+
 export const notesOfClip: From<AlsClip, readonly PlayedNote[]> = (clip) => {
-  const disabled = pipe(
-    Option.fromUndefinedOr(clip.Disabled),
-    Option.exists((flag) => flag.Value === "true"),
-  );
-  if (disabled) {
+  if (isDisabled(clip)) {
     return [];
   }
   const notes = sourceNotesOf(clip);

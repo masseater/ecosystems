@@ -165,16 +165,6 @@ const declareWhen =
     return declareLocal(binding, node, flags);
   };
 
-const declareAlias = (binding: FileBinding, node: Node, flags: SymbolFlagPair): BoundSymbol =>
-  declareWhen(
-    binding,
-    node,
-    flags,
-  )(
-    isExportSpecifier(node) || (isImportEqualsDeclaration(node) && isExportedMember(node)),
-    declareExport,
-  );
-
 const localExportFlags = (flags: SymbolFlagPair): SymbolFlagPair => ({
   includes: Number(hasFlag(flags.includes, SymbolFlags.Value)) * SymbolFlags.ExportValue,
   excludes: flags.excludes,
@@ -199,13 +189,16 @@ const declareExportedMember = (
 const isExportedDeclaration = (binding: FileBinding, node: Node): boolean =>
   !isAmbientModule(node) && (isExportedMember(node) || binding.exportContext);
 
+const isExportedAlias = (node: Node): boolean =>
+  isExportSpecifier(node) || (isImportEqualsDeclaration(node) && isExportedMember(node));
+
 const declareModuleMember = (
   binding: FileBinding,
   node: Node,
   flags: SymbolFlagPair,
 ): BoundSymbol => {
   if (hasFlag(flags.includes, SymbolFlags.Alias)) {
-    return declareAlias(binding, node, flags);
+    return declareWhen(binding, node, flags)(isExportedAlias(node), declareExport);
   }
   return declareWhen(
     binding,

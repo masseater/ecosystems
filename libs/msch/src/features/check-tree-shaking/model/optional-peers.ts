@@ -1,6 +1,7 @@
 import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import { isBinEntry } from "#/entities/package/index.ts";
+import { keysOf } from "#/shared/lib/keys.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
 
@@ -44,7 +45,7 @@ const problemFor = (located: Located, name: string, importers: readonly Used[]):
 
 export interface Peering {
   readonly located: Located;
-  readonly dependencies: readonly string[];
+  readonly dependencies: Readonly<Record<string, string>> | undefined;
   readonly used: readonly Used[];
 }
 
@@ -65,7 +66,7 @@ export const optionalPeerProblems = ({
     return [];
   }
   return pipe(
-    dependencies,
+    keysOf(dependencies),
     Arr.flatMap((name) => {
       const importers = pipe(libraries, Arr.filter(importsPackage(name)));
       const neededByBin = pipe(bins, Arr.some(importsPackage(name)));
