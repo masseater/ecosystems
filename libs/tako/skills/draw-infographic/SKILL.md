@@ -43,6 +43,29 @@ Pick the part by what the figure shows: `flow` for steps, `fork` for a split at 
 
 The chart parts `trend`, `stacked`, `funnel` and `sankey` come from `#import "/.tako/charts.typ": *`. Typst downloads primaviz for them on the first render, so import that file only for a figure that needs a chart.
 
+## Examples
+
+`examples/` holds one working source per figure type, with its light and dark SVG next to it. Copy the one that matches the figure and change its content.
+
+| Figure                   | Example            |
+| ------------------------ | ------------------ |
+| Steps with a hero number | `flow`             |
+| A split at a condition   | `fork`             |
+| A repeat                 | `cycle`            |
+| Stages that narrow       | `funnel` (charts)  |
+| Dates                    | `timeline`         |
+| Who hands what to whom   | `sysmap`           |
+| Parent and child         | `tree`             |
+| Inside and outside       | `nested`           |
+| A position on two axes   | `quadrant`         |
+| The parts of a picture   | `annotated`        |
+| A change over time       | `trend` (charts)   |
+| A size against others    | `bars`             |
+| A size against a limit   | `threshold`        |
+| What a total is made of  | `stacked` (charts) |
+| Where a quantity goes    | `sankey` (charts)  |
+| A count                  | `isotype`          |
+
 ## Render
 
 ```sh

@@ -60,6 +60,10 @@ The chart parts wrap [primaviz](https://typst.app/universe/package/primaviz), wh
 - `funnel(stages: (([name], 1000), ...))` narrows by stage.
 - `sankey(nodes: ((name: ..., kind: ...), ...), flows: ((from: "a", to: "b", value: 3), ...))` draws flows between nodes by name.
 
+## Examples
+
+The agent skill ships `examples/`, one working source per figure type with its light and dark SVG.
+
 ## Render
 
 ```sh

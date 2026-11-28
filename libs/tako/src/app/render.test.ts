@@ -73,3 +73,40 @@ for (const figure of FIGURES) {
     }),
   );
 }
+
+const EXAMPLES = [
+  "annotated",
+  "bars",
+  "cycle",
+  "flow",
+  "fork",
+  "funnel",
+  "isotype",
+  "nested",
+  "quadrant",
+  "sankey",
+  "stacked",
+  "sysmap",
+  "threshold",
+  "timeline",
+  "tree",
+  "trend",
+] as const;
+
+const example = (name: string): string =>
+  new URL(`../../skills/draw-infographic/examples/${name}.typ`, import.meta.url).pathname;
+
+for (const name of EXAMPLES) {
+  it.effect(`the ${name} example renders in both themes`, () =>
+    Effect.gen(function* exampleRenders() {
+      const themes: readonly Theme[] = ["light", "dark"];
+      for (const theme of themes) {
+        const bytes = yield* Effect.tryPromise({
+          try: () => renderFigure({ file: example(name), theme, format: "svg" }),
+          catch: failWith,
+        });
+        expect(decoder.decode(bytes)).toContain("<svg");
+      }
+    }),
+  );
+}
