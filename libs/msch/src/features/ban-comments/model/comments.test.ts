@@ -65,7 +65,8 @@ const flagsCommentsInEveryLanguage = Effect.gen(function* flagsCommentsInEveryLa
 
 const passesDirectivesAndSkippedFiles = Effect.gen(function* passesDirectivesAndSkippedFiles() {
   const findings = yield* findingsFor({
-    "src/main.ts": "/** @internal */\nconst A = 1;\n/** @msch status */\nconst B = 2;\n",
+    "src/main.ts":
+      "/** @internal */\nconst A = 1;\n/** @msch status */\nconst B = 2;\n/** @stability experimental */\nconst E = 5;\n// oxlint-disable-next-line eslint/no-console -- prints the report\nconsole.log(1);\n",
     "src/cli.ts": "#!/usr/bin/env node\nconst C = 3;\n",
     "src/env.d.ts": '/// <reference types="vite/client" />\n',
     "scripts/lint.sh": "# shellcheck disable=SC2086\necho $A\n",
@@ -79,16 +80,10 @@ const passesDirectivesAndSkippedFiles = Effect.gen(function* passesDirectivesAnd
 
 const flagsDirectivesThatNothingUses = Effect.gen(function* flagsDirectivesThatNothingUses() {
   const findings = yield* findingsFor({
-    "src/main.ts":
-      "// oxlint-disable-next-line eslint/no-console -- prints the report\nconsole.log(1);\n",
     "src/fetch.ts": "/* v8 ignore start */\nrun();\n",
     "src/fetch.test.ts": "// @vitest-environment node\nconst D = 4;\n",
   });
-  expect(findings).toStrictEqual([
-    "src/fetch.test.ts:1:1 comment",
-    "src/fetch.ts:1:1 comment",
-    "src/main.ts:1:1 comment",
-  ]);
+  expect(findings).toStrictEqual(["src/fetch.test.ts:1:1 comment", "src/fetch.ts:1:1 comment"]);
 });
 
 const flagsAllowancesThatNothingMatches = Effect.gen(function* flagsAllowancesThatNothingMatches() {
