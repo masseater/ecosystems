@@ -1,57 +1,6 @@
 #import "theme.typ": tokens, kinds
-#import "shapes.typ": shape, inner-width, outer-width
-
-#let icon-of(name, color, size) = image(
-  bytes(read("/.kata/icons/" + name + ".svg").replace("<path ", "<path fill=\"" + color.to-hex() + "\" ")),
-  format: "svg",
-  width: size,
-)
-
-#let content-of(kind, icon, body) = grid(
-  columns: if icon == none { 1 } else { 2 },
-  column-gutter: 8pt,
-  align: horizon,
-  ..if icon == none { () } else { (icon-of(icon, kinds.at(kind).stroke, 22pt),) },
-  text(size: 18pt, weight: "bold", fill: tokens.ink, body),
-)
-
-#let natural(node) = {
-  let c = content-of(node.kind, node.at("icon", default: none), node.body)
-  let m = measure(c)
-  (inner: m.width, height: calc.max(m.height + 24pt, 52pt), content: c)
-}
-
-#let build(node, h, w) = box(width: w, height: h, {
-  shape(node.kind, w, h)
-  place(center + horizon, content-of(node.kind, node.at("icon", default: none), node.body))
-})
-
-#let arrow-head(tip, from, color) = {
-  let angle = calc.atan2((tip.at(0) - from.at(0)) / 1pt, (tip.at(1) - from.at(1)) / 1pt)
-  let size = 9pt
-  let back(a) = (tip.at(0) - size * calc.cos(angle + a), tip.at(1) - size * calc.sin(angle + a))
-  curve(fill: color, stroke: none, curve.move(tip), curve.line(back(25deg)), curve.line(back(-25deg)), curve.close())
-}
-
-#let link(a, b, color: tokens.sub, dashed: false, bend: 22pt, thickness: 2.5pt) = {
-  let mid = ((a.at(0) + b.at(0)) / 2, (a.at(1) + b.at(1)) / 2 - bend)
-  let line = if dashed { (paint: color, thickness: thickness, dash: (7pt, 6pt)) } else { thickness + color }
-  place(top + left, curve(stroke: line, curve.move(a), curve.quad(mid, b)))
-  place(top + left, arrow-head(b, mid, color))
-}
-
-#let hero-box(hero) = {
-  let big = text(size: 58pt, weight: "bold", fill: tokens.ink, hero.big)
-  let cap = text(size: 16pt, fill: tokens.sub, hero.caption)
-  let inner = stack(spacing: 12pt, align(center, big), align(center, cap))
-  let m = measure(inner)
-  let h = m.height / 0.55
-  let w = outer-width("amount", m.width + 24pt, 0pt)
-  (width: w, height: h, content: box(width: w, height: h, {
-    shape("amount", w, h)
-    place(center + horizon, inner)
-  }))
-}
+#import "shapes.typ": shape, outer-width
+#import "node.typ": *
 
 #let flow(nodes: (), gap: 64pt, hero: none) = context {
   let sized = nodes.map(natural)
@@ -114,3 +63,9 @@
     }
   })
 }
+
+#import "cycle.typ": cycle
+#import "tree.typ": tree
+#import "timeline.typ": timeline
+#import "nested.typ": nested
+#import "fork.typ": fork

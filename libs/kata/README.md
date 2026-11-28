@@ -34,6 +34,14 @@ bun add @r_masseater/kata
 )
 ```
 
+## More parts
+
+- `cycle(nodes: (...), hero: (...))` puts the nodes on a ring with arrows between them and an optional hero number in the middle.
+- `tree(root: (kind: ..., body: [...], children: (...)))` lays a tree out top down.
+- `timeline(events: ((when: [...], kind: ..., body: [...], note: [...]), ...))` alternates events above and below an axis.
+- `nested(root: (kind: ..., body: [...], children: (...)))` draws boxes inside boxes.
+- `fork(before: (...), decide: (...), yes: (...), no: (...), yes-label: [...], no-label: [...])` splits a flow at a condition into two branches.
+
 ## Render
 
 ```sh
