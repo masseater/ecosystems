@@ -1,16 +1,17 @@
 import { layer } from "@effect/vitest";
-import { Array as Arr, Effect, pipe } from "effect";
+import { Array as Arr, Effect, Option, pipe } from "effect";
 import { expect } from "vite-plus/test";
 
 import { sortProblems } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { fixtureLayer, gitRepositoryWith } from "#/shared/lib/repository.test.support.ts";
 
-import { checkPackSettings } from "./pack-settings.ts";
+import { checkPackSettings, fixPrepublishScripts } from "./pack-settings.ts";
 
 const STRICT_CONFIG =
   'export default { pack: { entry: ["src/index.ts"], publint: { strict: true } } };\n';
 const PREPUBLISH = "vp exec msch-publish prepublish .";
+const EXPECTED_REPORTS = 2;
 
 const published = (name: string, prepublish = PREPUBLISH): string =>
   `{ "name": "@r_masseater/${name}", "scripts": { "prepublishOnly": "${prepublish}" }, "publishConfig": { "access": "public" } }\n`;
@@ -94,5 +95,44 @@ layer(fixtureLayer)("published packages check their packed manifest", (it) => {
   it.effect(
     "flags a published package whose prepublishOnly is not the shared command",
     () => flagsPublishedPackagesWithoutTheSharedPrepublish,
+  );
+});
+
+const rewritesPrepublishToTheSharedCommand = Effect.gen(
+  function* rewritesPrepublishToTheSharedCommand() {
+    const files = yield* RepositoryFiles;
+    const root = yield* gitRepositoryWith({
+      "package.json": '{ "name": "root", "private": true }\n',
+      "libs/inline/package.json": published(
+        "inline",
+        String.raw`node -e \"process.exit(1)\" && vp run build`,
+      ),
+      "libs/inline/vite.config.ts": STRICT_CONFIG,
+      "libs/shared/package.json": published("shared"),
+      "libs/shared/vite.config.ts": STRICT_CONFIG,
+      "libs/none/package.json":
+        '{ "name": "@r_masseater/none", "publishConfig": { "access": "public" } }\n',
+      "libs/none/vite.config.ts": STRICT_CONFIG,
+    });
+    const report = yield* fixPrepublishScripts(root);
+    const inline = yield* files
+      .readFile(files.join(root, "libs/inline/package.json"))
+      .pipe(Effect.map(Option.getOrElse(() => "")));
+    expect(inline).toContain(`"prepublishOnly": "${PREPUBLISH}"`);
+    expect(report).toHaveLength(EXPECTED_REPORTS);
+    const remaining = yield* checkPackSettings(root);
+    expect(
+      pipe(
+        remaining,
+        Arr.map((problem) => files.relative(root, problem.file)),
+      ),
+    ).toStrictEqual(["libs/none/package.json"]);
+  },
+);
+
+layer(fixtureLayer)("published packages get the shared prepublish command", (it) => {
+  it.effect(
+    "rewrites a prepublishOnly script and reports a package that has none",
+    () => rewritesPrepublishToTheSharedCommand,
   );
 });

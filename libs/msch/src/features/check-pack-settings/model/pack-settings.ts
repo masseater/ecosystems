@@ -69,16 +69,15 @@ const problemFor = (file: string, source: string): Problem => ({
 const publishedManifest = (source: Option.Option<string>): Option.Option<typeof Manifest.Type> =>
   pipe(source, Option.flatMap(decodeManifest), Option.filter(isPublished));
 
+const declaredPrepublish = (manifest: typeof Manifest.Type): Option.Option<string> =>
+  pipe(Option.fromUndefinedOr(manifest.scripts), Option.flatMap(Rec.get(PREPUBLISH_SCRIPT)));
+
 const prepublishProblems = (
   file: string,
   source: string,
   manifest: typeof Manifest.Type,
 ): readonly Problem[] => {
-  const declared = pipe(
-    Option.fromUndefinedOr(manifest.scripts),
-    Option.flatMap(Rec.get(PREPUBLISH_SCRIPT)),
-  );
-  if (Option.contains(declared, PREPUBLISH_COMMAND)) {
+  if (Option.contains(declaredPrepublish(manifest), PREPUBLISH_COMMAND)) {
     return [];
   }
   return [
@@ -88,7 +87,7 @@ const prepublishProblems = (
         Option.getOrElse(Str.indexOf(`"${PREPUBLISH_SCRIPT}"`)(source), () => START),
       ),
       rule: PREPUBLISH_RULE,
-      message: `This package is published, so its ${PREPUBLISH_SCRIPT} script must be exactly \`${PREPUBLISH_COMMAND}\`. That one command refuses npm publish, which leaves catalog: in dependencies, and builds the package. Writing the guard in each package leaves some packages without it.`,
+      message: `This package is published, so its ${PREPUBLISH_SCRIPT} script must be exactly \`${PREPUBLISH_COMMAND}\`. That one command refuses npm publish, which leaves catalog: in dependencies, and builds the package. Writing the guard in each package leaves some packages without it. \`vp exec msch-fix\` rewrites it.`,
     },
   ];
 };
@@ -114,29 +113,124 @@ const configProblems = Effect.fn("configProblems")(function* configProblems(conf
   return [problemFor(configFile, source.value)];
 });
 
-const problemsIn = Effect.fn("problemsIn")(function* problemsIn(
+interface Published {
+  readonly file: string;
+  readonly source: string;
+  readonly manifest: typeof Manifest.Type;
+}
+
+const readPublished = Effect.fn("readPublished")(function* readPublished(
   root: string,
   manifestName: string,
 ) {
   const files = yield* RepositoryFiles;
-  const manifestFile = files.join(root, manifestName);
-  const source = yield* files.readFile(manifestFile);
-  const manifest = publishedManifest(source);
-  if (Option.isNone(manifest) || Option.isNone(source)) {
-    return [];
-  }
-  const config = yield* configProblems(files.join(root, files.dirname(manifestName), CONFIG_FILE));
-  return [...prepublishProblems(manifestFile, source.value, manifest.value), ...config];
+  const file = files.join(root, manifestName);
+  const source = yield* files.readFile(file);
+  return Option.all({ source, manifest: publishedManifest(source) }).pipe(
+    Option.map(({ source: text, manifest }): Published => ({ file, source: text, manifest })),
+  );
+});
+
+const inPublished = <Item, Fail, Needs>(
+  root: string,
+  manifestName: string,
+  run: (published: Published) => Effect.Effect<readonly Item[], Fail, Needs>,
+): Effect.Effect<readonly Item[], Fail, Needs | RepositoryFiles> =>
+  readPublished(root, manifestName).pipe(
+    Effect.flatMap(
+      Option.match({
+        onNone: (): Effect.Effect<readonly Item[]> => Effect.succeed([]),
+        onSome: run,
+      }),
+    ),
+  );
+
+const problemsIn = (
+  root: string,
+  manifestName: string,
+): Effect.Effect<readonly Problem[], never, RepositoryFiles> =>
+  inPublished(root, manifestName, ({ file, source, manifest }) =>
+    Effect.gen(function* problemsOf() {
+      const files = yield* RepositoryFiles;
+      const config = yield* configProblems(
+        files.join(root, files.dirname(manifestName), CONFIG_FILE),
+      );
+      return [...prepublishProblems(file, source, manifest), ...config];
+    }),
+  );
+
+const manifestNames = Effect.fn("manifestNames")(function* manifestNames(root: string) {
+  const files = yield* RepositoryFiles;
+  return yield* files.matchingFiles(root, [`:(glob)**/${MANIFEST_FILE}`, ...EXCLUDED]);
 });
 
 /** @internal */
 export const checkPackSettings = Effect.fn("checkPackSettings")(function* checkPackSettings(
   root: string,
 ) {
-  const files = yield* RepositoryFiles;
-  const manifests = yield* files.matchingFiles(root, [`:(glob)**/${MANIFEST_FILE}`, ...EXCLUDED]);
+  const manifests = yield* manifestNames(root);
   const found = yield* Effect.forEach(manifests, (name) => problemsIn(root, name), {
     concurrency: READ_CONCURRENCY,
   });
   return Arr.flatten(found);
 });
+
+const PREPUBLISH_ENTRY = /(?<key>"prepublishOnly"\s*:\s*)"(?:[^"\\]|\\.)*"/u;
+
+const missingScriptLine = (manifestName: string): string =>
+  `${manifestName}: has no ${PREPUBLISH_SCRIPT} script. Add \`"${PREPUBLISH_SCRIPT}": "${PREPUBLISH_COMMAND}"\` to its scripts by hand.`;
+
+const rewrittenLine = (manifestName: string): string =>
+  `${manifestName}: ${PREPUBLISH_SCRIPT} now runs \`${PREPUBLISH_COMMAND}\`.`;
+
+interface PrepublishFix {
+  readonly lines: readonly string[];
+  readonly rewritten: Option.Option<string>;
+}
+
+const NO_FIX: PrepublishFix = { lines: [], rewritten: Option.none() };
+
+const prepublishFix = (
+  manifestName: string,
+  source: string,
+  manifest: typeof Manifest.Type,
+): PrepublishFix => {
+  const declared = declaredPrepublish(manifest);
+  if (Option.contains(declared, PREPUBLISH_COMMAND)) {
+    return NO_FIX;
+  }
+  if (Option.isNone(declared)) {
+    return { lines: [missingScriptLine(manifestName)], rewritten: Option.none() };
+  }
+  return {
+    lines: [rewrittenLine(manifestName)],
+    rewritten: Option.some(Str.replace(PREPUBLISH_ENTRY, `$<key>"${PREPUBLISH_COMMAND}"`)(source)),
+  };
+};
+
+const fixPrepublishIn = (
+  root: string,
+  manifestName: string,
+): Effect.Effect<readonly string[], never, RepositoryFiles> =>
+  inPublished(root, manifestName, ({ file, source, manifest }) =>
+    Effect.gen(function* fixOf() {
+      const files = yield* RepositoryFiles;
+      const fix = prepublishFix(manifestName, source, manifest);
+      yield* Option.match(fix.rewritten, {
+        onNone: () => Effect.void,
+        onSome: (text) => files.writeFile(file, text),
+      });
+      return fix.lines;
+    }),
+  );
+
+/** @internal */
+export const fixPrepublishScripts = Effect.fn("fixPrepublishScripts")(
+  function* fixPrepublishScripts(root: string) {
+    const manifests = yield* manifestNames(root);
+    const lines = yield* Effect.forEach(manifests, (name) => fixPrepublishIn(root, name), {
+      concurrency: READ_CONCURRENCY,
+    });
+    return Arr.flatten(lines);
+  },
+);
