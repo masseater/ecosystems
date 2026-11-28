@@ -33,6 +33,15 @@ const keepsUnmatchedPattern = Effect.gen(function* keepsUnmatchedPattern() {
   expect(found).toStrictEqual([`${root}/missing/*`]);
 }).pipe(Effect.scoped);
 
+const listsOnePackageOnceAcrossLinks = Effect.gen(function* listsOnePackageOnceAcrossLinks() {
+  const fileSystem = yield* FileSystem.FileSystem;
+  const root = yield* tempRoot;
+  const real = yield* fileSystem.realPath(root);
+  yield* fileSystem.symlink(`${real}/scope/a`, `${real}/scope/link`);
+  const found = yield* expandDirectories([`${real}/scope/a`, `${real}/scope/*`]);
+  expect(found).toStrictEqual([`${real}/scope/a`, `${real}/scope/b`]);
+}).pipe(Effect.scoped);
+
 const dropsDuplicates = Effect.gen(function* dropsDuplicates() {
   const root = yield* tempRoot;
   const found = yield* expandDirectories([`${root}/scope/a`, `${root}/scope/*`]);
@@ -50,4 +59,5 @@ layer(nodeServices)("expandDirectories", (it) => {
     () => keepsUnmatchedPattern,
   );
   it.effect("lists a directory once", () => dropsDuplicates);
+  it.effect("lists a package once when links lead to it", () => listsOnePackageOnceAcrossLinks);
 });

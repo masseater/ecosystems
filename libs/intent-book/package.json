@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/intent-book",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Builds a GitBook-style documentation site for people from the TanStack Intent agent skills (SKILL.md) that an npm package ships, so agent and human documentation share one source.",
   "keywords": [
     "agent-skills",
