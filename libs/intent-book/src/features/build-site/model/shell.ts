@@ -7,6 +7,7 @@ import type { Book, Group, Skill } from "#/entities/book/index.ts";
 import { charset, htmlDocument, when } from "#/shared/lib/html.ts";
 import type { Heading } from "#/shared/lib/render-markdown.ts";
 
+import { SCRIPT_PATH, STYLE_PATH } from "./asset-paths.ts";
 import { withBase } from "./links.ts";
 
 export type Current =
@@ -197,8 +198,8 @@ const headOf = (shell: Shell): readonly Element[] => [
   h("meta", { name: "intent-book-base", content: shell.base }),
   h("meta", { name: "description", content: shell.description }),
   h("title", `${shell.title} · ${shell.book.name}`),
-  h("link", { rel: "stylesheet", href: `${shell.base}assets/book.css` }),
-  h("script", { src: `${shell.base}assets/book.js`, defer: true }),
+  h("link", { rel: "stylesheet", href: `${shell.base}${STYLE_PATH}` }),
+  h("script", { src: `${shell.base}${SCRIPT_PATH}`, defer: true }),
 ];
 
 const layout = (shell: Shell): Element =>

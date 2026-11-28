@@ -1,5 +1,6 @@
 import {
   Array as Arr,
+  Boolean as Bool,
   Effect,
   FileSystem,
   Match,
@@ -14,6 +15,8 @@ import {
 
 import type { Book, Reference, Skill } from "#/entities/book/index.ts";
 import { parseSkill } from "#/entities/book/index.ts";
+
+import { NoSkillsError } from "./no-skills-error.ts";
 
 const taggedError = Schema.TaggedError;
 
@@ -53,6 +56,8 @@ const GIT_PREFIX = /^git\+/u;
 const GIT_SUFFIX = /\.git$/u;
 const SHORTHAND = /^(?:github:)?(?<slug>[\w.-]+\/[\w.-]+)$/u;
 const FILE_CONCURRENCY = 16;
+const READ_CONCURRENCY = 4;
+const ONE_DIRECTORY = 1;
 
 const githubSlug = (value: string): Option.Option<string> =>
   pipe(
@@ -168,7 +173,7 @@ const readSkills = Effect.fn("readSkills")(function* readSkills(directory: strin
   const skillsDirectory = path.join(directory, SKILLS_DIRECTORY);
   const names = yield* skillNames(skillsDirectory);
   yield* Effect.filterOrFail(Effect.succeed(names), Arr.isReadonlyArrayNonEmpty, () =>
-    BookReadError.make({ directory, reason: `no ${SKILL_FILE} under ${SKILLS_DIRECTORY}/` }),
+    NoSkillsError.make({ directory }),
   );
   const skills: readonly Skill[] = yield* Effect.forEach(
     names,
@@ -196,4 +201,37 @@ export const readBook = Effect.fn("readBook")(function* readBook(directory: stri
     skills,
   };
   return book;
+});
+
+const skippable =
+  (directories: readonly string[]) =>
+  (error: NoSkillsError): Effect.Effect<Option.Option<Book>, NoSkillsError> =>
+    Bool.match(Arr.isReadonlyArrayNonEmpty(Arr.drop(directories, ONE_DIRECTORY)), {
+      onTrue: () => Effect.succeed(Option.none<Book>()),
+      onFalse: () => Effect.fail(error),
+    });
+
+/** @internal */
+export const readBooks = Effect.fn("readBooks")(function* readBooks(
+  directories: readonly string[],
+) {
+  const results = yield* Effect.forEach(
+    directories,
+    (directory) =>
+      readBook(directory).pipe(
+        Effect.asSome,
+        Effect.catchTag("NoSkillsError", skippable(directories)),
+      ),
+    { concurrency: READ_CONCURRENCY },
+  );
+  const books = Arr.getSomes(results);
+  yield* Effect.filterOrFail(Effect.succeed(books), Arr.isReadonlyArrayNonEmpty, () =>
+    NoSkillsError.make({ directory: Arr.join(directories, ", ") }),
+  );
+  const skipped = pipe(
+    Arr.zip(directories, results),
+    Arr.filter(([, result]) => Option.isNone(result)),
+    Arr.map(([directory]) => directory),
+  );
+  return { books, skipped };
 });
