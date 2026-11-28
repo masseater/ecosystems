@@ -1,3 +1,4 @@
+import { groupOf } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Effect, Option, String as Str, pipe } from "effect";
 import { isMap, isPair, parseDocument } from "yaml";
 
@@ -172,13 +173,6 @@ const actionProblems = (
     Option.toArray,
   );
 
-const groupOf = (pattern: RegExp, name: string): Option.Option<string> =>
-  pipe(
-    Str.match(pattern)(name),
-    Option.flatMap((match) => Option.fromNullishOr(match.groups)),
-    Option.flatMap((groups) => Option.fromNullishOr(groups["name"])),
-  );
-
 /** @internal */
 export const checkWorkflowScale = Effect.fn("checkWorkflowScale")(function* checkWorkflowScale(
   root: string,
@@ -190,7 +184,7 @@ export const checkWorkflowScale = Effect.fn("checkWorkflowScale")(function* chec
     listed,
     Arr.flatMap((name) =>
       pipe(
-        groupOf(WORKFLOW, name),
+        groupOf("name")(WORKFLOW.exec(name)),
         Option.map((stem) => ({ name, stem })),
         Option.toArray,
       ),
@@ -217,7 +211,7 @@ export const checkWorkflowScale = Effect.fn("checkWorkflowScale")(function* chec
     listed,
     Arr.flatMap((name) =>
       pipe(
-        groupOf(ACTION, name),
+        groupOf("name")(ACTION.exec(name)),
         Option.map((action) => actionProblems(workspaces, files.join(root, name), action)),
         Option.getOrElse((): readonly Problem[] => []),
       ),

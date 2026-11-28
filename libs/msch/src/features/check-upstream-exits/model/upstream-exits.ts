@@ -2,7 +2,7 @@ import { Array as Arr, Effect, HashMap, HashSet, Option, pipe } from "effect";
 
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
-import { positionOf } from "#/shared/lib/text-position.ts";
+import { problemAtIndex } from "#/shared/lib/text-position.ts";
 
 import { cargoDeviations, commentsByLine, workspaceDeviations } from "./deviation-entries.ts";
 import type { DeviationEntry, Deviations } from "./deviation-entries.ts";
@@ -25,15 +25,6 @@ interface ReadFile {
   readonly source: string;
   readonly deviations: Deviations;
 }
-
-const problemAt =
-  ({ file, source }: ReadFile) =>
-  (index: number, message: string): Problem => ({
-    file,
-    ...positionOf(source)(index),
-    rule: RULE,
-    message,
-  });
 
 const messageFor = (
   entry: DeviationEntry,
@@ -69,7 +60,7 @@ const entryProblems = (read: ReadFile): readonly Problem[] => {
       );
       return pipe(
         messageFor(entry, exitText),
-        Option.map((message) => problemAt(read)(entry.index, message)),
+        Option.map((message) => problemAtIndex(RULE)(read.file, read.source)(entry.index, message)),
         Option.toArray,
       );
     }),
@@ -89,7 +80,7 @@ const strayProblems = (read: ReadFile): readonly Problem[] => {
       (comment) =>
         Option.isSome(exitTextOf(comment.text)) && !HashSet.has(entryLines, comment.line),
     ),
-    Arr.map((comment) => problemAt(read)(comment.index, STRAY)),
+    Arr.map((comment) => problemAtIndex(RULE)(read.file, read.source)(comment.index, STRAY)),
   );
 };
 

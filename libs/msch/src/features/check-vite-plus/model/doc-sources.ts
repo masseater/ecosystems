@@ -1,4 +1,5 @@
-import { Array as Arr, Option, Record as Rec, String as Str, pipe } from "effect";
+import { groupOf } from "@masseater.dev/lint-host/collections";
+import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import { positionOf } from "#/shared/lib/text-position.ts";
 
@@ -13,22 +14,16 @@ interface CodeSpan {
   readonly end: number;
 }
 
-const groupOf =
-  (match: RegExpMatchArray) =>
-  (name: string): Option.Option<string> =>
-    pipe(Option.fromUndefinedOr(match.groups), Option.flatMap(Rec.get(name)));
-
 const codeIn =
   (pattern: RegExp) =>
   (source: string): readonly CodeSpan[] =>
     pipe(
       Arr.fromIterable(Str.matchAll(pattern)(source)),
-      Arr.flatMap((match) => {
-        const group = groupOf(match);
-        return pipe(
+      Arr.flatMap((match) =>
+        pipe(
           Option.all({
-            open: group("open"),
-            text: group("body"),
+            open: groupOf("open")(match),
+            text: groupOf("body")(match),
             whole: Arr.head(match),
             index: Option.fromUndefinedOr(match.index),
           }),
@@ -38,8 +33,8 @@ const codeIn =
             end: index + whole.length,
           })),
           Option.toArray,
-        );
-      }),
+        ),
+      ),
     );
 
 const outside =

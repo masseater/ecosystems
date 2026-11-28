@@ -6,7 +6,7 @@ import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { isToolVersions, listedFiles, scanText } from "#/shared/lib/scanned-files.ts";
 import type { Listed } from "#/shared/lib/scanned-files.ts";
-import { positionOf } from "#/shared/lib/text-position.ts";
+import { problemAtIndex } from "#/shared/lib/text-position.ts";
 
 const RULE: RuleName = "node-version";
 const MINIMUM = 26;
@@ -57,12 +57,8 @@ interface Found {
   readonly index: number;
 }
 
-const problemAt = ({ entry, source, index }: Found, message: string): Problem => ({
-  file: entry.file,
-  ...positionOf(source)(index),
-  rule: RULE,
-  message,
-});
+const problemAt = ({ entry, source, index }: Found, message: string): Problem =>
+  problemAtIndex(RULE)(entry.file, source)(index, message);
 
 const offsetOf = (source: string, text: string): number =>
   pipe(
