@@ -1,6 +1,13 @@
+import { LOCKED } from "@r_masseater/msch/locked-inputs";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  run: {
+    tasks: {
+      test: { command: "vp test run", cache: LOCKED },
+      build: { command: "vp pack", cache: LOCKED },
+    },
+  },
   pack: {
     entry: { index: "src/app/index.ts", cli: "bin/tako.ts" },
     platform: "node",

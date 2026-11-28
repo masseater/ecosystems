@@ -22,6 +22,8 @@ Every release is manual. Nothing publishes on a push to main, and msch reports r
 2. Merge the PR.
 3. Dispatch the `publish` workflow on main with the workspace directory, such as `libs/y8` or `apps/yakusu`.
 
+When the release adds a check or makes one stricter, run it against the latest main of masseater.dev, skills, personal-space and mirucord before dispatching, and confirm that it reports nothing that those repositories legitimately do. Count usage in a current checkout of each repository, because an old checkout hides what the newest commits added; 0.64.0 wrongly forbade `@stability` and `oxlint-disable` that way. When the release removes an allowance, grep every one of the four for the removed entry first.
+
 An AI agent dispatches the `publish` workflow itself once the version bump is on main, without asking the owner first. The owner's repositories are set up so that a release an agent starts on its own does no harm.
 
 A version that is already on npm or already has a GitHub Release with assets is skipped, so dispatching twice is safe. A version that is published but has no tag, including an older version, gets its tag on the next dispatch, on the commit its npm provenance names. The tag is created with a GitHub token from the credential broker when the broker grants one, because the workflow token cannot tag a commit that changes `.github/workflows`. A package whose `workspace:` dependencies are not on npm at their current versions is refused; publish those first.
