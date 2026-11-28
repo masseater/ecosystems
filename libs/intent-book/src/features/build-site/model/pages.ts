@@ -173,11 +173,7 @@ export const skillMain = (input: SkillPage): readonly Element[] => {
 export const referenceMain = (input: SkillPage): readonly Element[] => {
   const { base, book, skill } = input;
   const parent = h("a", { href: skillRoute(base, book, skill) }, skill.name);
-  return [
-    crumbs([bookLink(base, book), parent, "references"]),
-    h("h1", input.title),
-    prose(input.tree),
-  ];
+  return [crumbs([bookLink(base, book), parent]), h("h1", input.title), prose(input.tree)];
 };
 
 const rowLink = (href: string, name: string, description: string): Element =>

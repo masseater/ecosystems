@@ -47,6 +47,8 @@ export const AUTH = pipe(
     "",
     "See [setup](../server-setup/SKILL.md) and [CORS](references/client-cors.md#headers).",
     "",
+    "Run [the check](scripts/check.sh), then read [the spec](../_artifacts/skill_spec.md#why) and the [README](../../README.md).",
+    "",
     "## Create context",
     "",
     "```ts",
@@ -81,6 +83,7 @@ const book = Effect.gen(function* makeBook() {
     version: "11.32.0",
     description: "The server of tRPC.",
     repository: Option.some("https://github.com/trpc/trpc"),
+    directory: Option.some("packages/server"),
     homepage: Option.none(),
     skills: [setup, auth],
   };
