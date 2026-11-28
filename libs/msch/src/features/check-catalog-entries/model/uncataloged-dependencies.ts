@@ -17,6 +17,7 @@ import { positionOf } from "#/shared/lib/text-position.ts";
 const RULE: RuleName = "uncataloged-dependency";
 const OWNED_ELSEWHERE: readonly string[] = ["catalog:", "workspace:", "link:", "file:"];
 const ROOT_DIRECTORY = ".";
+const PLUGIN_MANIFEST = ".claude-plugin/plugin.json";
 const MESSAGE =
   "is a version written in this package.json. Add it to the catalog in pnpm-workspace.yaml and write `catalog:` here, so that one entry owns the version and every package that uses the dependency moves together.";
 
@@ -43,8 +44,16 @@ export const uncatalogedDependencies = Effect.fn("uncatalogedDependencies")(
   function* uncatalogedDependencies(root: string) {
     const files = yield* RepositoryFiles;
     const directories = yield* workspaceDirectories(root);
+    const installed = yield* pipe(
+      directories,
+      Effect.filter((directory) =>
+        files
+          .exists(files.join(root, directory, PLUGIN_MANIFEST))
+          .pipe(Effect.map((found) => !found)),
+      ),
+    );
     const listed = pipe(
-      [ROOT_DIRECTORY, ...directories],
+      [ROOT_DIRECTORY, ...installed],
       Arr.map((directory): Listed => {
         const name = files.join(directory, MANIFEST_FILE);
         return { name, file: files.join(root, name) };

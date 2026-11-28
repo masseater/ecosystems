@@ -95,6 +95,8 @@ const flagsDependenciesWrittenOutsideTheCatalog = Effect.gen(
         "}",
       ]),
       "docs/package.json": lines(["{", '  "dependencies": { "outside": "1.0.0" }', "}"]),
+      "libs/plugin/package.json": lines(["{", '  "dependencies": { "kit": "0.1.0" }', "}"]),
+      "libs/plugin/.claude-plugin/plugin.json": "{}\n",
     });
     const problems = yield* checkCatalogEntries(root);
     expect(
