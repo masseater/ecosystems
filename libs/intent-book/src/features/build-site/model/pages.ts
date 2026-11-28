@@ -13,6 +13,7 @@ import {
 import type { Book, Skill } from "#/entities/book/index.ts";
 import { charset, htmlDocument, optional, when } from "#/shared/lib/html.ts";
 
+import { STYLE_PATH } from "./asset-paths.ts";
 import { withBase } from "./links.ts";
 
 export interface SkillPage {
@@ -267,7 +268,7 @@ export const landingPage = (input: {
     h("meta", { name: "viewport", content: "width=device-width, initial-scale=1" }),
     ...refresh,
     h("title", "Skills"),
-    h("link", { rel: "stylesheet", href: `${input.base}assets/book.css` }),
+    h("link", { rel: "stylesheet", href: `${input.base}${STYLE_PATH}` }),
   ];
   const body = h("main", [h("article", [h("h1", "Skills"), h("ul", { class: "rows" }, rows)])]);
   return htmlDocument({ head, body: [body] });

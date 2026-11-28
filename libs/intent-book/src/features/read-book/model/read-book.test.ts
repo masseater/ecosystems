@@ -3,7 +3,8 @@ import { layer } from "@effect/vitest";
 import { Array as Arr, Effect, FileSystem, Option, Path, pipe, Schema } from "effect";
 import { expect } from "vite-plus/test";
 
-import { BookReadError, readBook } from "./read-book.ts";
+import { NoSkillsError } from "./no-skills-error.ts";
+import { readBook, readBooks } from "./read-book.ts";
 
 const encodeJson = Schema.encodeUnknownEffect(Schema.fromJsonString(Schema.Unknown));
 
@@ -79,7 +80,7 @@ const failsWithoutSkills = Effect.gen(function* failsWithoutSkills() {
   const root = yield* tempRoot;
   yield* writeManifest(root, {});
   const failure = yield* readBook(root).pipe(Effect.flip);
-  expect(failure).toBeInstanceOf(BookReadError);
+  expect(failure).toBeInstanceOf(NoSkillsError);
 }).pipe(Effect.scoped);
 
 const failsOnMalformedSkill = Effect.gen(function* failsOnMalformedSkill() {
@@ -122,6 +123,32 @@ const readsEveryMarkdownOfASkill = Effect.gen(function* readsEveryMarkdownOfASki
   expect(book.directory).toStrictEqual(Option.some("packages/pkg"));
 }).pipe(Effect.scoped);
 
+const MANIFEST = '{"name":"@scope/pkg","version":"1.0.0"}';
+
+const writeTwoPackages = Effect.fn("writeTwoPackages")(function* writeTwoPackages(root: string) {
+  yield* write(root, "with/package.json", MANIFEST);
+  yield* write(root, "with/skills/alpha/SKILL.md", skillText("alpha"));
+  yield* write(root, "without/package.json", MANIFEST);
+});
+
+const skipsPackagesWithoutSkills = Effect.gen(function* skipsPackagesWithoutSkills() {
+  const root = yield* tempRoot;
+  yield* writeTwoPackages(root);
+  const given = [`${root}/with`, `${root}/without`];
+  const read = yield* readBooks(given);
+  expect(pipe(read.books, Arr.flatMap(namesOf))).toStrictEqual(["alpha"]);
+  expect(read.skipped).toStrictEqual([`${root}/without`]);
+}).pipe(Effect.scoped);
+
+const failsWhenNoPackageShipsSkills = Effect.gen(function* failsWhenNoPackageShipsSkills() {
+  const root = yield* tempRoot;
+  yield* writeTwoPackages(root);
+  const alone = yield* readBooks([`${root}/without`]).pipe(Effect.flip);
+  const both = yield* readBooks([`${root}/without`, `${root}/without`]).pipe(Effect.flip);
+  expect(alone).toBeInstanceOf(NoSkillsError);
+  expect(both).toBeInstanceOf(NoSkillsError);
+}).pipe(Effect.scoped);
+
 layer(nodeServices)("readBook", (it) => {
   it.effect(
     "reads every Markdown file of a skill except nested skills and _artifacts",
@@ -130,5 +157,13 @@ layer(nodeServices)("readBook", (it) => {
   it.effect("reads a package, its skills, nested skills and references", () => readsNestedSkills);
   it.effect("accepts a repository written as a shorthand", () => readsShorthand);
   it.effect("fails when the package ships no skills", () => failsWithoutSkills);
+  it.effect(
+    "skips packages without skills when several are given",
+    () => skipsPackagesWithoutSkills,
+  );
+  it.effect(
+    "fails when none of the given packages ships skills",
+    () => failsWhenNoPackageShipsSkills,
+  );
   it.effect("fails with the skill name when a SKILL.md is malformed", () => failsOnMalformedSkill);
 });

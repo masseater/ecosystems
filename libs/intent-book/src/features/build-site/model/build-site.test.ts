@@ -39,9 +39,9 @@ it.effect("writes a page per overview, skill and reference, plus raw files and a
       "@trpc/server/index.html",
       "@trpc/server/server-setup.md",
       "@trpc/server/server-setup/index.html",
-      "assets/book.css",
-      "assets/book.js",
-      "assets/search.json",
+      "_intent-book/book.css",
+      "_intent-book/book.js",
+      "_intent-book/search.json",
       "index.html",
     ]);
   }),
@@ -140,9 +140,9 @@ it.effect("shows the entry skills first and the other skills by group on the boo
 
 it.effect("prefixes every link and asset with the base path", () =>
   Effect.gen(function* based() {
-    const files = yield* build("/docs/");
+    const files = yield* build({ base: "/docs/" });
     const tree = page(files)(AUTH_PAGE);
-    expect(select("link[href='/docs/assets/book.css']", tree)).toBeDefined();
+    expect(select("link[href='/docs/_intent-book/book.css']", tree)).toBeDefined();
     expect(select("meta[name='intent-book-base'][content='/docs/']", tree)).toBeDefined();
     expect(select(".side a[href='/docs/@trpc/server/server-setup/']", tree)).toBeDefined();
     expect(select("main .prose a[href='/docs/@trpc/server/server-setup/']", tree)).toBeDefined();
@@ -152,7 +152,7 @@ it.effect("prefixes every link and asset with the base path", () =>
 it.effect("indexes every page for search with its title, headings and url", () =>
   Effect.gen(function* search() {
     const files = yield* build();
-    const entries = yield* decodeIndex(contentAt(files)("assets/search.json"));
+    const entries = yield* decodeIndex(contentAt(files)("_intent-book/search.json"));
     const auth = pipe(
       entries,
       Arr.findFirst((entry) => entry.url === "/@trpc/server/auth/"),
@@ -199,4 +199,12 @@ it.effect(
         `${root}/README.md`,
       ]);
     }),
+);
+
+it.effect("leaves out the landing page when the site lives inside another site", () =>
+  Effect.gen(function* withoutLanding() {
+    const files = yield* build({ landing: false });
+    expect(pathsOf(files)).not.toContain("index.html");
+    expect(pathsOf(files)).toContain("@trpc/server/index.html");
+  }),
 );

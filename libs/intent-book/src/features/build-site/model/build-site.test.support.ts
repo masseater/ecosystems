@@ -92,10 +92,16 @@ const book = Effect.gen(function* makeBook() {
 
 export const AUTH_PAGE = "@trpc/server/auth/index.html";
 
-export const build = (base = "/"): Effect.Effect<readonly SiteFile[], Schema.SchemaError | Error> =>
+export const build = (
+  options: { readonly base?: string; readonly landing?: boolean } = {},
+): Effect.Effect<readonly SiteFile[], Schema.SchemaError | Error> =>
   Effect.gen(function* built() {
     const value = yield* book;
-    return yield* buildSite({ books: [value], base });
+    return yield* buildSite({
+      books: [value],
+      base: options.base ?? "/",
+      landing: options.landing ?? true,
+    });
   });
 
 export const contentAt =

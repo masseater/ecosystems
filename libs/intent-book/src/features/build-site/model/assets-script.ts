@@ -1,3 +1,5 @@
+import { INDEX_PATH } from "./asset-paths.ts";
+
 export const SCRIPT = String.raw`const root = document.documentElement;
 const body = document.body;
 const narrow = window.matchMedia("(max-width: 820px)");
@@ -73,7 +75,7 @@ if (dialog) {
 
   const load = async () => {
     if (!index) {
-      index = await (await fetch(base + "assets/search.json")).json();
+      index = await (await fetch(base + "${INDEX_PATH}")).json();
     }
     return index;
   };

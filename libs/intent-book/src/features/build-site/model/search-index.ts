@@ -2,6 +2,8 @@ import { Effect, Schema, String as Str } from "effect";
 
 import type { SiteFile } from "#/shared/lib/site-file.ts";
 
+import { INDEX_PATH } from "./asset-paths.ts";
+
 const SearchEntry = Schema.Struct({
   title: Schema.String,
   name: Schema.String,
@@ -14,7 +16,6 @@ export type SearchEntryData = typeof SearchEntry.Type;
 
 const SEARCH_TEXT_START = 0;
 const SEARCH_TEXT_LIMIT = 6000;
-const INDEX_PATH = "assets/search.json";
 
 const encodeEntries = Schema.encodeEffect(Schema.fromJsonString(Schema.Array(SearchEntry)));
 

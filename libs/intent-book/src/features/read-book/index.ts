@@ -1,1 +1,1 @@
-export { readBook } from "./model/read-book.ts";
+export { readBooks } from "./model/read-book.ts";
