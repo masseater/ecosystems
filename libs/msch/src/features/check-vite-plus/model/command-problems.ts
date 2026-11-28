@@ -18,6 +18,8 @@ const FILTER = /^(?:--filter(?:=.*)?|-F)$/u;
 const TASK_KINDS: readonly CommandKind[] = ["script", "task"];
 const SECOND = 1;
 const DOC_KIND: CommandKind = "doc";
+const NODE = "node";
+const INLINE_CODE = /^(?:--eval(?:=.*)?|--print(?:=.*)?|-[a-z]*[ep][a-z]*)$/u;
 
 interface CommandRule {
   readonly rule: RuleName;
@@ -60,6 +62,18 @@ const RULES: readonly CommandRule[] = [
       ),
     message: (command) =>
       `\`${command}\` wraps one package's task in another task. Write <package>#<task> in dependsOn instead, so that Vite+ sees the dependency and caches it.`,
+  },
+  {
+    rule: "inline-script",
+    applies: (source, words) =>
+      source.kind !== DOC_KIND &&
+      programOf(words) === NODE &&
+      pipe(
+        Arr.drop(words, SECOND),
+        Arr.some((word) => INLINE_CODE.test(word)),
+      ),
+    message: (command) =>
+      `\`${command}\` runs code written inside a command, which gets copied from package to package. Put the code in bin/<name>.ts of the package that owns it, or in a shared package, and run it with node bin/<name>.ts.`,
   },
 ];
 

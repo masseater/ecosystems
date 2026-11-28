@@ -5,6 +5,7 @@ import { runCli } from "#/app/runtime.ts";
 import {
   checkCompat,
   planOf,
+  prepublish,
   publishRelease,
   publishToNpm,
   writeCompatPlan,
@@ -12,7 +13,7 @@ import {
 } from "#/features/publish-workspace/index.ts";
 
 const Arguments = Schema.Tuple([
-  Schema.Literals(["plan", "npm", "release", "compat", "compat-plan"]),
+  Schema.Literals(["plan", "npm", "release", "compat", "compat-plan", "prepublish"]),
   Schema.String,
 ]);
 
@@ -23,13 +24,15 @@ class UsageError extends taggedError<UsageError, { readonly brand: unique symbol
   { message: Schema.String },
 ) {}
 
-const USAGE = "usage: msch-publish <plan|npm|release|compat|compat-plan> <workspace directory>";
+const USAGE =
+  "usage: msch-publish <plan|npm|release|compat|compat-plan|prepublish> <workspace directory>";
 
 const steps = {
   plan: Effect.fn("plan")(function* plan(directory: string) {
     return yield* planOf(directory).pipe(Effect.flatMap(writePlan));
   }),
   npm: publishToNpm,
+  prepublish,
   release: publishRelease,
   compat: checkCompat,
   "compat-plan": Effect.fn("compat-plan")(function* compatPlan() {

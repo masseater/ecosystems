@@ -50,10 +50,10 @@
     "provenance": true
   },
   "scripts": {
-    "prepublishOnly": "vp run build"
+    "prepublishOnly": "vp exec msch-publish prepublish ."
   },
   "dependencies": {
-    "sentence-splitter": "5.1.0"
+    "sentence-splitter": "catalog:"
   },
   "devDependencies": {
     "@r_masseater/vite-plus-adopt": "catalog:",

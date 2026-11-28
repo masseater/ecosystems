@@ -111,6 +111,9 @@ catalog:
   verovio: 6.4.1
   modern-web-guidance: 1.0.2
   smol-toml: 1.9.1
+  sentence-splitter: 5.1.0
+  ts-content-mapper: 0.1.1
+  betterleaks: github:betterleaks/betterleaks#e07e69ba6a441313529b3e72be43ffdcc62bdf86
   "@shikijs/rehype": 4.6.0
   hast-util-to-html: 9.0.7
   hastscript: 9.0.3

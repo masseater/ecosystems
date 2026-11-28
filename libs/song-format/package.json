@@ -90,7 +90,7 @@
     "provenance": true
   },
   "scripts": {
-    "prepublishOnly": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm/')) { console.error('npm publish leaves catalog: in dependencies. Publish the tarball from vp pm pack instead.'); process.exit(1) }\" && vp run build"
+    "prepublishOnly": "vp exec msch-publish prepublish ."
   },
   "dependencies": {
     "ableton-als": "catalog:",
@@ -110,7 +110,7 @@
     "@types/node": "catalog:",
     "effect": "catalog:stack",
     "langium-cli": "catalog:",
-    "ts-content-mapper": "0.1.1",
+    "ts-content-mapper": "catalog:",
     "typescript": "catalog:stack",
     "vite-plus": "catalog:stack"
   },

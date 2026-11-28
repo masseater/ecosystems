@@ -41,6 +41,8 @@ In the repository every dependency is an exact version, as the `version-range` c
 | `release:check:<os>` tasks                                | Checks the built files on that OS before anything is published        |
 | `release:publish` task                                    | Runs after the GitHub Release exists, with the tag in `RELEASE_TAG`   |
 
+A published package's `prepublishOnly` script is exactly `vp exec msch-publish prepublish .`, and the `prepublish-script` check reports any other text. The command refuses `npm publish`, which would leave `catalog:` in `dependencies`, and builds the package, so the guard exists once instead of being copied into each package. Code written inside a command, such as `node -e`, is reported by `inline-script`.
+
 The tag is the package name without its scope, then `-v` and the version. The repository root (`.`) is tagged `v` and the version, and always gets a GitHub Release with generated notes, marked latest, even without assets; a template repository releases this way. Release builds run in the GitHub environment `<name>-release`, which holds signing keys. A workspace at version `0.0.0` only builds; it publishes nothing.
 
 ## Supported versions

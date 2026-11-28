@@ -1,4 +1,13 @@
-import { Array as Arr, Effect, Option, Predicate, Schema, String as Str, pipe } from "effect";
+import {
+  Array as Arr,
+  Effect,
+  Option,
+  Predicate,
+  Record as Rec,
+  Schema,
+  String as Str,
+  pipe,
+} from "effect";
 import { resolveConfigFromFile } from "vite-plus";
 
 import { MANIFEST_FILE } from "#/entities/package/index.ts";
@@ -7,6 +16,9 @@ import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
 
 const RULE: RuleName = "pack-publint";
+const PREPUBLISH_RULE: RuleName = "prepublish-script";
+const PREPUBLISH_SCRIPT = "prepublishOnly";
+const PREPUBLISH_COMMAND = "vp exec msch-publish prepublish .";
 const CONFIG_FILE = "vite.config.ts";
 const PACK_KEY = "pack:";
 const START = 0;
@@ -19,6 +31,7 @@ const EXCLUDED: readonly string[] = [
 const Manifest = Schema.Struct({
   private: Schema.optional(Schema.Boolean),
   publishConfig: Schema.optional(Schema.Unknown),
+  scripts: Schema.optional(Schema.Record(Schema.String, Schema.String)),
 });
 const decodeManifest = Schema.decodeUnknownOption(Schema.fromJsonString(Manifest));
 
@@ -53,8 +66,32 @@ const problemFor = (file: string, source: string): Problem => ({
     "This package is published, so its pack must run publint with `publint: { strict: true }`. Without it, publishConfig can point at files vp pack never writes, and the published package fails to import.",
 });
 
-const isPublishedManifest = (source: Option.Option<string>): boolean =>
-  pipe(source, Option.flatMap(decodeManifest), Option.exists(isPublished));
+const publishedManifest = (source: Option.Option<string>): Option.Option<typeof Manifest.Type> =>
+  pipe(source, Option.flatMap(decodeManifest), Option.filter(isPublished));
+
+const prepublishProblems = (
+  file: string,
+  source: string,
+  manifest: typeof Manifest.Type,
+): readonly Problem[] => {
+  const declared = pipe(
+    Option.fromUndefinedOr(manifest.scripts),
+    Option.flatMap(Rec.get(PREPUBLISH_SCRIPT)),
+  );
+  if (Option.contains(declared, PREPUBLISH_COMMAND)) {
+    return [];
+  }
+  return [
+    {
+      file,
+      ...positionOf(source)(
+        Option.getOrElse(Str.indexOf(`"${PREPUBLISH_SCRIPT}"`)(source), () => START),
+      ),
+      rule: PREPUBLISH_RULE,
+      message: `This package is published, so its ${PREPUBLISH_SCRIPT} script must be exactly \`${PREPUBLISH_COMMAND}\`. That one command refuses npm publish, which leaves catalog: in dependencies, and builds the package. Writing the guard in each package leaves some packages without it.`,
+    },
+  ];
+};
 
 const strictPublintIn = Effect.fn("strictPublintIn")(function* strictPublintIn(configFile: string) {
   const config = yield* Effect.tryPromise({
@@ -82,11 +119,14 @@ const problemsIn = Effect.fn("problemsIn")(function* problemsIn(
   manifestName: string,
 ) {
   const files = yield* RepositoryFiles;
-  const manifest = yield* files.readFile(files.join(root, manifestName));
-  if (!isPublishedManifest(manifest)) {
+  const manifestFile = files.join(root, manifestName);
+  const source = yield* files.readFile(manifestFile);
+  const manifest = publishedManifest(source);
+  if (Option.isNone(manifest) || Option.isNone(source)) {
     return [];
   }
-  return yield* configProblems(files.join(root, files.dirname(manifestName), CONFIG_FILE));
+  const config = yield* configProblems(files.join(root, files.dirname(manifestName), CONFIG_FILE));
+  return [...prepublishProblems(manifestFile, source.value, manifest.value), ...config];
 });
 
 /** @internal */
