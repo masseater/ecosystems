@@ -1,4 +1,4 @@
-import { Array as Arr, Option, pipe, Record as Rec, String as Str } from "effect";
+import { Array as Arr, Function as Fn, Option, pipe, Record as Rec, String as Str } from "effect";
 
 import { routeOf } from "#/entities/book/index.ts";
 import type { Book, Skill } from "#/entities/book/index.ts";
@@ -8,6 +8,8 @@ type Target = readonly [string, string];
 
 const LEADING_SLASH = /^\//u;
 const ORIGIN = "https://intent-book.invalid/";
+const SKILLS_ROOT = "skills/";
+const GITHUB = "https://github.com/";
 const SKILL_FILE = "SKILL.md";
 
 export const withBase =
@@ -41,15 +43,39 @@ const targetsOf =
     return Arr.prepend(referenced, own);
   };
 
+const pageTarget = (targets: Readonly<Record<string, string>>, url: URL): Option.Option<string> =>
+  pipe(
+    fileOf(url.pathname),
+    Option.liftPredicate(Str.startsWith(SKILLS_ROOT)),
+    Option.map(Str.slice(SKILLS_ROOT.length)),
+    Option.flatMap((file) => Rec.get(targets, file)),
+    Option.map((target) => `${target}${url.hash}`),
+  );
+
+const repositoryFile = (book: Book, url: URL): Option.Option<string> =>
+  pipe(
+    book.repository,
+    Option.filter(Str.startsWith(GITHUB)),
+    Option.map((repository) => {
+      const directory = pipe(
+        book.directory,
+        Option.map((value) => `/${value}`),
+        Option.getOrElse(Fn.constant("")),
+      );
+      return `${repository}/blob/HEAD${directory}${url.pathname}${url.hash}`;
+    }),
+  );
+
 const resolveAgainst =
-  (targets: Readonly<Record<string, string>>, document: string): LinkResolver =>
+  (input: { readonly book: Book; readonly targets: Readonly<Record<string, string>> }) =>
+  (document: string): LinkResolver =>
   (href) =>
     pipe(
-      Option.liftThrowable(() => new URL(href, `${ORIGIN}${document}`))(),
+      Option.liftThrowable(() => new URL(href, `${ORIGIN}${SKILLS_ROOT}${document}`))(),
       Option.flatMap((url) =>
         pipe(
-          Rec.get(targets, fileOf(url.pathname)),
-          Option.map((target) => `${target}${url.hash}`),
+          pageTarget(input.targets, url),
+          Option.orElse(() => repositoryFile(input.book, url)),
         ),
       ),
     );
@@ -64,5 +90,5 @@ export const linkResolver = (input: {
     Arr.flatMap(targetsOf(input.slug, input.base)),
     Rec.fromEntries,
   );
-  return (document) => resolveAgainst(targets, document);
+  return resolveAgainst({ book: input.book, targets });
 };

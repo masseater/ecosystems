@@ -90,7 +90,43 @@ const failsOnMalformedSkill = Effect.gen(function* failsOnMalformedSkill() {
   expect(failure).toMatchObject({ skill: "bad" });
 }).pipe(Effect.scoped);
 
+const writeMarkdownSkills = Effect.fn("writeMarkdownSkills")(function* writeMarkdownSkills(
+  root: string,
+) {
+  yield* writeManifest(root, {
+    repository: { type: "git", url: "git+https://github.com/o/r.git", directory: "packages/pkg" },
+  });
+  yield* write(root, "skills/alpha/SKILL.md", skillText("alpha"));
+  yield* write(root, "skills/alpha/notes.md", "# Notes\n");
+  yield* write(root, "skills/alpha/scripts/guide.md", "# Guide\n");
+  yield* write(root, "skills/alpha/scripts/run.sh", "echo\n");
+  yield* write(root, "skills/alpha/inner/SKILL.md", skillText("inner"));
+  yield* write(root, "skills/alpha/inner/own.md", "# Own\n");
+  yield* write(root, "skills/_artifacts/skill_spec.md", "# Spec\n");
+});
+
+const readsEveryMarkdownOfASkill = Effect.gen(function* readsEveryMarkdownOfASkill() {
+  const root = yield* tempRoot;
+  yield* writeMarkdownSkills(root);
+  const book = yield* readBook(root);
+  const filesOf = (name: string): readonly string[] =>
+    pipe(
+      book.skills,
+      Arr.filter((skill) => skill.name === name),
+      Arr.flatMap((skill) => skill.references),
+      Arr.map((reference) => reference.file),
+    );
+  expect(namesOf(book)).toStrictEqual(["alpha", "alpha/inner"]);
+  expect(filesOf("alpha")).toStrictEqual(["notes.md", "scripts/guide.md"]);
+  expect(filesOf("alpha/inner")).toStrictEqual(["own.md"]);
+  expect(book.directory).toStrictEqual(Option.some("packages/pkg"));
+}).pipe(Effect.scoped);
+
 layer(nodeServices)("readBook", (it) => {
+  it.effect(
+    "reads every Markdown file of a skill except nested skills and _artifacts",
+    () => readsEveryMarkdownOfASkill,
+  );
   it.effect("reads a package, its skills, nested skills and references", () => readsNestedSkills);
   it.effect("accepts a repository written as a shorthand", () => readsShorthand);
   it.effect("fails when the package ships no skills", () => failsWithoutSkills);
