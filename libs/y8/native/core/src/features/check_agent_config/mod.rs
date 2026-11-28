@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use agnix_core::{DiagnosticLevel, LintConfig, ValidatorRegistry, validate_content};
+use agnix_core::{Diagnostic, DiagnosticLevel, LintConfig, ValidatorRegistry, validate_content};
 use serde::Serialize;
 use tracing::info_span;
 
@@ -21,6 +21,22 @@ pub enum AgentLevel {
     Error,
     Warning,
     Info,
+}
+
+const BROKEN_LINK_RULE: &str = "REF-002";
+const BROKEN_LINK_PREFIX: &str = "Broken markdown link: '";
+const SOURCE_POINTER_SCHEMES: [&str; 2] = ["github:", "npm:"];
+
+fn points_at_source(diagnostic: &Diagnostic) -> bool {
+    diagnostic.rule == BROKEN_LINK_RULE
+        && diagnostic
+            .message
+            .strip_prefix(BROKEN_LINK_PREFIX)
+            .is_some_and(|link| {
+                SOURCE_POINTER_SCHEMES
+                    .iter()
+                    .any(|scheme| link.starts_with(scheme))
+            })
 }
 
 pub struct AgentChecker {
@@ -51,6 +67,7 @@ impl AgentChecker {
         let absolute = self.root.join(Path::new(path));
         validate_content(&absolute, text, &self.config, &self.registry)
             .into_iter()
+            .filter(|diagnostic| !points_at_source(diagnostic))
             .map(|diagnostic| AgentDiagnostic {
                 line: diagnostic.line.max(1),
                 column: diagnostic.column.max(1),
@@ -64,5 +81,41 @@ impl AgentChecker {
                 },
             })
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::PathBuf;
+
+    use super::AgentChecker;
+
+    fn broken_links(text: &str) -> Vec<String> {
+        let checker = AgentChecker::new(PathBuf::from(env!("CARGO_MANIFEST_DIR")), &[])
+            .expect("the checker builds");
+        checker
+            .check("AGENTS.md", text)
+            .into_iter()
+            .filter(|diagnostic| diagnostic.rule == "REF-002")
+            .map(|diagnostic| diagnostic.message)
+            .collect()
+    }
+
+    #[test]
+    fn a_link_to_a_missing_file_is_broken() {
+        assert_eq!(broken_links("[a](missing.md)\n").len(), 1);
+    }
+
+    #[test]
+    fn a_github_pointer_is_not_a_file() {
+        assert_eq!(
+            broken_links("[a](github:masseater/ecosystems/libs/msch)\n").len(),
+            0
+        );
+    }
+
+    #[test]
+    fn an_npm_pointer_is_not_a_file() {
+        assert_eq!(broken_links("[a](npm:effect)\n").len(), 0);
     }
 }
