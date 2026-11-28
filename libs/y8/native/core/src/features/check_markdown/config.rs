@@ -5,6 +5,7 @@ use regex::Regex;
 use serde::Serialize;
 use serde_json::{Map, Value};
 
+use crate::features::check_markdown::ranges::Ranges;
 use crate::features::check_markdown::rule::Rule;
 use crate::shared::source::Source;
 
@@ -114,18 +115,22 @@ fn setting_of(value: &Value) -> Setting {
 }
 
 static INLINE: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?i)(<!--\s*(?:markdownlint|y8)-(disable-next-line|disable-line|disable-file|enable-file|configure-file|disable|enable|capture|restore))(?:\s|-->)")
+    Regex::new(r"(?i)(<!--\s*(markdownlint|y8)-(disable-next-line|disable-line|disable-file|enable-file|configure-file|disable|enable|capture|restore))(?:\s|-->)")
         .expect("inline pattern")
 });
 
-struct Directive {
-    action: String,
-    parameter: String,
-    line: usize,
+pub struct Directive {
+    pub action: String,
+    pub parameter: String,
+    pub line: usize,
+    pub y8: bool,
+    pub start: usize,
+    pub end: usize,
 }
 
-fn directives(text: &str, line_offset: usize) -> Vec<Directive> {
+pub fn directives(text: &str, line_offset: usize) -> Vec<Directive> {
     let mut found = Vec::new();
+    let mut line_start = 0;
     for (index, line) in text.split('\n').enumerate() {
         let mut at = 0;
         while let Some(caps) = INLINE.captures_at(line, at) {
@@ -135,12 +140,16 @@ fn directives(text: &str, line_offset: usize) -> Vec<Directive> {
                 break;
             };
             found.push(Directive {
-                action: caps[2].to_uppercase(),
+                action: caps[3].to_uppercase(),
                 parameter: line[start..start + end].to_owned(),
                 line: index + line_offset,
+                y8: caps[2].eq_ignore_ascii_case("y8"),
+                start: line_start + whole.start(),
+                end: line_start + start + end + "-->".len(),
             });
             at = caps.get(0).expect("match").end();
         }
+        line_start += line.len() + 1;
     }
     found
 }
@@ -149,6 +158,7 @@ pub struct Plan {
     pub settings: Vec<Setting>,
     pub states: Vec<Vec<bool>>,
     pub line_state: Vec<u32>,
+    pub ranges: Ranges,
 }
 
 impl Plan {
@@ -189,8 +199,10 @@ pub fn plan(
     base: &Map<String, Value>,
     inline: bool,
 ) -> Plan {
-    let has_directives =
-        inline && source.text.contains("<!--") && contains_ignore_case(&source.text, "lint-");
+    let has_directives = inline
+        && source.text.contains("<!--")
+        && (contains_ignore_case(&source.text, "lint-")
+            || contains_ignore_case(&source.text, "y8-"));
     let all = if has_directives {
         directives(&source.text, 0)
     } else {
@@ -228,7 +240,7 @@ pub fn plan(
                     enabled.clone_from(&captured);
                     changed = true;
                 }
-                "ENABLE" | "DISABLE" => {
+                "ENABLE" | "DISABLE" if !directive.y8 => {
                     enabled = apply(&enabled, &directive.action, &directive.parameter, names);
                     changed = true;
                 }
@@ -242,7 +254,7 @@ pub fn plan(
         }
         *slot = current;
     }
-    for directive in &all {
+    for directive in all.iter().filter(|d| !d.y8) {
         let target = match directive.action.as_str() {
             "DISABLE-LINE" => directive.line,
             "DISABLE-NEXT-LINE" => directive.line + 1,
@@ -259,10 +271,12 @@ pub fn plan(
             line_state[target] = u32::try_from(states.len() - 1).unwrap_or(u32::MAX);
         }
     }
+    let ranges = Ranges::build(source, &all, names, rule_count);
     Plan {
         settings,
         states,
         line_state,
+        ranges,
     }
 }
 

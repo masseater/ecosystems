@@ -44,12 +44,20 @@ const severityOf = (diagnostic: NativeDiagnostic): Diagnostic["severity"] =>
     Match.orElse((): Diagnostic["severity"] => "error"),
   );
 
+const UNUSED_DIRECTIVE = "y8-unused-directive";
+
+const ruleIdOf = (name: string): string =>
+  Match.value(name).pipe(
+    Match.when(UNUSED_DIRECTIVE, () => "y8/unused-directive"),
+    Match.orElse((other) => `${BUILTIN}/${other}`),
+  );
+
 const fromNative =
   (path: string) =>
   (diagnostic: NativeDiagnostic): Diagnostic => ({
     path,
     line: diagnostic.line,
-    rule: `${BUILTIN}/${Option.getOrElse(Arr.head(diagnostic.ruleNames), () => "")}`,
+    rule: ruleIdOf(Option.getOrElse(Arr.head(diagnostic.ruleNames), () => "")),
     message: diagnostic.description,
     severity: severityOf(diagnostic),
     ...rangeOf(diagnostic),
@@ -69,6 +77,7 @@ const nativeOptions = (
     Effect.map((parent): NativeOptions => ({
       config: resolved.core,
       inlineConfig: config.inlineConfig ?? true,
+      reportUnusedDirectives: config.reportUnusedDirectives ?? false,
       keepTree: Arr.isReadonlyArrayNonEmpty(resolved.scripts),
       keepSource: needsText(resolved),
       ...present(parent, (value) => ({ traceparent: value })),

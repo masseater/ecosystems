@@ -84,8 +84,19 @@ name, such as `legacy/no-here`.
 
 ## Inline comments
 
-markdownlint's comments work, and `y8-` works in place of `markdownlint-`, as in
-`<!-- y8-disable-next-line MD033 -->`. Turn them off with `inlineConfig: false`.
+markdownlint's comments work and stop a rule for whole lines. `y8-` comments work in place of
+`markdownlint-`, as in `<!-- y8-disable-next-line MD033 -->`. Turn them off with
+`inlineConfig: false`.
+
+`<!-- y8-disable MD033 -->` and `<!-- y8-enable MD033 -->` stop a rule by character range, not by
+line: only a finding that starts between the two comments is hidden, so the comments can sit
+inside a paragraph and the text around them is still checked. Without `y8-enable` the range runs
+to the end of the file. A finding that carries no column counts as starting at the beginning of
+its line. `y8-disable-line` and `y8-disable-next-line` stop the whole line.
+
+Set `reportUnusedDirectives: true` to get a `y8/unused-directive` finding for each `y8-` comment
+that stops nothing, so a comment is removed once the text it protected is fixed. These checks cover
+the markdownlint-compatible built-in rules; rules written in TypeScript ignore inline comments.
 
 ## Japanese tokens
 

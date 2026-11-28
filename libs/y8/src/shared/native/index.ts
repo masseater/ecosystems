@@ -76,6 +76,7 @@ export interface NativeResult {
 export interface NativeOptions {
   readonly config?: Readonly<Record<string, unknown>>;
   readonly inlineConfig?: boolean;
+  readonly reportUnusedDirectives?: boolean;
   readonly keepTree?: boolean;
   readonly keepSource?: boolean;
   readonly traceparent?: string;

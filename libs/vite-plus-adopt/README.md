@@ -42,6 +42,7 @@ export default defineConfig({
 
 `import type {} from "@r_masseater/vite-plus-adopt"` types the keys vpa reads (`commitlint`, `dependencyRules`, `fallow`, `h56m`, `skills`, `textlint` and `tools`) on `defineConfig`.
 textlint checks the Markdown files Git tracks. To check other files too, list their globs (`files`) and the settings for them in `textlint.sources`. `presets` work there as well.
+`filterModules` takes textlint filter rules as modules, such as `{ comments: commentsFilter }`, and `filters: { comments: true }` turns one on, so the repository does not have to install them for textlint to find them. With `reportUnusedDirectives: true`, a `textlint-disable` comment that hides no message is an error. The check lints a file with a disable comment a second time without the filters.
 
 Write the Git hooks like this.
 

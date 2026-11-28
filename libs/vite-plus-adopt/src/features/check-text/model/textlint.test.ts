@@ -4,6 +4,7 @@ import { assertFalse, assertTrue } from "@effect/vitest/utils";
 import { Effect, String as Str } from "effect";
 
 import type { TextlintPreset } from "#/shared/config/index.test.support.ts";
+import type { TextlintConfig } from "#/shared/config/index.ts";
 import { NO_FOO_RULE, directoryWith, lines } from "#/shared/lib/fixture.test.support.ts";
 import { toJson } from "#/shared/lib/json.ts";
 
@@ -96,7 +97,54 @@ const turnsOffPresetRules = Effect.gen(function* turnsOffPresetRules() {
   assertTrue((yield* lintTexts(config, root, ["baz.md"])).valid);
 });
 
+const DOCUMENT_START = 0;
+
+const ignoreMarked: NonNullable<TextlintConfig["filterModules"]>[string] = (context) => ({
+  [`${context.Syntax.Document}:exit`](): void {
+    const text = context.getSource();
+    if (Str.includes("IGNORE-FOO")(text)) {
+      context.shouldIgnore([DOCUMENT_START, text.length], { ruleId: "no-foo" });
+    }
+  },
+});
+
+const FILTER_FILES = {
+  ...FILES,
+  "marked.md": "# Marked\n\nIGNORE-FOO This line says foo.\n",
+  "stale.md": "# Stale\n\nIGNORE-FOO Nothing to hide.\n",
+};
+
+const FILTERED = {
+  rules: { "no-foo": true },
+  filterModules: { marked: ignoreMarked },
+  filters: { marked: true },
+};
+
+const appliesGivenFilters = Effect.gen(function* appliesGivenFilters() {
+  const root = yield* directoryWith(FILTER_FILES);
+  const report = yield* lintTexts(FILTERED, root, ["marked.md", "dirty.md"]);
+  assertFalse(report.valid);
+  assertTrue(Str.includes("dirty.md")(report.output));
+  assertFalse(Str.includes("marked.md")(report.output));
+});
+
+const reportsUnusedDirectives = Effect.gen(function* reportsUnusedDirectives() {
+  const root = yield* directoryWith(FILTER_FILES);
+  const quiet = yield* lintTexts(FILTERED, root, ["marked.md", "stale.md"]);
+  assertTrue(quiet.valid);
+  const report = yield* lintTexts({ ...FILTERED, reportUnusedDirectives: true }, root, [
+    "marked.md",
+    "stale.md",
+  ]);
+  assertFalse(report.valid);
+  assertTrue(Str.includes("stale.md")(report.output));
+  assertTrue(Str.includes("hides no message of no-foo")(report.output));
+  assertFalse(Str.includes("marked.md")(report.output));
+});
+
 layer(fixtureLayer)("linting text", (it) => {
+  it.effect("runs the filters given as modules", () => appliesGivenFilters);
+  it.effect("reports a directive that hides no message", () => reportsUnusedDirectives);
   it.effect("runs the rules of presets given as modules", () => runsGivenPresets);
   it.effect("skips preset rules turned off in the config", () => turnsOffPresetRules);
   it.effect("runs the rules named in the config over Markdown files", () => reportsBrokenRules);
