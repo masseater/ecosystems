@@ -23,6 +23,7 @@
     "msch-changed": "./bin/msch-changed.ts",
     "msch-exits": "./bin/msch-exits.ts",
     "msch-publish": "./bin/msch-publish.ts",
+    "msch-published": "./bin/msch-published.ts",
     "msch-refs": "./bin/msch-refs.ts",
     "msch-wake": "./bin/msch-wake.ts"
   },
@@ -62,6 +63,7 @@
       "msch-changed": "./dist/changed.mjs",
       "msch-exits": "./dist/exits.mjs",
       "msch-publish": "./dist/publish.mjs",
+      "msch-published": "./dist/published.mjs",
       "msch-refs": "./dist/refs.mjs",
       "msch-wake": "./dist/wake.mjs"
     },

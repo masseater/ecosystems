@@ -11,6 +11,7 @@ import {
 } from "#/features/check-skills/index.ts";
 import {
   checkDowngrades,
+  checkPackageVersions,
   checkRenovateSettings,
 } from "#/features/check-version-downgrades/index.ts";
 import { checkHiddenUnicode } from "#/features/find-invisible-characters/index.ts";
@@ -41,6 +42,7 @@ export const checkTrackedText = Effect.fn("checkTrackedText")(function* checkTra
       checkAppliedPackages(root),
       checkGitSubpath(root),
       checkDowngrades(root),
+      checkPackageVersions(root),
       checkRenovateSettings(root),
       checkCatalogEntries(root),
       checkPackageRegistry(root),

@@ -1,6 +1,7 @@
-import { Array as Arr, Config, Effect, Option, Record as Rec, String as Str, pipe } from "effect";
+import { Array as Arr, Effect, Option, Record as Rec, String as Str, pipe } from "effect";
 import semver from "semver";
 
+import { baseRevision } from "#/shared/lib/base-revision.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
@@ -13,7 +14,6 @@ import {
 import type { VersionEntry } from "./version-entries.ts";
 
 const RULE: RuleName = "version-downgrade";
-const DEFAULT_BASE = "origin/main";
 const READ_CONCURRENCY = 16;
 
 const READERS: readonly (readonly [RegExp, (text: string) => readonly VersionEntry[]])[] = [
@@ -83,13 +83,6 @@ const downgradesIn = ({ file, text, before, after }: Compared): readonly Problem
     ),
   );
 };
-
-const baseRevision = Effect.fn("baseRevision")(function* baseRevision(root: string) {
-  const files = yield* RepositoryFiles;
-  const configured = yield* Config.option(Config.String("VPA_BASE")).pipe(Effect.orDie);
-  const base = Option.getOrElse(configured, () => DEFAULT_BASE);
-  return yield* files.mergeBase(root, base);
-});
 
 /** @internal */
 export const checkDowngrades = Effect.fn("checkDowngrades")(function* checkDowngrades(

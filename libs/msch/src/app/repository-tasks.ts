@@ -87,6 +87,7 @@ export const tasksOf = ({
     },
     msch: { command: "msch", dependsOn: ["check", ...workspace.tasks.native], cache: false },
     audit: { command: AUDIT, cache: false },
+    published: { command: "msch-published", cache: false },
     ...commands,
   };
   return {

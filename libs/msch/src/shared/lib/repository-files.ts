@@ -54,6 +54,7 @@ export class RepositoryFiles extends Context.Service<
     readonly linkedFiles: (root: string) => Effect.Effect<readonly string[]>;
     readonly readLink: (file: string) => Effect.Effect<Option.Option<string>>;
     readonly mergeBase: (root: string, revision: string) => Effect.Effect<Option.Option<string>>;
+    readonly changedFiles: (root: string, revision: string) => Effect.Effect<readonly string[]>;
     readonly readAtRevision: (
       root: string,
       revision: string,
@@ -185,6 +186,8 @@ export const nodeRepositoryFiles = Layer.effect(
           Effect.map(Option.map(Str.trim)),
           Effect.map(Option.filter(Str.isNonEmpty)),
         ),
+      changedFiles: (root, revision) =>
+        gitPaths(root, ["diff", "--name-only", "--no-renames", "-z", revision], "\0"),
       readAtRevision: (root, revision, name) => gitText(root, ["show", `${revision}:${name}`]),
       matchingFiles: (root, pathspecs) => gitFiles(root, [...LISTED_ARGS, "--", ...pathspecs]),
       trackedFiles: (root, pathspecs) => gitFiles(root, [...TRACKED_ARGS, "--", ...pathspecs]),
