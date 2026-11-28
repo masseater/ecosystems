@@ -1,6 +1,5 @@
 import {
   Array as Arr,
-  Boolean as Bool,
   Effect,
   FileSystem,
   Match,
@@ -26,7 +25,10 @@ export class BookReadError extends taggedError<BookReadError, { readonly brand: 
   },
 ) {}
 
-const RepositoryObject = Schema.Struct({ url: Schema.String });
+const RepositoryObject = Schema.Struct({
+  url: Schema.String,
+  directory: Schema.optionalKey(Schema.String),
+});
 const Repository = Schema.Union([Schema.String, RepositoryObject]);
 
 const PackageJson = Schema.Struct({
@@ -45,7 +47,6 @@ const decodePackageJson = Schema.decodeUnknownEffect(PackageJsonText);
 const SKILLS_DIRECTORY = "skills";
 const SKILL_FILE = "SKILL.md";
 const MANIFEST_FILE = "package.json";
-const REFERENCES_DIRECTORY = "references";
 const MARKDOWN = ".md";
 const ROOT_ENTRY = ".";
 const GIT_PREFIX = /^git\+/u;
@@ -76,30 +77,48 @@ const repositoryText = (repository: NonNullable<Manifest["repository"]>): string
     Match.orElse((described) => described.url),
   );
 
+const repositoryDirectory = (
+  repository: NonNullable<Manifest["repository"]>,
+): Option.Option<string> =>
+  Match.value(repository).pipe(
+    Match.when(Predicate.isString, () => Option.none<string>()),
+    Match.orElse((described) => Option.fromNullishOr(described.directory)),
+  );
+
 const sortedNames = (names: readonly string[]): readonly string[] =>
   pipe(names, Arr.sortBy(Str.Order));
 
-const readReferences = Effect.fn("readReferences")(function* readReferences(
-  skillDirectory: string,
-) {
+const nestedDirectories = (name: string, names: readonly string[]): readonly string[] => {
+  const prefix = `${name}/`;
+  return pipe(names, Arr.filter(Str.startsWith(prefix)), Arr.map(Str.slice(prefix.length)));
+};
+
+const isReference =
+  (nested: readonly string[]) =>
+  (entry: string): boolean =>
+    Str.endsWith(MARKDOWN)(entry) &&
+    entry !== SKILL_FILE &&
+    !pipe(
+      nested,
+      Arr.some((directory) => Str.startsWith(`${directory}/`)(entry)),
+    );
+
+const readReferences = Effect.fn("readReferences")(function* readReferences(input: {
+  readonly skillDirectory: string;
+  readonly name: string;
+  readonly names: readonly string[];
+}) {
   const fileSystem = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const directory = path.join(skillDirectory, REFERENCES_DIRECTORY);
-  const entries: readonly string[] = yield* fileSystem.exists(directory).pipe(
-    Effect.flatMap(
-      Bool.match({
-        onTrue: () => fileSystem.readDirectory(directory, { recursive: true }),
-        onFalse: () => Effect.succeed([]),
-      }),
-    ),
-  );
-  const files = pipe(entries, Arr.filter(Str.endsWith(MARKDOWN)), sortedNames);
+  const entries = yield* fileSystem.readDirectory(input.skillDirectory, { recursive: true });
+  const nested = nestedDirectories(input.name, input.names);
+  const files = pipe(entries, Arr.filter(isReference(nested)), sortedNames);
   return yield* Effect.forEach(
     files,
     (file) =>
       fileSystem
-        .readFileString(path.join(directory, file))
-        .pipe(Effect.map((text): Reference => ({ file: `${REFERENCES_DIRECTORY}/${file}`, text }))),
+        .readFileString(path.join(input.skillDirectory, file))
+        .pipe(Effect.map((text): Reference => ({ file, text }))),
     { concurrency: FILE_CONCURRENCY },
   );
 });
@@ -130,15 +149,17 @@ const skillNames = Effect.fn("skillNames")(function* skillNames(skillsDirectory:
   );
 });
 
-const readSkill = Effect.fn("readSkill")(function* readSkill(
-  skillsDirectory: string,
-  name: string,
-) {
+const readSkill = Effect.fn("readSkill")(function* readSkill(input: {
+  readonly skillsDirectory: string;
+  readonly name: string;
+  readonly names: readonly string[];
+}) {
+  const { name, names, skillsDirectory } = input;
   const fileSystem = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const skillDirectory = path.join(skillsDirectory, name);
   const text = yield* fileSystem.readFileString(path.join(skillDirectory, SKILL_FILE));
-  const references = yield* readReferences(skillDirectory);
+  const references = yield* readReferences({ skillDirectory, name, names });
   return yield* parseSkill({ name, text, references });
 });
 
@@ -151,7 +172,7 @@ const readSkills = Effect.fn("readSkills")(function* readSkills(directory: strin
   );
   const skills: readonly Skill[] = yield* Effect.forEach(
     names,
-    (name) => readSkill(skillsDirectory, name),
+    (name) => readSkill({ skillsDirectory, name, names }),
     { concurrency: FILE_CONCURRENCY },
   );
   return skills;
@@ -170,6 +191,7 @@ export const readBook = Effect.fn("readBook")(function* readBook(directory: stri
       Option.map(repositoryText),
       Option.map(repositoryUrl),
     ),
+    directory: pipe(Option.fromNullishOr(manifest.repository), Option.flatMap(repositoryDirectory)),
     homepage: Option.fromNullishOr(manifest.homepage),
     skills,
   };

@@ -15,6 +15,7 @@ export interface Book {
   readonly version: string;
   readonly description: string;
   readonly repository: Option.Option<string>;
+  readonly directory: Option.Option<string>;
   readonly homepage: Option.Option<string>;
   readonly skills: readonly Skill[];
 }

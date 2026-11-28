@@ -183,3 +183,20 @@ it.effect("sends the root to the book when there is only one", () =>
     expect(select(refresh, tree)).toBeDefined();
   }),
 );
+
+it.effect(
+  "links files that are not pages to the same repository, under the package directory",
+  () =>
+    Effect.gen(function* repositoryFiles() {
+      const files = yield* build();
+      const tree = page(files)(AUTH_PAGE);
+      const root = "https://github.com/trpc/trpc/blob/HEAD/packages/server";
+      expect(hrefsOf(tree)("main .prose a")).toStrictEqual([
+        "/@trpc/server/server-setup/",
+        "/@trpc/server/auth/references/client-cors/#headers",
+        `${root}/skills/auth/scripts/check.sh`,
+        `${root}/skills/_artifacts/skill_spec.md#why`,
+        `${root}/README.md`,
+      ]);
+    }),
+);
