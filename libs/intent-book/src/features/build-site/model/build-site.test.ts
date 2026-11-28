@@ -208,3 +208,14 @@ it.effect("leaves out the landing page when the site lives inside another site",
     expect(pathsOf(files)).toContain("@trpc/server/index.html");
   }),
 );
+
+it.effect(
+  "titles a package page with its name once and a skill page with the skill and the package",
+  () =>
+    Effect.gen(function* titles() {
+      const files = yield* build();
+      const titleOf = (path: string): string => textOf(select("title", page(files)(path)));
+      expect(titleOf("@trpc/server/index.html")).toBe("@trpc/server");
+      expect(titleOf(AUTH_PAGE)).toBe("Authorization · @trpc/server");
+    }),
+);
