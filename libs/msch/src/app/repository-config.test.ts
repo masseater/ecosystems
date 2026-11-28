@@ -130,7 +130,16 @@ describe("repositoryConfig", () => {
         tasks: {
           verify: {
             command: [],
-            dependsOn: ["web#verify", "fallow", "check", "test", "msch", "audit", "db-check-all"],
+            dependsOn: [
+              "web#verify",
+              "fallow",
+              "check",
+              "test",
+              "msch",
+              "audit",
+              "published",
+              "db-check-all",
+            ],
           },
         },
       },
