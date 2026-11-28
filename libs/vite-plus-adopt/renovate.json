@@ -9,6 +9,22 @@
       ],
       "datasourceTemplate": "git-refs",
       "packageNameTemplate": "https://github.com/{{{depName}}}"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)vite\\.config\\.ts$/"],
+      "matchStrings": [
+        "\"(?<depName>[\\w.-]+/[\\w.-]+)\": \\{\\s*version: \"(?<currentValue>[0-9][^\"]*)\""
+      ],
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^v?(?<version>.+)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/(^|/)vite\\.config\\.ts$/"],
+      "matchStrings": ["\\bdotnet: \\{\\s*version: \"(?<currentValue>[0-9][^\"]*)\""],
+      "datasourceTemplate": "dotnet-version",
+      "depNameTemplate": "dotnet-sdk"
     }
   ],
   "packageRules": [

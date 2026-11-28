@@ -1,9 +1,10 @@
 import { isInside, below } from "@masseater.dev/path-kit";
-import { Array as Arr, Effect, Exit, FileSystem, Option, Path, String as Str, pipe } from "effect";
+import { Array as Arr, Effect, FileSystem, Option, Path, String as Str, pipe } from "effect";
 import type { PlatformError } from "effect";
 
 import type { VpToolsError } from "#/shared/lib/errors.ts";
 import { toJson } from "#/shared/lib/json.ts";
+import { placeAtomically } from "#/shared/lib/place.ts";
 import type { TarEntry } from "#/shared/lib/tar-gz.ts";
 
 import { SEPARATOR } from "./archive.ts";
@@ -30,35 +31,6 @@ const modeOf = (mode: number): number => {
   }
   return READ_ONLY;
 };
-
-const renameOrKeep = (
-  staging: string,
-  target: string,
-): Effect.Effect<void, PlatformError.PlatformError, FileServices> =>
-  Effect.gen(function* renameOrKeepPlaced() {
-    const fs = yield* FileSystem.FileSystem;
-    const renamed = yield* Effect.exit(fs.rename(staging, target));
-    if (Exit.isSuccess(renamed) || !(yield* fs.exists(target))) {
-      return yield* renamed;
-    }
-    return yield* fs.remove(staging, { recursive: true });
-  });
-
-const placeAtomically = <Failure>(
-  target: string,
-  write: (staging: string) => Effect.Effect<void, Failure, FileServices>,
-): Effect.Effect<void, Failure | PlatformError.PlatformError, FileServices> =>
-  Effect.gen(function* place() {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    yield* fs.makeDirectory(path.dirname(target), { recursive: true });
-    const staging = yield* fs.makeTempDirectory({
-      directory: path.dirname(target),
-      prefix: ".partial-",
-    });
-    yield* write(staging);
-    yield* renameOrKeep(staging, target);
-  });
 
 const writeEntry =
   (staging: string, skill: FoundSkill) =>
