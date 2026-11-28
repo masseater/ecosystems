@@ -1,0 +1,75 @@
+{
+  "name": "@r_masseater/kata",
+  "version": "0.1.0",
+  "description": "Draws infographics from a few lines of Typst: parts for the six kinds of element, flows, a hero number and bars, laid out automatically in light and dark.",
+  "keywords": [
+    "diagram",
+    "infographic",
+    "tanstack-intent",
+    "typst"
+  ],
+  "homepage": "https://github.com/masseater/ecosystems/tree/main/libs/kata#readme",
+  "bugs": {
+    "url": "https://github.com/masseater/ecosystems/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/masseater/ecosystems.git",
+    "directory": "libs/kata"
+  },
+  "bin": {
+    "kata": "./bin/kata.ts"
+  },
+  "files": [
+    "LICENSE",
+    "dist",
+    "skills/draw-infographic",
+    "typ"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "exports": {
+    ".": "./src/app/index.ts",
+    "./package.json": "./package.json",
+    "./typ/*": "./typ/*"
+  },
+  "publishConfig": {
+    "bin": {
+      "kata": "./dist/cli.mjs"
+    },
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "./package.json": "./package.json",
+      "./typ/*": "./typ/*"
+    },
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "prepublishOnly": "vp exec msch-publish prepublish ."
+  },
+  "dependencies": {
+    "@effect/platform-node": "catalog:",
+    "@material-symbols/svg-400": "catalog:",
+    "@myriaddreamin/typst-ts-node-compiler": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:",
+    "effect": "catalog:stack",
+    "vite-plus": "catalog:stack"
+  },
+  "peerDependencies": {
+    "effect": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=26.13.1"
+  }
+}
