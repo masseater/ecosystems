@@ -22,11 +22,11 @@ import type { Specified } from "#/entities/package/index.ts";
 import { workspaceManifest } from "#/entities/workspace/index.ts";
 import { baseName } from "#/shared/lib/base-revision.ts";
 import { publicLookup, sent } from "#/shared/lib/lookup.ts";
+import { manifestTexts } from "#/shared/lib/manifest-texts.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
 const REGISTRY = "https://registry.npmjs.org/";
 const ABBREVIATED = "application/vnd.npm.install-v1+json";
-const MANIFEST = /(?:^|\/)package\.json$/u;
 const OWN_SCOPE = /^@(?:r_masseater|masseater\.dev)\//u;
 const WORKSPACE_PROTOCOL = "workspace:";
 const CATALOG_PROTOCOL = "catalog:";
@@ -196,15 +196,8 @@ export const missingVersions = Effect.fn("missingVersions")(function* missingVer
 ) {
   const files = yield* RepositoryFiles;
   const tip = yield* baseName;
-  const listed = yield* files.listedFiles(root);
-  const read = yield* Effect.forEach(
-    Arr.filter(listed, (name) => MANIFEST.test(name)),
-    (name) =>
-      Effect.map(files.readFile(files.join(root, name)), (text) =>
-        Option.flatMap(text, (found) => packageAt(name, found)),
-      ),
-    { concurrency: READ_CONCURRENCY },
-  );
+  const manifests = yield* manifestTexts(root);
+  const read = Arr.map(manifests, ({ file, text }) => packageAt(file, text));
   const packages = Arr.getSomes(read);
   const siblings = HashMap.fromIterable(
     pipe(

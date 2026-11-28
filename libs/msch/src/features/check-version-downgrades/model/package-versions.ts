@@ -2,11 +2,11 @@ import { Array as Arr, Effect, Option, Schema, String as Str, pipe } from "effec
 import semver from "semver";
 
 import { baseName, baseRevision } from "#/shared/lib/base-revision.ts";
+import { manifestTexts } from "#/shared/lib/manifest-texts.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
 const RULE: RuleName = "unbumped-package";
-const MANIFEST = /(?:^|\/)package\.json$/u;
 const UNSHIPPED =
   /(?:\.test\.[\w.]+$|(?:^|\/)(?:fixtures|__tests__|tests?)\/|(?:^|\/)(?:AGENTS|CLAUDE|CHANGELOG)\.md$)/u;
 const UNVERSIONED = "0.0.0";
@@ -86,14 +86,10 @@ export const checkPackageVersions = Effect.fn("checkPackageVersions")(
     }
     const tip = yield* baseName;
     const changed = yield* files.changedFiles(root, base.value);
-    const listed = yield* files.listedFiles(root);
-    const packages = yield* Effect.forEach(
-      Arr.filter(listed, (name) => MANIFEST.test(name)),
-      (name) =>
-        Effect.map(files.readFile(files.join(root, name)), (text) =>
-          Option.flatMap(text, (found) => packageAt(name, found)),
-        ),
-      { concurrency: READ_CONCURRENCY },
+    const manifests = yield* manifestTexts(root);
+    const packages = pipe(
+      manifests,
+      Arr.map(({ file, text }) => packageAt(file, text)),
     );
     const found = yield* Effect.forEach(
       pipe(
