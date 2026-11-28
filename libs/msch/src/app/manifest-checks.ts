@@ -3,8 +3,8 @@ import { Array as Arr, Effect } from "effect";
 import { checkEffectDiagnostics } from "#/features/check-effect-diagnostics/index.ts";
 import { checkExactVersions } from "#/features/check-exact-versions/index.ts";
 import { checkPackSettings } from "#/features/check-pack-settings/index.ts";
-import { checkPackageScope } from "#/features/check-package-scope/index.ts";
 import { checkPluginMarketplace } from "#/features/check-plugin-marketplace/index.ts";
+import { checkPublishedManifests } from "#/features/check-published-manifest/index.ts";
 import { checkNodeVersion } from "#/features/check-runtime-version/index.ts";
 import { checkUnusedWorkspaces } from "#/features/check-unused-workspaces/index.ts";
 import {
@@ -18,7 +18,7 @@ export const checkManifests = Effect.fn("checkManifests")(function* checkManifes
   const found = yield* Effect.all(
     [
       checkNodeVersion(root),
-      checkPackageScope(root),
+      checkPublishedManifests(root),
       checkPackSettings(root),
       checkUnusedWorkspaces(root),
       checkExactVersions(root),

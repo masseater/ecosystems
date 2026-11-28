@@ -1,7 +1,7 @@
-import { Array as Arr, Effect, Option, Predicate, Schema, String as Str, pipe } from "effect";
+import { Array as Arr, Effect, Option, Schema, String as Str, pipe } from "effect";
 import { resolveConfigFromFile } from "vite-plus";
 
-import { MANIFEST_FILE } from "#/entities/package/index.ts";
+import { MANIFEST_FILE, publishedManifestOf } from "#/entities/package/index.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
@@ -16,12 +16,6 @@ const EXCLUDED: readonly string[] = [
   ":(exclude,attr:linguist-generated)",
 ];
 
-const Manifest = Schema.Struct({
-  private: Schema.optional(Schema.Boolean),
-  publishConfig: Schema.optional(Schema.Unknown),
-});
-const decodeManifest = Schema.decodeUnknownOption(Schema.fromJsonString(Manifest));
-
 const StrictPack = Schema.Struct({ publint: Schema.Struct({ strict: Schema.Literal(true) }) });
 const isStrict = Schema.is(StrictPack);
 const PackConfig = Schema.Struct({ pack: Schema.optional(Schema.Unknown) });
@@ -33,9 +27,6 @@ class PackConfigUnreadable extends taggedError<
   PackConfigUnreadable,
   { readonly brand: unique symbol }
 >()("PackConfigUnreadable", { file: Schema.String }) {}
-
-const isPublished = (manifest: typeof Manifest.Type): boolean =>
-  manifest.private !== true && Predicate.isNotUndefined(manifest.publishConfig);
 
 const runsStrictPublint = (config: unknown): boolean =>
   pipe(
@@ -52,9 +43,6 @@ const problemFor = (file: string, source: string): Problem => ({
   message:
     "This package is published, so its pack must run publint with `publint: { strict: true }`. Without it, publishConfig can point at files vp pack never writes, and the published package fails to import.",
 });
-
-const publishedManifest = (source: Option.Option<string>): Option.Option<typeof Manifest.Type> =>
-  pipe(source, Option.flatMap(decodeManifest), Option.filter(isPublished));
 
 const strictPublintIn = Effect.fn("strictPublintIn")(function* strictPublintIn(configFile: string) {
   const config = yield* Effect.tryPromise({
@@ -83,7 +71,7 @@ const problemsIn = Effect.fn("problemsIn")(function* problemsIn(
 ) {
   const files = yield* RepositoryFiles;
   const source = yield* files.readFile(files.join(root, manifestName));
-  const manifest = publishedManifest(source);
+  const manifest = publishedManifestOf(source);
   if (Option.isNone(manifest)) {
     return [];
   }
