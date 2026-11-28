@@ -70,7 +70,10 @@ export const unresolvedReferences = Effect.fn("unresolvedReferences")(
     const files = yield* RepositoryFiles;
     const texts = yield* markdownTexts(root);
     const links = yield* linksIn(
-      Arr.map(texts, ({ file, source }) => ({ path: files.relative(root, file), text: source })),
+      pipe(
+        texts,
+        Arr.map(({ file, source }) => ({ path: files.relative(root, file), text: source })),
+      ),
     );
     const occurrences = occurrencesIn(links);
     const distinct = pipe(
