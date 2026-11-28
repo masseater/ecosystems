@@ -1,6 +1,6 @@
 # @r_masseater/vite-plus-adopt
 
-`vpa` is a CLI that brings secret scanning with h56m, commitlint, textlint, fallow and agent skill installation into Vite+. Write their settings and your dependency rules in `vite.config.ts`, and `vpa` reads them from there.
+`vpa` is a CLI that brings secret scanning with h56m, commitlint, textlint, fallow, agent skill installation and pinned command-line tools into Vite+. Write their settings and your dependency rules in `vite.config.ts`, and `vpa` reads them from there.
 Running `vpa` once with no arguments runs every configured check in parallel and prints the results together.
 It also bundles @arethetypeswrong/core running on TypeScript 7 alone.
 For Feature-Sliced Design and other structure rules, use [wism](https://www.npmjs.com/package/@r_masseater/wism).
@@ -40,7 +40,7 @@ export default defineConfig({
 });
 ```
 
-`import type {} from "@r_masseater/vite-plus-adopt"` types the keys vpa reads (`commitlint`, `dependencyRules`, `fallow`, `h56m`, `skills` and `textlint`) on `defineConfig`.
+`import type {} from "@r_masseater/vite-plus-adopt"` types the keys vpa reads (`commitlint`, `dependencyRules`, `fallow`, `h56m`, `skills`, `textlint` and `tools`) on `defineConfig`.
 textlint checks the Markdown files Git tracks. To check other files too, list their globs (`files`) and the settings for them in `textlint.sources`. `presets` work there as well.
 
 Write the Git hooks like this.
@@ -76,11 +76,49 @@ Fetched skills are stored read-only in `~/.cache/vpa/skills/` (under `XDG_CACHE_
 
 A key starting with `./` is a folder in this repository. It takes no commit and points directly to the folders under it that contain `SKILL.md`.
 
-Put `vpa --prepare` in `prepare`. To let Renovate update the commits, extend this preset in `renovate.json`.
+Put `vpa --prepare` in `prepare`. To let Renovate update the commits and the tool versions, extend this preset in `renovate.json`.
 
 ```json
 { "extends": ["github>masseater/ecosystems//libs/vite-plus-adopt/renovate"] }
 ```
+
+## Command-line tools
+
+List release assets in `tools`, and `vpa --prepare` downloads them, checks their sha256 and links their binaries into `node_modules/.bin`, where `vp run` and `vp exec` find them. This replaces mise for tools that ship as archives.
+
+```ts
+export default defineConfig({
+  tools: {
+    "open-telemetry/weaver": {
+      version: "0.28.0",
+      assets: {
+        "linux-x64": "weaver-x86_64-unknown-linux-gnu.tar.xz",
+        "darwin-arm64": "weaver-aarch64-apple-darwin.tar.xz",
+        "win32-x64": "weaver-x86_64-pc-windows-msvc.zip",
+      },
+    },
+    "open-telemetry/opentelemetry-collector-releases": {
+      version: "0.166.0",
+      bin: ["otelcol"],
+      assets: { "linux-x64": "otelcol_{version}_linux_amd64.tar.gz" },
+    },
+    dotnet: {
+      version: "11.0.100",
+      base: "https://builds.dotnet.microsoft.com/dotnet/Sdk/{version}",
+      assets: { "linux-x64": "dotnet-sdk-{version}-linux-x64.tar.gz" },
+    },
+  },
+});
+```
+
+- The key is `owner/repo` of the GitHub release, which is downloaded from `https://github.com/<owner>/<repo>/releases/download/v<version>/<asset>`. Any other key needs `base`, the URL that holds the assets. `{version}` in `base` and in an asset name is replaced by `version`.
+- `assets` maps a platform (`linux-x64`, `linux-arm64`, `darwin-x64`, `darwin-arm64`, `win32-x64`) to an asset name. A tool with no asset for the current platform is skipped.
+- `bin` lists the executables to link. It defaults to the repository name. Windows gets `.cmd` launchers, because linking an `.exe` there needs the symbolic link privilege. Archives are unpacked with `tar`, which is bsdtar on Windows and reads `.zip` and `.tar.xz` too.
+- `vpa-lock.json` next to `vite.config.ts` pins the sha256 of each asset by its URL. A URL without an entry is recorded when it is first downloaded, and a download that no longer matches its entry fails. Commit the file.
+- Tools are stored in `~/.cache/vpa/tools/`, keyed by version, platform and checksum, and shared by every worktree. Set `VPA_TOOLS=false` to skip them, for a job that needs none.
+- A `tools` section in the `vite.config.ts` of a workspace works with `vpa --prepare` run in that workspace. It links into that workspace's `node_modules/.bin`.
+
+The Renovate preset updates `version` of each GitHub key and of `dotnet`. A new version has no entry in `vpa-lock.json` yet, so `vpa --prepare` records it.
 
 ## Replacement for @arethetypeswrong/core
 

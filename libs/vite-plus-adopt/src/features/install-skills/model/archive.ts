@@ -7,18 +7,18 @@ import {
   Option,
   Record as Rec,
   Redacted,
-  Schedule,
   Schema,
   String as Str,
   pipe,
 } from "effect";
-import { HttpClient, HttpClientRequest } from "effect/http";
-import type { HttpClientError } from "effect/http";
+import { HttpClientRequest } from "effect/http";
+import type { HttpClient } from "effect/http";
 import { parse } from "yaml";
 
 import type { RemoteSkillSource } from "#/shared/config/index.ts";
 import { checksFailed, toolFailed } from "#/shared/lib/errors.ts";
 import type { VpToolsError } from "#/shared/lib/errors.ts";
+import { fetchBytes } from "#/shared/lib/http.ts";
 import { readTarGz } from "#/shared/lib/tar-gz.ts";
 import type { TarEntry } from "#/shared/lib/tar-gz.ts";
 
@@ -143,9 +143,6 @@ export const skillsIn =
 export const labelOf = ({ repository, source }: Declared): string =>
   `${repository}@${Str.slice(START, SHORT_COMMIT)(source.commit)}`;
 
-const RETRY_DELAY = "1 second";
-const RETRIES = 4;
-
 const codeload = ({ repository, source }: Declared): HttpClientRequest.HttpClientRequest =>
   HttpClientRequest.get(`https://codeload.github.com/${repository}/tar.gz/${source.commit}`);
 
@@ -155,21 +152,6 @@ const api =
     HttpClientRequest.get(
       `https://api.github.com/repos/${repository}/tarball/${source.commit}`,
     ).pipe(HttpClientRequest.bearerToken(Redacted.value(token)));
-
-const fetchBytes = (
-  request: HttpClientRequest.HttpClientRequest,
-): Effect.Effect<Uint8Array, HttpClientError.HttpClientError, HttpClient.HttpClient> =>
-  Effect.gen(function* fetchArchive() {
-    const httpClient = yield* HttpClient.HttpClient;
-    const response = yield* httpClient
-      .pipe(
-        HttpClient.filterStatusOk,
-        HttpClient.retryTransient({ schedule: Schedule.exponential(RETRY_DELAY), times: RETRIES }),
-      )
-      .execute(request);
-    const body = yield* response.arrayBuffer;
-    return new Uint8Array(body);
-  });
 
 const githubToken: Effect.Effect<Option.Option<Redacted.Redacted>> = Config.option(
   Config.Redacted("GITHUB_TOKEN"),

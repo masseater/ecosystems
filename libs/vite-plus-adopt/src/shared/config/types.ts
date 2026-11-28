@@ -6,6 +6,7 @@ import type { TextlintKernelRule } from "@textlint/kernel";
 import type { DependencyField } from "#/shared/lib/workspace.ts";
 
 import type { SkillsSection } from "./skills.ts";
+import type { ToolsSection } from "./tools.ts";
 
 export interface CommitlintConfig extends Readonly<CommitlintUserConfig> {}
 
@@ -50,6 +51,7 @@ export interface ToolSections {
   readonly h56m?: H56mConfig;
   readonly skills?: SkillsSection;
   readonly textlint?: TextlintConfig;
+  readonly tools?: ToolsSection;
 }
 
 declare module "vite" {
