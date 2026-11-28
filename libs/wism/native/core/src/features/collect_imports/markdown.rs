@@ -3,7 +3,6 @@ use pulldown_cmark::{Event, Options, Parser, Tag};
 use crate::entities::import::{Edge, Target};
 use crate::shared::text::{Lines, join, normalize, parent};
 
-const SCHEMES: [&str; 4] = ["mailto:", "tel:", "data:", "javascript:"];
 const HEX: u32 = 16;
 
 fn decode(text: &str) -> String {
@@ -26,13 +25,18 @@ fn decode(text: &str) -> String {
     String::from_utf8(out).unwrap_or_else(|_| text.to_owned())
 }
 
+fn has_scheme(destination: &str) -> bool {
+    destination.split_once(':').is_some_and(|(scheme, _)| {
+        scheme.starts_with(|first: char| first.is_ascii_alphabetic())
+            && scheme
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.'))
+    })
+}
+
 fn local(destination: &str) -> Option<&str> {
     let trimmed = destination.trim();
-    if trimmed.starts_with('#')
-        || trimmed.starts_with('/')
-        || trimmed.contains("://")
-        || SCHEMES.iter().any(|scheme| trimmed.starts_with(scheme))
-    {
+    if trimmed.starts_with('#') || trimmed.starts_with('/') || has_scheme(trimmed) {
         return None;
     }
     let end = trimmed.find(['#', '?']).unwrap_or(trimmed.len());
@@ -80,7 +84,7 @@ mod tests {
 
     #[test]
     fn resolves_local_links_and_skips_the_rest() {
-        let text = "[a](./guide%20one.md#top) [b](https://x.dev) [c](#here) [d](/site)\n![e](../img/logo.png?raw)\n[f](mailto:me@x.dev)\n";
+        let text = "[a](./guide%20one.md#top) [b](https://x.dev) [c](#here) [d](/site)\n![e](../img/logo.png?raw)\n[f](mailto:me@x.dev) [g](github:o/r/x.md) [h](npm:effect@4.0.0)\n";
         let found: Vec<(String, usize)> = links("docs/index.md", text)
             .into_iter()
             .map(|edge| match edge.target {
