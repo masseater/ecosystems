@@ -4,9 +4,9 @@ import type { PlatformError } from "effect/PlatformError";
 import { lint } from "./index.ts";
 import type { Diagnostic, Y8Config, Y8Error } from "./index.ts";
 
-type Files = Readonly<Record<string, string>>;
+export type Files = Readonly<Record<string, string>>;
 
-type Linted = Effect.Effect<
+export type Linted = Effect.Effect<
   readonly Diagnostic[],
   Y8Error | PlatformError,
   FileSystem.FileSystem | Path.Path
