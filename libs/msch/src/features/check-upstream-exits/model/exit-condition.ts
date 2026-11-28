@@ -1,7 +1,6 @@
+import { groupOf } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Match, Option, String as Str, pipe } from "effect";
 import semver from "semver";
-
-import { groupOf } from "#/shared/lib/match-groups.ts";
 
 export type Registry = "npm" | "crate";
 export type Relation = "drops" | "allows" | "requires";

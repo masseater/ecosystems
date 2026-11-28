@@ -1,13 +1,5 @@
+import { groupOf } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Match, Option, Result, String as Str, pipe } from "effect";
-
-const groupOf =
-  (name: string) =>
-  (found: RegExpMatchArray | null): Option.Option<string> =>
-    pipe(
-      Option.fromNullishOr(found),
-      Option.flatMap((match) => Option.fromNullishOr(match.groups)),
-      Option.flatMap((groups) => Option.fromNullishOr(groups[name])),
-    );
 
 export interface GithubReference {
   readonly kind: "github";

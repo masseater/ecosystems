@@ -151,6 +151,7 @@
   "devDependencies": {
     "@effect/tsgo": "catalog:stack",
     "@effect/vitest": "catalog:",
+    "@masseater.dev/lint-host": "workspace:*",
     "@masseater.dev/path-kit": "workspace:*",
     "@r_masseater/github-workflow": "workspace:*",
     "@r_masseater/node-main": "workspace:*",

@@ -1,6 +1,6 @@
+import { groupOf } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Effect, HashSet, Option, Record as Rec, pipe } from "effect";
 
-import { groupOf } from "#/shared/lib/match-groups.ts";
 import { loadLanguage, readTree } from "#/shared/lib/tree-sitter.ts";
 import type { SyntaxNode } from "#/shared/lib/tree-sitter.ts";
 
