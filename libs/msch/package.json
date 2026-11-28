@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/msch",
-  "version": "0.61.2",
+  "version": "0.62.0",
   "description": "masseater's check policy: points every finite value set and object shape at its one owner, and ships the oxlint preset of plugins and rules.",
   "keywords": [
     "lint",
@@ -22,7 +22,6 @@
     "msch": "./bin/msch.ts",
     "msch-changed": "./bin/msch-changed.ts",
     "msch-exits": "./bin/msch-exits.ts",
-    "msch-fix": "./bin/msch-fix.ts",
     "msch-publish": "./bin/msch-publish.ts",
     "msch-wake": "./bin/msch-wake.ts"
   },
@@ -61,7 +60,6 @@
       "msch": "./dist/cli.mjs",
       "msch-changed": "./dist/changed.mjs",
       "msch-exits": "./dist/exits.mjs",
-      "msch-fix": "./dist/fix.mjs",
       "msch-publish": "./dist/publish.mjs",
       "msch-wake": "./dist/wake.mjs"
     },
