@@ -14,6 +14,7 @@ export type LibraryPlatform = "node" | "neutral" | "browser";
 export interface LibraryOptions {
   readonly entry: Readonly<Record<string, string>>;
   readonly platform?: LibraryPlatform;
+  readonly alwaysBundle?: readonly string[];
   readonly tasks?: Readonly<Record<string, LibraryTask>>;
 }
 
@@ -21,6 +22,7 @@ export interface LibraryOptions {
 export const library = ({
   entry,
   platform = "node",
+  alwaysBundle = [],
   tasks = {},
 }: LibraryOptions): ReturnType<typeof defineConfig> =>
   defineConfig({
@@ -34,6 +36,7 @@ export const library = ({
     pack: {
       entry: { ...entry },
       platform,
+      deps: { alwaysBundle: [...alwaysBundle] },
       sourcemap: true,
       publint: { strict: true },
       dts: true,

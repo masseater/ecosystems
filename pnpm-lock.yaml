@@ -1175,6 +1175,15 @@ importers:
         specifier: catalog:stack
         version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.7)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.7)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.7)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
 
+  libs/plugin-kit:
+    devDependencies:
+      effect:
+        specifier: catalog:stack
+        version: 4.1.5
+      vite-plus:
+        specifier: catalog:stack
+        version: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.7)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.7)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.7)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
+
   libs/song-format:
     dependencies:
       ableton-als:
