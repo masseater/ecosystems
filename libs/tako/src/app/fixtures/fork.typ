@@ -1,4 +1,4 @@
-#import "/.kata/kata.typ": *
+#import "/.tako/tako.typ": *
 #show: figure
 #fork(
   before: ((kind: "outside", icon: "forum", body: [Discord]), (kind: "system", icon: "smart_toy", body: [Gateway])),

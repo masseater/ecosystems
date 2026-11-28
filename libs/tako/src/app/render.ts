@@ -17,7 +17,7 @@ import type { RenderError } from "#/shared/lib/errors.ts";
 import { failWith } from "#/shared/lib/errors.ts";
 
 const ICON_FOLDER = "outlined";
-const PARTS_MOUNT = ".kata";
+const PARTS_MOUNT = ".tako";
 const ICONS_MOUNT = "icons";
 const PARTS_EXTENSION = ".typ";
 const WORD_GROUP = "word";
@@ -60,7 +60,7 @@ const mountParts = (root: string): Effect.Effect<readonly Mounted[], RenderError
     const fileSystem = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const partsFolder = yield* folderContaining(
-      import.meta.resolve("@r_masseater/kata/typ/theme.typ"),
+      import.meta.resolve("@r_masseater/tako/typ/theme.typ"),
     );
     const names = yield* fileSystem.readDirectory(partsFolder).pipe(Effect.mapError(failWith));
     return yield* Effect.forEach(

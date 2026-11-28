@@ -1,17 +1,17 @@
-# @r_masseater/kata
+# @r_masseater/tako
 
 Draws infographics from a few lines of Typst. You write what the figure says, and the parts decide the layout, the spacing, the colors and the shapes.
 
 It requires Node.js 26 or later.
 
 ```sh
-bun add @r_masseater/kata
+bun add @r_masseater/tako
 ```
 
 ## Write a figure
 
 ```typst
-#import "/.kata/kata.typ": *
+#import "/.tako/tako.typ": *
 #show: figure
 
 #flow(
@@ -45,8 +45,8 @@ bun add @r_masseater/kata
 ## Render
 
 ```sh
-kata render figure.typ
-kata render figure.typ --theme dark --format pdf
+tako render figure.typ
+tako render figure.typ --theme dark --format pdf
 ```
 
 Without `--theme`, it writes `figure.light.svg` and `figure.dark.svg` next to the source. `--format` is `svg` or `pdf`.
@@ -54,7 +54,7 @@ Without `--theme`, it writes `figure.light.svg` and `figure.dark.svg` next to th
 From code, `renderFigure` returns the bytes.
 
 ```ts
-import { renderFigure } from "@r_masseater/kata";
+import { renderFigure } from "@r_masseater/tako";
 
 const svg = await renderFigure({ file: "figure.typ", theme: "light", format: "svg" });
 ```
@@ -63,7 +63,7 @@ An SVG draws its text as outlines. Use `pdf` where the text must stay searchable
 
 ## Agent skills
 
-The package ships an agent skill in `skills/`. Add `permissions: { "@r_masseater/kata": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links it into the skill directories of your agents.
+The package ships an agent skill in `skills/`. Add `permissions: { "@r_masseater/tako": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links it into the skill directories of your agents.
 
 ## License
 
