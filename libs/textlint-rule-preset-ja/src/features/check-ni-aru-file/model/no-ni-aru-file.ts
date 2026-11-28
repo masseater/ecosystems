@@ -1,7 +1,9 @@
 import type { TxtNode } from "@textlint/ast-node-types";
 import type { TextlintRuleModule } from "@textlint/types";
 import { Array as Arr, Option, String as Str, pipe } from "effect";
-import { SentenceSplitterSyntax, split } from "sentence-splitter";
+
+import { sentenceRanges } from "#/shared/lib/index.ts";
+import type { Range } from "#/shared/lib/index.ts";
 
 const EXTENSIONS =
   "md|mdx|ts|tsx|js|jsx|mjs|cjs|json|jsonc|yaml|yml|toml|rs|css|html|txt|sh|typ|cs|lock|sql|svg|xml|csv|ini|env";
@@ -22,8 +24,6 @@ const CLAUSE_BREAK = /、/u;
 const NO_OFFSET = 0;
 const MESSAGE =
   "内容の置き場所を「〜は〜にある」と書くのは不自然な日本語です。「〜は [ファイル] に書いてある」「〜は [ファイル] を読む」のように、動詞で書き直してください。";
-
-type Range = readonly [number, number];
 
 const hasTopic = (head: string): boolean =>
   pipe(head, Str.replaceAll(LINK_DESTINATION, "]"), Str.replaceAll(CODE_SPAN, ""), (rest) =>
@@ -49,13 +49,6 @@ const isLocatedAtFile = (sentence: string): boolean => {
   const clause = lastClause(Str.slice(NO_OFFSET, found.index)(trimmed));
   return hasTopic(clause) && !subjectIsFile(clause);
 };
-
-const sentenceRanges = (text: string): readonly Range[] =>
-  pipe(
-    split(text),
-    Arr.filter((child) => child.type === SentenceSplitterSyntax.Sentence),
-    Arr.map(({ range }): Range => range),
-  );
 
 const violations = (text: string): readonly Range[] =>
   Arr.filter(sentenceRanges(text), (range) => isLocatedAtFile(Str.slice(...range)(text)));
