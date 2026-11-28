@@ -3,8 +3,8 @@ import { Array as Arr, Effect, Option, pipe } from "effect";
 import {
   atPath,
   confidence,
-  finding,
   severity,
+  singleDraft,
 } from "#/app/presets/features/audit-workflows/lib/finding.ts";
 import { longestTag, lookupRef } from "#/app/presets/features/audit-workflows/lib/github-refs.ts";
 import {
@@ -80,9 +80,9 @@ const versionOf =
 
 const draftOf =
   (target: UsesTarget) =>
-  (advisory: Advisory): Drafts => [
-    pipe(
-      finding(meta),
+  (advisory: Advisory): Drafts =>
+    singleDraft(
+      meta,
       confidence("high"),
       severity(severityOf(advisory)),
       atPath(
@@ -92,8 +92,7 @@ const draftOf =
         withUrl(`https://github.com/advisories/${advisory.id}`),
         annotated(advisory.id),
       ),
-    ),
-  ];
+    );
 
 const findings =
   (client: GitHubClient, target: UsesTarget, context: AuditContext) =>

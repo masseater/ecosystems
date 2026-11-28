@@ -1,4 +1,4 @@
-#import "/.kata/kata.typ": *
+#import "/.tako/tako.typ": *
 #show: figure
 #tree(root: (kind: "system", icon: "folder", body: [cogload], children: (
   (kind: "data", icon: "description", body: [infographic], children: (

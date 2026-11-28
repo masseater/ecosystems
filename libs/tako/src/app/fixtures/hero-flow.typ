@@ -1,4 +1,4 @@
-#import "/.kata/kata.typ": *
+#import "/.tako/tako.typ": *
 #show: figure
 #flow(
   hero: (big: [約 \$13], caption: [1 日・500 サーバー・各 2,000 件]),

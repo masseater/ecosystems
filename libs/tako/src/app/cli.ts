@@ -16,7 +16,7 @@ const SUBCOMMAND = "render";
 const DEFAULT_FORMAT: Format = "svg";
 const SEQUENTIAL = { concurrency: 1 } as const;
 const ALL_THEMES: readonly Theme[] = ["light", "dark"];
-const USAGE = "usage: kata render <file.typ> [--theme light|dark] [--format svg|pdf]";
+const USAGE = "usage: tako render <file.typ> [--theme light|dark] [--format svg|pdf]";
 
 const Flags = Schema.Struct({
   theme: Schema.optional(ThemeSchema),

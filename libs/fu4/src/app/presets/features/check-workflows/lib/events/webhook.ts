@@ -64,17 +64,19 @@ const checkFilters = (fail: Fail, event: WebhookEvent): void => {
 export const checkWebhook =
   (fail: Fail) =>
   (event: WebhookEvent): void => {
-    const types = Rec.get(WEBHOOKS, event.hook.value);
-    if (Option.isNone(types)) {
-      fail(
-        event,
-        `unknown Webhook event ${quote(event.hook.value)}. see ${UNKNOWN_DOCS} for list of all Webhook event names`,
-      );
-      return;
-    }
-    if (typeof types.value !== "string") {
-      checkTypes(fail, event)(types.value);
-    }
-    checkWorkflows(fail, event);
-    checkFilters(fail, event);
+    Option.match(Rec.get(WEBHOOKS, event.hook.value), {
+      onNone: () => {
+        fail(
+          event,
+          `unknown Webhook event ${quote(event.hook.value)}. see ${UNKNOWN_DOCS} for list of all Webhook event names`,
+        );
+      },
+      onSome: (types) => {
+        if (typeof types !== "string") {
+          checkTypes(fail, event)(types);
+        }
+        checkWorkflows(fail, event);
+        checkFilters(fail, event);
+      },
+    });
   };

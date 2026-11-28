@@ -1,6 +1,7 @@
 import { Array as Arr, Option, String as Str, pipe } from "effect";
 
-import type { Problem } from "./problem.ts";
+import { problemAtPosition } from "./problem.ts";
+import type { Problem, RuleName } from "./problem.ts";
 
 const START = 0;
 const FIRST_COLUMN = 1;
@@ -17,3 +18,9 @@ export const positionOf =
       ),
     };
   };
+
+export const problemAtIndex =
+  (rule: RuleName) =>
+  (file: string, source: string) =>
+  (index: number, message: string): Problem =>
+    problemAtPosition(rule)(file, positionOf(source)(index), message);

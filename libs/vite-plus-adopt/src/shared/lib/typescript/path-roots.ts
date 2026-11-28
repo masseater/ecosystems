@@ -57,8 +57,18 @@ const fileUrlVolumeSeparatorEnd = (url: string, start: number): Option.Option<nu
   );
 };
 
-const fileUrlVolumeRoot = (url: string, authorityEnd: number): Option.Option<PathRoot> =>
-  fileUrlVolumeSeparatorEnd(url, authorityEnd + AFTER_NEXT).pipe(
+const isLocalFileUrl = (url: string, schemeEnd: number, authorityEnd: number): boolean =>
+  Str.slice(FIRST, schemeEnd)(url) === FILE_SCHEME &&
+  LOCAL_AUTHORITIES.has(Str.slice(schemeEnd + SCHEME_SEPARATOR.length, authorityEnd)(url)) &&
+  isVolumeCharacter(url[authorityEnd + NEXT]);
+
+const fileUrlVolumeRoot = (
+  url: string,
+  schemeEnd: number,
+  authorityEnd: number,
+): Option.Option<PathRoot> =>
+  Option.liftPredicate(url, () => isLocalFileUrl(url, schemeEnd, authorityEnd)).pipe(
+    Option.flatMap(() => fileUrlVolumeSeparatorEnd(url, authorityEnd + AFTER_NEXT)),
     Option.flatMap((end) => {
       if (url[end] === SLASH) {
         return Option.some(urlRoot(end + NEXT));
@@ -67,22 +77,13 @@ const fileUrlVolumeRoot = (url: string, authorityEnd: number): Option.Option<Pat
     }),
   );
 
-const isLocalFileUrl = (url: string, schemeEnd: number, authorityEnd: number): boolean =>
-  Str.slice(FIRST, schemeEnd)(url) === FILE_SCHEME &&
-  LOCAL_AUTHORITIES.has(Str.slice(schemeEnd + SCHEME_SEPARATOR.length, authorityEnd)(url)) &&
-  isVolumeCharacter(url[authorityEnd + NEXT]);
-
-const urlRootAt = (url: string, schemeEnd: number, authorityEnd: number): PathRoot => {
-  const volume = Option.liftPredicate(url, () => isLocalFileUrl(url, schemeEnd, authorityEnd)).pipe(
-    Option.flatMap(() => fileUrlVolumeRoot(url, authorityEnd)),
-  );
-  return Option.getOrElse(volume, () => urlRoot(authorityEnd + NEXT));
-};
-
 const urlRootOf = (url: string, schemeEnd: number): PathRoot =>
   Option.match(indexFrom(url, SLASH, schemeEnd + SCHEME_SEPARATOR.length), {
     onNone: () => urlRoot(url.length),
-    onSome: (authorityEnd) => urlRootAt(url, schemeEnd, authorityEnd),
+    onSome: (authorityEnd) =>
+      Option.getOrElse(fileUrlVolumeRoot(url, schemeEnd, authorityEnd), () =>
+        urlRoot(authorityEnd + NEXT),
+      ),
   });
 
 const getPathRoot = (path: string): PathRoot => {

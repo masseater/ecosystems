@@ -1,4 +1,4 @@
-import { Array as Arr, Option, pipe } from "effect";
+import { Array as Arr, pipe } from "effect";
 
 import type { Problem } from "#/shared/lib/problem.ts";
 
@@ -23,17 +23,14 @@ export const handWrittenNameProblems =
       Arr.getSomes,
     );
     const { relative } = repository;
-    const listedPath = listedPathProblem(repository);
-    const declared = declaredNameProblem({ literals, relative });
-    const subset = subsetListProblem({ lists, literals, relative });
+    const checks = [
+      listedPathProblem(repository),
+      declaredNameProblem({ literals, relative }),
+      subsetListProblem({ lists, literals, relative }),
+    ];
     return pipe(
       lists,
-      Arr.map((list) =>
-        listedPath(list).pipe(
-          Option.orElse(() => declared(list)),
-          Option.orElse(() => subset(list)),
-        ),
-      ),
+      Arr.map((list) => Arr.findFirst(checks, (check) => check(list))),
       Arr.getSomes,
     );
   };

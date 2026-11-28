@@ -5,20 +5,18 @@ import { LockfileUnreadable } from "./lockfile-unreadable.ts";
 
 export type WantedLockfile = NonNullable<Awaited<ReturnType<typeof readWantedLockfile>>>;
 
-/** @internal */
-export const wantedLockfile = (
-  root: string,
-): Effect.Effect<Option.Option<WantedLockfile>, LockfileUnreadable> =>
-  Effect.tryPromise({
-    try: () => readWantedLockfile(root, { ignoreIncompatible: false }),
-    catch: (cause) => LockfileUnreadable.make({ root, reason: String(cause) }),
-  }).pipe(Effect.map(Option.fromNullishOr));
+const readLockfile =
+  <Selected>(select: (lockfile: WantedLockfile) => Option.Option<Selected>) =>
+  (root: string): Effect.Effect<Option.Option<Selected>, LockfileUnreadable> =>
+    Effect.tryPromise({
+      try: () => readWantedLockfile(root, { ignoreIncompatible: false }),
+      catch: (cause) => LockfileUnreadable.make({ root, reason: String(cause) }),
+    }).pipe(Effect.map(Option.fromNullishOr), Effect.map(Option.flatMap(select)));
 
 /** @internal */
-export const lockedPackages = (
-  root: string,
-): Effect.Effect<Option.Option<readonly string[]>, LockfileUnreadable> =>
-  wantedLockfile(root).pipe(
-    Effect.map(Option.flatMap(({ packages }) => Option.fromUndefinedOr(packages))),
-    Effect.map(Option.map(Rec.keys)),
-  );
+export const wantedLockfile = readLockfile(Option.some);
+
+/** @internal */
+export const lockedPackages = readLockfile(({ packages }) =>
+  Option.map(Option.fromUndefinedOr(packages), Rec.keys),
+);

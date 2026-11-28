@@ -1,4 +1,4 @@
-#import "/.kata/kata.typ": *
+#import "/.tako/tako.typ": *
 #show: figure
 #cycle(
   hero: (big: [14.8 行], caption: [1 件あたり]),

@@ -49,7 +49,7 @@ export const namedOfType = typedWithin((node) => node.namedChildren);
 
 export const descendantsOfType = typedWithin(descendants);
 
-export const ofType =
-  (...types: readonly string[]) =>
-  (node: Option.Option<SyntaxNode>): Option.Option<SyntaxNode> =>
-    pipe(node, Option.filter(isType(...types)));
+export const ofType = (
+  ...types: readonly string[]
+): ((node: Option.Option<SyntaxNode>) => Option.Option<SyntaxNode>) =>
+  Option.filter(isType(...types));
