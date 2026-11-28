@@ -21,16 +21,16 @@ export const Manifest = Schema.Struct({
   peerDependenciesMeta: Schema.optional(Schema.Record(Schema.String, PeerMeta)),
 });
 
-type ManifestFields = typeof Manifest.Type;
-
 export const runtimeDependenciesOf = ({
   dependencies,
   peerDependencies,
   optionalDependencies,
-}: ManifestFields): readonly string[] =>
+}: typeof Manifest.Type): readonly string[] =>
   pipe([dependencies, peerDependencies, optionalDependencies], Arr.flatMap(keysOf), Arr.dedupe);
 
-export const optionalPeersOf = ({ peerDependenciesMeta }: ManifestFields): readonly string[] =>
+export const optionalPeersOf = ({
+  peerDependenciesMeta,
+}: typeof Manifest.Type): readonly string[] =>
   pipe(
     Option.fromUndefinedOr(peerDependenciesMeta),
     Option.map(Rec.filter(({ optional }) => optional === true)),

@@ -968,9 +968,6 @@ importers:
       sql-parser-cst:
         specifier: 'catalog:'
         version: 0.45.0
-      synckit:
-        specifier: 'catalog:'
-        version: 0.12.3
       textlint-rule-preset-ja-technical-writing:
         specifier: 'catalog:'
         version: 12.1.0(supports-color@10.2.2)
