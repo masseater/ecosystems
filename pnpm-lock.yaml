@@ -193,8 +193,8 @@ catalogs:
       specifier: 2.17.0
       version: 2.17.0
     '@cloudflare/workers-types':
-      specifier: 5.20261124.2
-      version: 5.20261124.2
+      specifier: 5.20261125.1
+      version: 5.20261125.1
     '@commitlint/config-conventional':
       specifier: 21.2.4
       version: 21.2.4
@@ -1389,7 +1389,7 @@ importers:
         version: 2.17.0
       '@cloudflare/workers-types':
         specifier: 'catalog:'
-        version: 5.20261124.2
+        version: 5.20261125.1
       '@effect/platform-node':
         specifier: 'catalog:'
         version: 4.1.5(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))
@@ -1679,8 +1679,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@cloudflare/workers-types@5.20261124.2':
-    resolution: {integrity: sha512-zgpqEeenF5zm6Riayxxt5GQZUPGGxw6OgDEVISnFoojBx/13wR0F14/SXiQpH+vsSlp+sT5jgMgF+7Kfsm253w==}
+  '@cloudflare/workers-types@5.20261125.1':
+    resolution: {integrity: sha512-FBFIY/srJZZtZjxyH56AerZ0ZDbhr6Ifa5O707q0f7YzHmzqd+2zD3vG6d8cAcSDL/heJvsP7eEAsYRLFd7jpw==}
 
   '@commitlint/config-conventional@21.2.4':
     resolution: {integrity: sha512-IRldtwgNmR0SySR7wizFbhRmq45lPt6H3XCNTMyVN7jrPLgi8JlTRR6Eg1HLWUQt9P1Lh3k6eY25ilDa47EE6w==}
@@ -7450,7 +7450,7 @@ snapshots:
   '@cloudflare/workerd-windows-64@1.20260730.1':
     optional: true
 
-  '@cloudflare/workers-types@5.20261124.2': {}
+  '@cloudflare/workers-types@5.20261125.1': {}
 
   '@commitlint/config-conventional@21.2.4':
     dependencies:
