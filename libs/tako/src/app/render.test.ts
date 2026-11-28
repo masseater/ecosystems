@@ -50,7 +50,18 @@ it.effect("a kind that does not exist fails with the Typst message", () =>
   }),
 );
 
-const FIGURES = ["cycle", "tree", "timeline", "nested", "fork"] as const;
+const FIGURES = [
+  "cycle",
+  "tree",
+  "timeline",
+  "nested",
+  "fork",
+  "charts",
+  "sysmap",
+  "isotype",
+  "quadrant",
+  "annotated",
+] as const;
 
 for (const figure of FIGURES) {
   it.effect(`the ${figure} part renders in both themes`, () =>
