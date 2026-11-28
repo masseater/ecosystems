@@ -187,7 +187,7 @@ permissions:
   fallow:
     skills: true
   modern-web-guidance:
-    skills: false
+    skills: true
 packageExtensions:
   eslint-plugin-react-jsx@^5.30.1: # exit: npm:eslint-plugin-react-jsx@>5.30.6
     dependencies:
