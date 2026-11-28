@@ -12,6 +12,7 @@ sources:
   - bin/msch.ts
   - src/app/**
   - bin/msch-exits.ts
+  - bin/msch-fix.ts
 ---
 
 # msch-checks
@@ -29,6 +30,15 @@ They read `VPA_BASE` (default `origin/main`) and other environment variables.
 A task that runs msch therefore sets `cache: false`.
 
 The lint preset `@r_masseater/msch/lint` reports the rest through `vp lint`, including the `msch-lint/*` rules.
+
+## Fixing findings in bulk
+
+When a new msch version adds checks, run `vp exec msch-fix` at the repository root in the same change that raises msch. It fixes the two findings that need no judgment and prints one line for each change:
+
+- `uncataloged-dependency`: adds each version written in a `package.json` to the default catalog in `pnpm-workspace.yaml` and writes `catalog:` there. A dependency whose version differs from the catalog's is left alone and reported, because choosing the version is a decision.
+- `prepublish-script`: rewrites a published package's `prepublishOnly` to the shared command. A package with no such script is reported and left to be added by hand.
+
+Run `vp install` afterwards so the lockfile follows, then `vp exec msch` for what is left, such as `inline-script`.
 
 ## Upstream exits
 
