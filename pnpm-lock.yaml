@@ -259,8 +259,8 @@ catalogs:
       specifier: 0.5.0
       version: 0.5.0
     '@r_masseater/vite-plus-adopt':
-      specifier: 0.13.0
-      version: 0.13.0
+      specifier: 0.14.0
+      version: 0.14.0
     '@remotion/eslint-plugin':
       specifier: 4.0.547
       version: 4.0.547
@@ -907,7 +907,7 @@ importers:
         version: link:../textlint-rule-preset-ja
       '@r_masseater/vite-plus-adopt':
         specifier: 'catalog:'
-        version: 0.13.0(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)(vite-plus@1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))
+        version: 0.14.0(d7f7c5892f844d50d69dbd7a06c0be28)
       '@r_masseater/wism':
         specifier: workspace:*
         version: link:../wism
@@ -1089,7 +1089,7 @@ importers:
         version: 5.30.6(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)
       '@r_masseater/vite-plus-adopt':
         specifier: 'catalog:'
-        version: 0.13.0(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)(vite-plus@1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))
+        version: 0.14.0(d7f7c5892f844d50d69dbd7a06c0be28)
       '@remotion/eslint-plugin':
         specifier: 'catalog:'
         version: 4.0.547(eslint@10.15.0(jiti@2.7.0)(supports-color@10.2.2))
@@ -1241,7 +1241,7 @@ importers:
     devDependencies:
       '@r_masseater/vite-plus-adopt':
         specifier: 'catalog:'
-        version: 0.13.0(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)(vite-plus@1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))
+        version: 0.14.0(d7f7c5892f844d50d69dbd7a06c0be28)
       '@r_masseater/y8':
         specifier: workspace:*
         version: link:../y8
@@ -3413,17 +3413,32 @@ packages:
       effect: ^4.1.2
       typescript: '>=7.1.0-beta'
 
-  '@r_masseater/vite-plus-adopt@0.13.0':
-    resolution: {integrity: sha512-FN8SPAlomGO31syWeZChx0oOq8awbH1Va6E9ru19nQO2SnPST39ajwUS64Fe+1OGovaIAINvdmSRjdlnnTGkXg==}
+  '@r_masseater/vite-plus-adopt@0.14.0':
+    resolution: {integrity: sha512-NLX+2Ni1cEWkP6gjQ8yanLMQ0Rar54wGcJ6mW8gbcn2NjDxUoGag5mKksVyggt7wVM4V6FNbSEaQeES3d3g/9g==}
     engines: {node: '>=26.13.1'}
     hasBin: true
     peerDependencies:
+      '@andrewbranch/untar.js': '>=1.0.4'
+      '@loaderkit/resolve': '>=1.0.6'
+      cjs-module-lexer: '>=2.3.0'
       effect: ^4.1.0
+      fflate: '>=0.8.3'
       typescript: '>=7.1.0-beta'
+      validate-npm-package-name: '>=8.0.0'
       vite: '*'
       vite-plus: '>=1.8.0'
     peerDependenciesMeta:
+      '@andrewbranch/untar.js':
+        optional: true
+      '@loaderkit/resolve':
+        optional: true
+      cjs-module-lexer:
+        optional: true
+      fflate:
+        optional: true
       typescript:
+        optional: true
+      validate-npm-package-name:
         optional: true
 
   '@redis/bloom@6.2.1':
@@ -8921,14 +8936,12 @@ snapshots:
       effect: 4.1.5
       typescript: 7.1.0-dev.20261124.1
 
-  '@r_masseater/vite-plus-adopt@0.13.0(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(effect@4.1.5)(redis@6.2.1(@opentelemetry/api@1.10.0))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1)(vite-plus@1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))':
+  '@r_masseater/vite-plus-adopt@0.14.0(d7f7c5892f844d50d69dbd7a06c0be28)':
     dependencies:
-      '@andrewbranch/untar.js': 1.0.4
       '@commitlint/format': 21.2.3
       '@commitlint/lint': 21.2.4
       '@commitlint/load': 21.2.4(typescript@7.1.0-dev.20261124.1)
       '@commitlint/types': 21.2.3
-      '@loaderkit/resolve': 1.0.6
       '@pnpm/logger': 1100.0.0
       '@pnpm/workspace.projects-reader': 1101.1.9(@pnpm/logger@1100.0.0)
       '@pnpm/workspace.workspace-manifest-reader': 1100.3.4
@@ -8937,18 +8950,20 @@ snapshots:
       '@textlint/config-loader': 16.1.3(supports-color@10.2.2)
       '@textlint/kernel': 16.1.3(supports-color@10.2.2)
       '@textlint/utils': 16.1.3
-      cjs-module-lexer: 2.3.0
       effect: 4.1.5
-      fflate: 0.8.3
       minimatch: 11.0.9
       semver: 7.8.6
       textlint: 16.1.3(supports-color@10.2.2)
-      validate-npm-package-name: 8.0.0
       vite: '@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)'
       vite-plus: 1.8.0(@opentelemetry/api@1.10.0)(@types/node@26.6.6)(@vitest/ui@5.1.1)(esbuild@0.28.1)(happy-dom@21.0.4)(jiti@2.7.0)(msw@3.0.7(@types/node@26.6.6)(@voidzero-dev/vite-plus-core@8.3.8001(patch_hash=851194db8ed94de66c471ebcc46235574ef77025066fa6d9c4435b8bf0ec9ab8)(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1))(supports-color@10.2.2)(typescript@7.1.0-dev.20261124.1))(oxlint-tsgolint@7.0.2008)(playwright@1.65.1)(publint@0.3.25)(terser@5.51.2)(typescript@7.1.0-dev.20261124.1)(yaml@2.9.1)
       yaml: 2.9.1
     optionalDependencies:
+      '@andrewbranch/untar.js': 1.0.4
+      '@loaderkit/resolve': 1.0.6
+      cjs-module-lexer: 2.3.0
+      fflate: 0.8.3
       typescript: 7.1.0-dev.20261124.1
+      validate-npm-package-name: 8.0.0
     transitivePeerDependencies:
       - bufferutil
       - redis
