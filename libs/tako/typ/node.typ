@@ -2,7 +2,7 @@
 #import "shapes.typ": shape, outer-width
 
 #let icon-of(name, color, size) = image(
-  bytes(read("/.kata/icons/" + name + ".svg").replace("<path ", "<path fill=\"" + color.to-hex() + "\" ")),
+  bytes(read("/.tako/icons/" + name + ".svg").replace("<path ", "<path fill=\"" + color.to-hex() + "\" ")),
   format: "svg",
   width: size,
 )

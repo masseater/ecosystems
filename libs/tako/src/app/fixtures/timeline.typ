@@ -1,4 +1,4 @@
-#import "/.kata/kata.typ": *
+#import "/.tako/tako.typ": *
 #show: figure
 #timeline(events: (
   (when: [2026-10-12], kind: "system", icon: "rocket_launch", body: [開発開始], note: [まだ未公開]),

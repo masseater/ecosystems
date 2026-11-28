@@ -2,11 +2,11 @@
 name: draw-infographic
 description: >
   Use when an infographic, a flow with a hero number, or a bar chart with a limit line is wanted
-  as a figure: write a few lines of Typst with the kata parts and kata render lays it out and
+  as a figure: write a few lines of Typst with the tako parts and tako render lays it out and
   writes light and dark SVG or PDF.
 metadata:
   type: core
-  library: "@r_masseater/kata"
+  library: "@r_masseater/tako"
   library_version: 0.1.0
 sources:
   - typ/**
@@ -15,12 +15,12 @@ sources:
 
 # draw-infographic
 
-A figure drawn by hand needs coordinates and spacing chosen again for every figure. The kata parts choose the layout from the content, so the figure says what it means and nothing else.
+A figure drawn by hand needs coordinates and spacing chosen again for every figure. The tako parts choose the layout from the content, so the figure says what it means and nothing else.
 
 ## Setup
 
 ```sh
-bun add @r_masseater/kata
+bun add @r_masseater/tako
 ```
 
 A Japanese figure needs a Japanese font such as Noto Sans CJK JP installed.
@@ -28,7 +28,7 @@ A Japanese figure needs a Japanese font such as Noto Sans CJK JP installed.
 ## Write a figure
 
 ```typst
-#import "/.kata/kata.typ": *
+#import "/.tako/tako.typ": *
 #show: figure
 
 #flow(
@@ -50,7 +50,7 @@ Pick the part by what the figure shows: `flow` for steps, `fork` for a split at 
 ## Render
 
 ```sh
-bunx kata render figure.typ
+bunx tako render figure.typ
 ```
 
 It writes `figure.light.svg` and `figure.dark.svg`. Pass `--format pdf` where the text must stay searchable, because an SVG draws its text as outlines.

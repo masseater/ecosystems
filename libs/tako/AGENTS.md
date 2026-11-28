@@ -1,4 +1,4 @@
-# @r_masseater/kata
+# @r_masseater/tako
 
 This workspace draws infographics from a few lines of Typst. `typ/` holds the parts, which are Typst functions that lay themselves out: a node for each of the six kinds of element, a flow with an optional hero number, and bars with a limit. `src/` is the TypeScript that mounts the parts and the icons next to a figure and compiles it with `@myriaddreamin/typst-ts-node-compiler`.
 
