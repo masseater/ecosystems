@@ -71,9 +71,55 @@ const flagsUnusedAndStale = Effect.gen(function* flagsUnusedAndStale() {
   ]);
 });
 
+const flagsDependenciesWrittenOutsideTheCatalog = Effect.gen(
+  function* flagsDependenciesWrittenOutsideTheCatalog() {
+    const repositoryFiles = yield* RepositoryFiles;
+    const root = yield* gitRepositoryWith({
+      "pnpm-workspace.yaml": lines([
+        "packages:",
+        "  - libs/*",
+        "catalog:",
+        "  listed: 1.0.0",
+        "  other: 1.0.0",
+      ]),
+      "package.json": lines([
+        "{",
+        '  "devDependencies": { "listed": "catalog:", "bare": "2.0.0" }',
+        "}",
+      ]),
+      "libs/a/package.json": lines([
+        "{",
+        '  "dependencies": { "other": "catalog:", "ranged": "^1.0.0", "sibling": "workspace:*" },',
+        '  "devDependencies": { "local": "link:../x", "tool": "npm:real@1.0.0" },',
+        '  "peerDependencies": { "peer": "^1.0.0" }',
+        "}",
+      ]),
+      "docs/package.json": lines(["{", '  "dependencies": { "outside": "1.0.0" }', "}"]),
+    });
+    const problems = yield* checkCatalogEntries(root);
+    expect(
+      pipe(
+        sortProblems(problems),
+        Arr.map(
+          (problem) =>
+            `${repositoryFiles.relative(root, problem.file)}:${String(problem.line)} ${problem.rule}`,
+        ),
+      ),
+    ).toStrictEqual([
+      "libs/a/package.json:2 uncataloged-dependency",
+      "libs/a/package.json:3 uncataloged-dependency",
+      "package.json:2 uncataloged-dependency",
+    ]);
+  },
+);
+
 layer(fixtureLayer)("catalog entries", (it) => {
   it.effect(
     "flags unused catalog entries and excludes the lockfile no longer resolves",
     () => flagsUnusedAndStale,
+  );
+  it.effect(
+    "flags dependencies whose version is written in package.json instead of the catalog",
+    () => flagsDependenciesWrittenOutsideTheCatalog,
   );
 });

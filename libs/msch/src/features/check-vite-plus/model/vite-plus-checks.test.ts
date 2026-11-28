@@ -77,7 +77,7 @@ const passesCommandsThatOnlyNameAPackageManager = Effect.gen(
   function* passesCommandsThatOnlyNameAPackageManager() {
     const findings = yield* findingsFor({
       "package.json":
-        '{\n  "scripts": {\n    "prepublishOnly": "node -e \\"console.error(\'npm publish leaves catalog: behind; use pnpm\')\\" && vp run build"\n  }\n}\n',
+        '{\n  "scripts": {\n    "prepublishOnly": "vp exec msch-publish prepublish ."\n  }\n}\n',
       "vite.config.ts":
         'export default {\n  run: { tasks: { pack: "vp pm pack", audit: "vp exec pnpm-audit-export" } },\n};\n',
       ".github/workflows/verify.yml":
@@ -105,6 +105,24 @@ const flagsPackageManagersInAgentDocCode = Effect.gen(
     ]);
   },
 );
+
+const flagsInlineNodeCode = Effect.gen(function* flagsInlineNodeCode() {
+  const findings = yield* findingsFor({
+    "libs/a/package.json":
+      '{\n  "scripts": {\n    "prepublishOnly": "node -e \\"process.exit(1)\\" && vp run build"\n  }\n}\n',
+    "vite.config.ts":
+      'export default {\n  run: {\n    tasks: {\n      read: "node --print 1",\n      short: "node -pe 1",\n      file: "node bin/read.ts",\n      typed: "node --experimental-strip-types bin/read.ts",\n    },\n  },\n};\n',
+    ".github/workflows/verify.yml":
+      "jobs:\n  verify:\n    steps:\n      - run: node -e 'console.log(1)'\n      - run: node bin/check.ts\n",
+    "docs/setup.md": "`node -e 'x'` を書かない。\n",
+  });
+  expect(findings).toStrictEqual([
+    ".github/workflows/verify.yml:4 inline-script",
+    "libs/a/package.json:3 inline-script",
+    "vite.config.ts:4 inline-script",
+    "vite.config.ts:5 inline-script",
+  ]);
+});
 
 const flagsSkippedGatesAndFilterTasks = Effect.gen(function* flagsSkippedGatesAndFilterTasks() {
   const findings = yield* findingsFor({
@@ -135,6 +153,7 @@ layer(fixtureLayer)("commands run through Vite+", (it) => {
     "flags package.json scripts that are not lifecycle scripts",
     () => flagsScriptsThatAreNotLifecycleScripts,
   );
+  it.effect("flags node code written inside a command", () => flagsInlineNodeCode);
   it.effect(
     "flags package managers in scripts, tasks, steps, hooks and MCP commands",
     () => flagsPackageManagersInEveryCommandSurface,

@@ -1,3 +1,4 @@
+import { readWorkspaceManifest } from "@pnpm/workspace.workspace-manifest-reader";
 import {
   Array as Arr,
   Effect,
@@ -15,9 +16,9 @@ const PRESET = ["config", "betterleaks.toml"];
 const LICENSE = "LICENSE";
 const SOURCE = ["node_modules", "betterleaks"];
 
-const Manifest = Schema.fromJsonString(
-  Schema.Struct({ devDependencies: Schema.Struct({ betterleaks: Schema.String }) }),
-);
+const WORKSPACE = ["..", ".."];
+
+const Workspace = Schema.Struct({ catalog: Schema.Struct({ betterleaks: Schema.String }) });
 
 const failedWith = (cause: { readonly message: string }): ExtractFailed =>
   ExtractFailed.make({ message: cause.message });
@@ -28,11 +29,12 @@ export const extractPresets = Effect.fn("h56m-presets.extract")(function* extrac
 ) {
   const fileSystem = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const manifest = yield* fileSystem
-    .readFileString(path.join(output, "package.json"))
-    .pipe(Effect.flatMap(Schema.decodeUnknownEffect(Manifest)), Effect.mapError(failedWith));
+  const workspace = yield* Effect.tryPromise({
+    try: () => readWorkspaceManifest(path.join(output, ...WORKSPACE)),
+    catch: (cause) => ExtractFailed.make({ message: String(cause) }),
+  }).pipe(Effect.flatMap(Schema.decodeUnknownEffect(Workspace)), Effect.mapError(failedWith));
   const revision = pipe(
-    manifest.devDependencies.betterleaks,
+    workspace.catalog.betterleaks,
     Str.split("#"),
     Arr.last,
     Option.getOrElse(() => ""),

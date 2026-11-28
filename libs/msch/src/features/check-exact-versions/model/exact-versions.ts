@@ -1,7 +1,16 @@
-import { Array as Arr, Effect, Option, Record as Rec, Schema, String as Str, pipe } from "effect";
+import { Array as Arr, Effect, Option, Record as Rec, String as Str, pipe } from "effect";
 import semver from "semver";
 
-import { MANIFEST_FILE } from "#/entities/package/index.ts";
+import {
+  MANIFEST_FILE,
+  manifestSpecifiers,
+  fieldsOf,
+  manifestPattern,
+  offsetIn,
+  quoted,
+  specifiedIn,
+} from "#/entities/package/index.ts";
+import type { Fields, Specified } from "#/entities/package/index.ts";
 import { workspaceManifest } from "#/entities/workspace/index.ts";
 import { groupOf } from "#/shared/lib/match-groups.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
@@ -15,23 +24,12 @@ const WORKSPACE_FILE = "pnpm-workspace.yaml";
 const ALIAS = /^npm:(?:@[^/@]+\/)?[^@]+@(?<version>.+)$/u;
 const PROTOCOL = /^[a-z+]+:/u;
 const PATH_LIKE = "/";
-const START = 0;
-const SECTIONS = ["dependencies", "devDependencies", "optionalDependencies"] as const;
 const EXCLUDED: readonly string[] = [
   ":(exclude,attr:linguist-vendored)",
   ":(exclude,attr:linguist-generated)",
 ];
 const MESSAGE =
   "is a range. The lockfile decides the version anyway, so a range only lets the next install move it without a diff. Write the exact version the lockfile resolves; `msch-publish` widens `dependencies` and `peerDependencies` to `^` in the published package.";
-
-type Fields = Readonly<Record<string, unknown>>;
-
-const FieldsSchema = Schema.Record(Schema.String, Schema.Unknown);
-const decodeFields = Schema.decodeUnknownOption(FieldsSchema);
-const decodeManifest = Schema.decodeUnknownOption(Schema.fromJsonString(FieldsSchema));
-const decodeString = Schema.decodeUnknownOption(Schema.String);
-
-const fieldsOf = (value: unknown): Fields => Option.getOrElse(decodeFields(value), () => ({}));
 
 const versionOf = (specifier: string): string =>
   Option.getOrElse(groupOf("version")(ALIAS.exec(specifier)), () => specifier);
@@ -43,36 +41,6 @@ export const isRange = (specifier: string): boolean => {
     !PROTOCOL.test(version) && !Str.includes(PATH_LIKE)(version) && semver.valid(version) === null
   );
 };
-
-interface Specified {
-  readonly name: string;
-  readonly specifier: string;
-}
-
-const specifiedIn = (held: unknown): readonly Specified[] =>
-  pipe(
-    fieldsOf(held),
-    Rec.toEntries,
-    Arr.flatMap(([name, value]) =>
-      pipe(
-        decodeString(value),
-        Option.map((specifier) => ({ name, specifier })),
-        Option.toArray,
-      ),
-    ),
-  );
-
-const quoted = (text: string): string =>
-  Str.replaceAll(/[$()*+.?[\\\]^{|}]/gu, String.raw`\$&`)(text);
-
-const offsetIn =
-  (source: string) =>
-  (pattern: RegExp): number =>
-    pipe(
-      Option.fromNullishOr(pattern.exec(source)),
-      Option.map(({ index }) => index),
-      Option.getOrElse(() => START),
-    );
 
 const problemsFor =
   (file: string, source: string, pattern: (found: Specified) => RegExp) =>
@@ -88,24 +56,11 @@ const problemsFor =
       })),
     );
 
-const manifestPattern = ({ name, specifier }: Specified): RegExp =>
-  new RegExp(`"${quoted(name)}"\\s*:\\s*"${quoted(specifier)}"`, "u");
-
 const catalogPattern = ({ name }: Specified): RegExp =>
   new RegExp(`^\\s+["']?${quoted(name)}["']?:`, "mu");
 
 const manifestProblems = (entry: Listed, source: string): readonly Problem[] =>
-  pipe(
-    decodeManifest(source),
-    Option.map((manifest) =>
-      pipe(
-        SECTIONS,
-        Arr.flatMap((section) => specifiedIn(manifest[section])),
-        problemsFor(entry.file, source, manifestPattern),
-      ),
-    ),
-    Option.getOrElse((): readonly Problem[] => []),
-  );
+  problemsFor(entry.file, source, manifestPattern)(manifestSpecifiers(source));
 
 const catalogSpecifiers = (settings: Fields): readonly Specified[] => [
   ...specifiedIn(settings["catalog"]),

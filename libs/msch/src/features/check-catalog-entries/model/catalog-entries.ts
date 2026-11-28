@@ -4,6 +4,8 @@ import { lockedPackages, workspaceManifest } from "#/entities/workspace/index.ts
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
+import { uncatalogedDependencies } from "./uncataloged-dependencies.ts";
+
 const WORKSPACE_FILE = "pnpm-workspace.yaml";
 const MANIFEST = /(?:^|\/)package\.json$/u;
 const CATALOG_PROTOCOL = "catalog:";
@@ -233,8 +235,13 @@ export const checkCatalogEntries = Effect.fn("checkCatalogEntries")(function* ch
 ) {
   const files = yield* RepositoryFiles;
   const manifest = yield* workspaceManifest(root);
-  return yield* Option.match(manifest, {
+  const catalogs = yield* Option.match(manifest, {
     onNone: () => Effect.succeed<readonly Problem[]>([]),
     onSome: (settings) => findingsIn(root, files.join(root, WORKSPACE_FILE), fieldsOf(settings)),
   });
+  const uncataloged = yield* Option.match(manifest, {
+    onNone: () => Effect.succeed<readonly Problem[]>([]),
+    onSome: () => uncatalogedDependencies(root),
+  });
+  return [...catalogs, ...uncataloged];
 });

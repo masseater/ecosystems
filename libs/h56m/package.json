@@ -72,7 +72,7 @@
     "provenance": true
   },
   "scripts": {
-    "prepublishOnly": "vp run build"
+    "prepublishOnly": "vp exec msch-publish prepublish ."
   },
   "dependencies": {
     "@effect/platform-node": "catalog:"
@@ -80,9 +80,10 @@
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "@masseater.dev/lint-host": "workspace:*",
+    "@pnpm/workspace.workspace-manifest-reader": "catalog:",
     "@r_masseater/vitest-otlp": "workspace:*",
     "@types/node": "catalog:",
-    "betterleaks": "github:betterleaks/betterleaks#e07e69ba6a441313529b3e72be43ffdcc62bdf86",
+    "betterleaks": "catalog:",
     "effect": "catalog:stack",
     "smol-toml": "catalog:",
     "vite": "catalog:",
