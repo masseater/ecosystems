@@ -22,6 +22,7 @@ export type { RunTask, RunTasks } from "./model/run-tasks.ts";
 export { workspaceManifest } from "./model/workspace-manifest.ts";
 export {
   publishedProjects,
+  unmatchedWorkspacePatterns,
   workspaceDirectories,
   workspaceProjects,
 } from "./model/workspace-projects.ts";

@@ -30,17 +30,21 @@ const projectsMatching = (
     catch: (cause) => WorkspaceUnreadable.make({ root, reason: String(cause) }),
   }).pipe(Effect.orElseSucceed((): readonly Project[] => []));
 
+const workspacePatterns = Effect.fn("workspacePatterns")(function* workspacePatterns(root: string) {
+  const manifest = yield* workspaceManifest(root);
+  return pipe(
+    manifest,
+    Option.flatMap(({ packages }) => Option.fromNullishOr(packages)),
+    Option.getOrElse((): readonly string[] => []),
+  );
+});
+
 /** @internal */
 export const workspaceProjects = Effect.fn("workspaceProjects")(function* workspaceProjects(
   root: string,
 ) {
   const files = yield* RepositoryFiles;
-  const manifest = yield* workspaceManifest(root);
-  const patterns = pipe(
-    manifest,
-    Option.flatMap(({ packages }) => Option.fromNullishOr(packages)),
-    Option.getOrElse((): readonly string[] => []),
-  );
+  const patterns = yield* workspacePatterns(root);
   if (!Arr.isReadonlyArrayNonEmpty(patterns)) {
     return [];
   }
@@ -112,3 +116,30 @@ export const publishedProjects = Effect.fn("publishedProjects")(function* publis
     Arr.filter(({ published }) => published),
   );
 });
+
+const NEGATION = "!";
+const MATCH_CONCURRENCY = 8;
+
+/** @internal */
+export const unmatchedWorkspacePatterns = Effect.fn("unmatchedWorkspacePatterns")(
+  function* unmatchedWorkspacePatterns(root: string) {
+    const listed = yield* workspacePatterns(root);
+    const patterns = pipe(
+      listed,
+      Arr.filter((pattern) => !Str.startsWith(NEGATION)(pattern)),
+    );
+    const matched = yield* Effect.forEach(
+      patterns,
+      (pattern) =>
+        projectsMatching(root, [pattern]).pipe(
+          Effect.map((projects) => ({ pattern, matches: Arr.isReadonlyArrayNonEmpty(projects) })),
+        ),
+      { concurrency: MATCH_CONCURRENCY },
+    );
+    return pipe(
+      matched,
+      Arr.filter(({ matches }) => !matches),
+      Arr.map(({ pattern }) => pattern),
+    );
+  },
+);

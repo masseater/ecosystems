@@ -2,6 +2,7 @@ import { Array as Arr, Effect, Option, Schema, Stream, String as Str, pipe } fro
 import { ChildProcess } from "effect/process";
 
 const SEPARATOR = "/";
+const SUCCESS = 0;
 
 const CrateTarget = Schema.Struct({ kind: Schema.Array(Schema.String) });
 const CrateDependency = Schema.Struct({ path: Schema.optional(Schema.String) });
@@ -46,6 +47,10 @@ export const cratesIn = Effect.fn("cratesIn")(function* cratesIn(root: string) {
     { cwd: root, extendEnv: true, stdin: "ignore" },
   );
   const output = yield* handle.stdout.pipe(Stream.decodeText(), Stream.mkString);
+  const code = yield* handle.exitCode;
+  if (code !== SUCCESS) {
+    return [];
+  }
   const list = yield* decodeCrateList(output);
   return pipe(list.packages, Arr.map(crateOf));
 }, Effect.scoped);

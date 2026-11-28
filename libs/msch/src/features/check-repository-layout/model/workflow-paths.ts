@@ -4,6 +4,7 @@ import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
 
+import { existsAt, isDirectoryAt, isIgnored, staticPrefix } from "./path-existence.ts";
 import { ACTION_DEFINITIONS, producedPaths, workflowReferences } from "./workflow-references.ts";
 import type { ReferenceKind, WorkflowReference } from "./workflow-references.ts";
 
@@ -11,9 +12,7 @@ const RULE: RuleName = "workflow-path";
 const WORKFLOW_DIRECTORY = ".github/workflows/";
 const WORKFLOW_EXTENSIONS = [".yml", ".yaml"];
 const READ_CONCURRENCY = 8;
-const WILDCARD = /[*?[]/u;
 const SEPARATOR = "/";
-const FIRST = 0;
 
 const EXPECTED: Readonly<Record<ReferenceKind, string>> = {
   action: "a directory with action.yml",
@@ -41,21 +40,7 @@ const matchesAny = Effect.fn("matchesAny")(function* matchesAny(
   return Arr.isReadonlyArrayNonEmpty(matched);
 });
 
-const existsAt: Resolver = Effect.fn("existsAt")(function* existsAt(root: string, path: string) {
-  const files = yield* RepositoryFiles;
-  return yield* files.exists(files.join(root, path));
-});
-
 const matchesGlob: Resolver = (root, path) => matchesAny(root, [`:(glob)${path}`]);
-
-const isDirectoryAt: Resolver = Effect.fn("isDirectoryAt")(function* isDirectoryAt(
-  root: string,
-  path: string,
-) {
-  const files = yield* RepositoryFiles;
-  const directory = yield* files.isDirectory(files.join(root, path));
-  return Option.getOrElse(directory, () => false);
-});
 
 const hasAction: Resolver = Effect.fn("hasAction")(function* hasAction(root: string, path: string) {
   const found = yield* Effect.forEach(
@@ -91,24 +76,6 @@ const RESOLVERS: Readonly<Record<ReferenceKind, Resolver>> = {
   glob: matchesGlob,
   script: findsScript,
 };
-
-const staticPrefix = (path: string): string => {
-  const prefix = Arr.headNonEmpty(Str.split(path, WILDCARD));
-  if (Str.endsWith(SEPARATOR)(prefix)) {
-    return Str.slice(FIRST, -SEPARATOR.length)(prefix);
-  }
-  return prefix;
-};
-
-const isIgnored = Effect.fn("isIgnored")(function* isIgnored(root: string, path: string) {
-  const prefix = staticPrefix(path);
-  if (Str.isEmpty(prefix)) {
-    return false;
-  }
-  const files = yield* RepositoryFiles;
-  const ignored = yield* files.ignoredPaths(root, [prefix]);
-  return Arr.isReadonlyArrayNonEmpty(ignored);
-});
 
 const overlaps =
   (path: string) =>
