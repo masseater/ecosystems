@@ -25,12 +25,12 @@ const checkEvaluated = (env: ExprEnv, typed: readonly Typed[]): void => {
   }
 };
 
-export const checkString =
-  (env: ExprEnv) =>
+const checkTemplate =
+  (env: ExprEnv, untrusted: boolean) =>
   (text: Maybe<Text>, key: string): readonly Typed[] =>
     pipe(
       Option.fromNullishOr(text),
-      Option.flatMap(checkExprsIn(env)({ untrusted: false, key })),
+      Option.flatMap(checkExprsIn(env)({ untrusted, key })),
       Option.map((typed) => {
         checkEvaluated(env, typed);
         return typed;
@@ -38,23 +38,17 @@ export const checkString =
       Option.getOrElse((): readonly Typed[] => []),
     );
 
+export const checkString = (env: ExprEnv): ReturnType<typeof checkTemplate> =>
+  checkTemplate(env, false);
+
+export const checkScript = (env: ExprEnv): ReturnType<typeof checkTemplate> =>
+  checkTemplate(env, true);
+
 export const checkStrings =
   (env: ExprEnv) =>
   (texts: readonly Text[], key: string): void => {
     for (const text of texts) {
       checkString(env)(text, key);
-    }
-  };
-
-export const checkScript =
-  (env: ExprEnv) =>
-  (text: Maybe<Text>, key: string): void => {
-    const typed = pipe(
-      Option.fromNullishOr(text),
-      Option.flatMap(checkExprsIn(env)({ untrusted: true, key })),
-    );
-    for (const found of Option.toArray(typed)) {
-      checkEvaluated(env, found);
     }
   };
 
