@@ -1,6 +1,7 @@
 import { Array as Arr, Effect } from "effect";
 
 import { checkCommandEntries } from "./command-entries.ts";
+import { checkConfigPaths } from "./config-paths.ts";
 import { checkCrates } from "./crates.ts";
 import { checkDeployEntryPatterns } from "./deploy-entry-patterns.ts";
 import { checkFallowEntries } from "./fallow-entries.ts";
@@ -16,6 +17,7 @@ export const checkWorkspaces = Effect.fn("checkWorkspaces")(function* checkWorks
   const found = yield* Effect.all(
     [
       checkCommandEntries(root),
+      checkConfigPaths(root),
       checkCrates(root),
       checkDeployEntryPatterns(root),
       checkFallowEntries(root),
