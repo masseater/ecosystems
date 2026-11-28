@@ -8,9 +8,11 @@ import { positionOf } from "#/shared/lib/text-position.ts";
 import type { Used } from "./usage.ts";
 
 const RULE: RuleName = "optional-peer";
+const REQUIRED_RULE: RuleName = "required-peer";
 const START = 0;
 const SINGLE = 1;
 const DEPENDENCIES_KEY = '"dependencies"';
+const PEER_META_KEY = '"peerDependenciesMeta"';
 
 export interface Located {
   readonly file: string;
@@ -30,18 +32,24 @@ const labelsOf = (importers: readonly Used[]): string =>
     Arr.join(", "),
   );
 
-const problemFor = (located: Located, name: string, importers: readonly Used[]): Problem => {
-  const section = Option.getOrElse(Str.indexOf(DEPENDENCIES_KEY)(located.source), () => START);
+const positionIn = (
+  located: Located,
+  key: string,
+  name: string,
+): Pick<Problem, "line" | "column"> => {
+  const section = Option.getOrElse(Str.indexOf(key)(located.source), () => START);
   const rest = Str.slice(section)(located.source);
-  return {
-    file: located.file,
-    ...positionOf(located.source)(
-      section + Option.getOrElse(Str.indexOf(`"${name}"`)(rest), () => START),
-    ),
-    rule: RULE,
-    message: `${name} is imported only from ${labelsOf(importers)}, so installing the other entries must not require it. Move it to peerDependencies, mark it optional in peerDependenciesMeta and keep it in devDependencies.`,
-  };
+  return positionOf(located.source)(
+    section + Option.getOrElse(Str.indexOf(`"${name}"`)(rest), () => START),
+  );
 };
+
+const problemFor = (located: Located, name: string, importers: readonly Used[]): Problem => ({
+  file: located.file,
+  ...positionIn(located, DEPENDENCIES_KEY, name),
+  rule: RULE,
+  message: `${name} is imported only from ${labelsOf(importers)}, so installing the other entries must not require it. Move it to peerDependencies, mark it optional in peerDependenciesMeta and keep it in devDependencies.`,
+});
 
 export interface Peering {
   readonly located: Located;
@@ -75,6 +83,51 @@ export const optionalPeerProblems = ({
         return [];
       }
       return [problemFor(located, name, importers)];
+    }),
+  );
+};
+
+export interface OptionalPeering {
+  readonly located: Located;
+  readonly optional: readonly string[];
+  readonly used: readonly Used[];
+}
+
+export const requiredPeerProblems = ({
+  located,
+  optional,
+  used,
+}: OptionalPeering): readonly Problem[] => {
+  const libraries = pipe(
+    used,
+    Arr.filter(({ entry }) => !isBinEntry(entry)),
+  );
+  return pipe(
+    optional,
+    Arr.flatMap((name) => {
+      const bins = pipe(
+        used,
+        Arr.filter((entry) => isBinEntry(entry.entry) && importsPackage(name)(entry)),
+      );
+      const everyLibrary = pipe(
+        libraries,
+        Option.liftPredicate(
+          (all) => Arr.isArrayNonEmpty(all) && pipe(all, Arr.every(importsPackage(name))),
+        ),
+        Option.getOrElse((): readonly Used[] => []),
+      );
+      const importers = Arr.appendAll(bins, everyLibrary);
+      if (!Arr.isArrayNonEmpty(importers)) {
+        return [];
+      }
+      return [
+        {
+          file: located.file,
+          ...positionIn(located, PEER_META_KEY, name),
+          rule: REQUIRED_RULE,
+          message: `${name} is an optional peer, but ${labelsOf(importers)} import it at startup, so installing the package without it breaks them. Move it to dependencies.`,
+        },
+      ];
     }),
   );
 };

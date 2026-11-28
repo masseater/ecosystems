@@ -12,9 +12,9 @@ import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
 import type { BundleFailed, BundleScope } from "./consumer-bundle.ts";
-import { declaredBy, manifestOf } from "./manifest.ts";
+import { declaredBy, manifestOf, optionalPeersOf, runtimeDependenciesOf } from "./manifest.ts";
 import type { Declared, Manifest } from "./manifest.ts";
-import { optionalPeerProblems } from "./optional-peers.ts";
+import { optionalPeerProblems, requiredPeerProblems } from "./optional-peers.ts";
 import type { Located } from "./optional-peers.ts";
 import { excessOf, sideEffectProblems } from "./side-effects.ts";
 import { topLevelEffects } from "./top-level-effects.ts";
@@ -22,6 +22,7 @@ import { modulesToScan, usedBy } from "./usage.ts";
 import type { Used } from "./usage.ts";
 
 const BUNDLE: RuleName = "tree-shake-bundle";
+
 const BUNDLE_CONCURRENCY = 4;
 
 interface Package {
@@ -47,7 +48,7 @@ const shapeOf = Effect.fn("shapeOf")(function* shapeOf({ workspace, manifest }: 
     ),
   );
   return {
-    scope: { bundled: workspace.alwaysBundle },
+    scope: { declared: runtimeDependenciesOf(manifest), bundled: workspace.alwaysBundle },
     declared: declaredBy({ declared: manifest.sideEffects, locator: { workspace, join } }),
     entries,
   } satisfies Shape;
@@ -96,6 +97,7 @@ const analyse = Effect.fn("analyse")(function* analyse(pack: Package) {
     ...sideEffectProblems({ file: located.file, source: located.source, excesses }),
     ...effects,
     ...optionalPeerProblems({ located, dependencies: manifest.dependencies, used }),
+    ...requiredPeerProblems({ located, optional: optionalPeersOf(manifest), used }),
   ];
 });
 

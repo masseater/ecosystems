@@ -40,6 +40,7 @@ export const always: Effectful = () => true;
 export const never: Effectful = () => false;
 
 export interface BundleScope {
+  readonly declared: readonly string[];
   readonly bundled: readonly string[];
 }
 
@@ -77,11 +78,13 @@ const isBuiltin = (specifier: string): boolean =>
   Str.startsWith(NODE_PROTOCOL)(specifier) || builtins.has(packageNameOf(specifier));
 
 const isExternal =
-  ({ bundled }: BundleScope) =>
+  ({ declared, bundled }: BundleScope) =>
   (specifier: string, importer: string | undefined): boolean =>
     Predicate.isNotUndefined(importer) &&
     isBare(specifier) &&
-    !Arr.contains(bundled, packageNameOf(specifier));
+    (isBuiltin(specifier) ||
+      (Arr.contains(declared, packageNameOf(specifier)) &&
+        !Arr.contains(bundled, packageNameOf(specifier))));
 
 const consumerSource = ({ entry, member }: Consumer): string =>
   Option.match(member, {

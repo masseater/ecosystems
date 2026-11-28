@@ -37,6 +37,7 @@ export default defineConfig({
         "fumx-language-server": "bin/fumx-language-server.ts",
         "midi-to-fumx": "bin/midi-to-fumx.ts",
         "song-report": "bin/song-report.ts",
+        "als-to-fumx": "bin/als-to-fumx.ts",
       },
       platform: "node",
       sourcemap: true,

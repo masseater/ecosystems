@@ -103,6 +103,58 @@ const keepsDependencyOfBin = Effect.gen(function* keepsDependencyOfBin() {
   expect(findings).toStrictEqual([]);
 });
 
+const flagsOptionalPeerOfBin = Effect.gen(function* flagsOptionalPeerOfBin() {
+  const findings = yield* findingsFor({
+    "libs/pkg/package.json": manifest([
+      '"sideEffects": false',
+      EXPORTS,
+      '"bin": { "pkg": "./src/cli.ts" }',
+      DEPENDENCIES,
+      '"peerDependencies": { "dep-extra": "1.0.0", "dep-cli": "1.0.0" },\n  "peerDependenciesMeta": { "dep-extra": { "optional": true }, "dep-cli": { "optional": true } }',
+    ]),
+  });
+  expect(findings).toStrictEqual([
+    "libs/pkg/package.json:9 required-peer dep-cli is an optional peer, but `bin pkg` import it at startup, so installing the package without it breaks them. Move it to dependencies.",
+  ]);
+});
+
+const flagsOptionalPeerOfBundledDevDependency = Effect.gen(
+  function* flagsOptionalPeerOfBundledDevDependency() {
+    const findings = yield* findingsFor({
+      "libs/pkg/src/cli.ts": 'import { run } from "runner";\nrun();\n',
+      "libs/pkg/node_modules/runner/package.json":
+        '{ "name": "runner", "exports": "./index.ts" }\n',
+      "libs/pkg/node_modules/runner/index.ts":
+        'import { platform } from "dep-cli";\nexport const run = (): number => platform();\n',
+      "libs/pkg/package.json": manifest([
+        '"sideEffects": false',
+        EXPORTS,
+        '"bin": { "pkg": "./src/cli.ts" }',
+        DEPENDENCIES,
+        '"devDependencies": { "runner": "1.0.0" }',
+        '"peerDependencies": { "dep-extra": "1.0.0", "dep-cli": "1.0.0" },\n  "peerDependenciesMeta": { "dep-extra": { "optional": true }, "dep-cli": { "optional": true } }',
+      ]),
+    });
+    expect(findings).toStrictEqual([
+      "libs/pkg/package.json:10 required-peer dep-cli is an optional peer, but `bin pkg` import it at startup, so installing the package without it breaks them. Move it to dependencies.",
+    ]);
+  },
+);
+
+const flagsOptionalPeerOfEveryEntry = Effect.gen(function* flagsOptionalPeerOfEveryEntry() {
+  const findings = yield* findingsFor({
+    "libs/pkg/package.json": manifest([
+      '"sideEffects": false',
+      EXPORTS,
+      '"dependencies": { "dep-two": "1.0.0" }',
+      '"peerDependencies": { "dep-extra": "1.0.0", "dep-one": "1.0.0" },\n  "peerDependenciesMeta": { "dep-extra": { "optional": true }, "dep-one": { "optional": true } }',
+    ]),
+  });
+  expect(findings).toStrictEqual([
+    "libs/pkg/package.json:8 required-peer dep-one is an optional peer, but `.`, `./extra` import it at startup, so installing the package without it breaks them. Move it to dependencies.",
+  ]);
+});
+
 const keepsEntriesListedAsSideEffects = Effect.gen(function* keepsEntriesListedAsSideEffects() {
   const findings = yield* findingsFor({
     "libs/pkg/vite.config.ts": config(
@@ -181,5 +233,17 @@ layer(fixtureLayer)("tree shaking of published packages", (it) => {
   it.effect(
     "counts the packages of workspace packages that the pack bundles",
     () => bundlesPrivateWorkspacePackages,
+  );
+});
+
+layer(fixtureLayer)("peers of published packages", (it) => {
+  it.effect("flags an optional peer that a bin imports", () => flagsOptionalPeerOfBin);
+  it.effect(
+    "flags an optional peer that a bundled dev dependency of a bin imports",
+    () => flagsOptionalPeerOfBundledDevDependency,
+  );
+  it.effect(
+    "flags an optional peer that every library entry imports",
+    () => flagsOptionalPeerOfEveryEntry,
   );
 });
