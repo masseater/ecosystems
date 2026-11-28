@@ -133,6 +133,29 @@ export default defineConfig({
       skills: ["shadcn"],
     },
   },
+  tools: {
+    "open-telemetry/opentelemetry-collector-releases": {
+      version: "0.166.0",
+      bin: ["otelcol"],
+      assets: {
+        "darwin-arm64": "otelcol_{version}_darwin_arm64.tar.gz",
+        "darwin-x64": "otelcol_{version}_darwin_amd64.tar.gz",
+        "linux-arm64": "otelcol_{version}_linux_arm64.tar.gz",
+        "linux-x64": "otelcol_{version}_linux_amd64.tar.gz",
+        "win32-x64": "otelcol_{version}_windows_amd64.tar.gz",
+      },
+    },
+    "open-telemetry/weaver": {
+      version: "0.28.0",
+      assets: {
+        "darwin-arm64": "weaver-aarch64-apple-darwin.tar.xz",
+        "darwin-x64": "weaver-x86_64-apple-darwin.tar.xz",
+        "linux-arm64": "weaver-aarch64-unknown-linux-gnu.tar.xz",
+        "linux-x64": "weaver-x86_64-unknown-linux-gnu.tar.xz",
+        "win32-x64": "weaver-x86_64-pc-windows-msvc.zip",
+      },
+    },
+  },
   msch: {
     workspaceAgentsMd: true,
   },
