@@ -145,7 +145,6 @@
     "oxlint-plugin-eslint": "catalog:",
     "semver": "catalog:",
     "sql-parser-cst": "catalog:",
-    "synckit": "catalog:",
     "textlint-rule-preset-ja-technical-writing": "catalog:",
     "toml-eslint-parser": "catalog:",
     "yaml": "catalog:"

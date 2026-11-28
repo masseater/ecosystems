@@ -1,19 +1,42 @@
-import type { Option } from "effect";
-import { Array as Arr, Schema, pipe } from "effect";
+import { Array as Arr, Option, Record as Rec, Schema, pipe } from "effect";
 
 import { entryNameOf } from "#/entities/package/index.ts";
 import type { PackedWorkspace } from "#/entities/package/index.ts";
+import { keysOf } from "#/shared/lib/keys.ts";
 
 import { always, never } from "./consumer-bundle.ts";
 import type { Effectful } from "./consumer-bundle.ts";
+
+const Versions = Schema.Record(Schema.String, Schema.String);
+const PeerMeta = Schema.Struct({ optional: Schema.optional(Schema.Boolean) });
 
 export const Manifest = Schema.Struct({
   name: Schema.optional(Schema.String),
   exports: Schema.optional(Schema.Unknown),
   bin: Schema.optional(Schema.Unknown),
   sideEffects: Schema.optional(Schema.Unknown),
-  dependencies: Schema.optional(Schema.Record(Schema.String, Schema.String)),
+  dependencies: Schema.optional(Versions),
+  peerDependencies: Schema.optional(Versions),
+  optionalDependencies: Schema.optional(Versions),
+  peerDependenciesMeta: Schema.optional(Schema.Record(Schema.String, PeerMeta)),
 });
+
+export const runtimeDependenciesOf = ({
+  dependencies,
+  peerDependencies,
+  optionalDependencies,
+}: typeof Manifest.Type): readonly string[] =>
+  pipe([dependencies, peerDependencies, optionalDependencies], Arr.flatMap(keysOf), Arr.dedupe);
+
+export const optionalPeersOf = ({
+  peerDependenciesMeta,
+}: typeof Manifest.Type): readonly string[] =>
+  pipe(
+    Option.fromUndefinedOr(peerDependenciesMeta),
+    Option.map(Rec.filter(({ optional }) => optional === true)),
+    Option.map(Rec.keys),
+    Option.getOrElse((): readonly string[] => []),
+  );
 
 const decode = Schema.decodeOption(Schema.fromJsonString(Manifest));
 

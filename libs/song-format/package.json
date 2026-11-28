@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/song-format",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "The .fumx song format: a reader that turns a song into a typed value, key and chord analysis, import from TypeScript with Vite, a language server, MIDI and Ableton Live Set conversion that checks the result against the original, and a song report.",
   "keywords": [
     "fumx",
@@ -90,6 +90,7 @@
     "provenance": true
   },
   "dependencies": {
+    "@effect/platform-node": "catalog:",
     "ableton-als": "catalog:",
     "fast-xml-parser": "catalog:",
     "langium": "catalog:",
@@ -98,7 +99,6 @@
     "vscode-languageserver": "catalog:"
   },
   "devDependencies": {
-    "@effect/platform-node": "catalog:",
     "@effect/platform-node-shared": "catalog:",
     "@effect/vitest": "catalog:",
     "@r_masseater/mapped-import": "workspace:^",
@@ -112,7 +112,6 @@
     "vite-plus": "catalog:stack"
   },
   "peerDependencies": {
-    "@effect/platform-node": ">=4.1.5",
     "@effect/platform-node-shared": ">=4.1.5",
     "@r_masseater/mapped-import": "workspace:^",
     "effect": "^4.1.0",
@@ -120,9 +119,6 @@
     "vite-plus": "^1.8.0"
   },
   "peerDependenciesMeta": {
-    "@effect/platform-node": {
-      "optional": true
-    },
     "@effect/platform-node-shared": {
       "optional": true
     },
