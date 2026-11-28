@@ -9,7 +9,7 @@ type FirstParameter<Fn> = Fn extends (first: infer First, ...rest: readonly neve
 
 type Context = FirstParameter<Reporter>;
 
-type Range = readonly [start: number, end: number];
+export type Range = readonly [start: number, end: number];
 
 const WILDCARD = "*";
 const FIRST = 1;
