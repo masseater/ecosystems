@@ -8,6 +8,7 @@ import {
   merged,
   programOf,
   settingsInvalid,
+  siteEntries,
   usedFrom,
   workspaceDirectories,
   writeLockedClosures,
@@ -70,6 +71,7 @@ export interface WorkspaceLint {
   readonly shadcnUi: readonly string[];
   readonly publicEntries: readonly string[];
   readonly deployEntries: readonly string[];
+  readonly siteEntries: readonly string[];
 }
 
 export interface WorkspaceSettings {
@@ -266,6 +268,7 @@ const collectWorkspaceSettings = Effect.fn("collectWorkspaceSettings")(
           Arr.flatMap(({ publicEntries }) => publicEntries),
         ),
         deployEntries: yield* deployEntries(options.root),
+        siteEntries: yield* siteEntries(options.root),
       },
       testProjects: pipe(
         found,
