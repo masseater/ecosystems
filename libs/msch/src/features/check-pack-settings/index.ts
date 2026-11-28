@@ -1,1 +1,1 @@
-export { checkPackSettings, fixPrepublishScripts } from "./model/pack-settings.ts";
+export { checkPackSettings } from "./model/pack-settings.ts";
