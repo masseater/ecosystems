@@ -1,11 +1,12 @@
 import manifest from "@r_masseater/intent-book/package.json" with { type: "json" };
 import { runMain } from "@r_masseater/node-main";
-import { Array as Arr, Boolean as Bool, Console, Effect, Path } from "effect";
+import { Array as Arr, Boolean as Bool, Console, Effect, Path, pipe } from "effect";
 import { Argument, Command, Flag } from "effect/cli";
 
 import { buildSite } from "#/features/build-site/index.ts";
 import { readBooks } from "#/features/read-book/index.ts";
 import { writeSite } from "#/features/write-site/index.ts";
+import { expandDirectories } from "#/shared/lib/expand-directories.ts";
 
 const CURRENT_DIRECTORY = ".";
 
@@ -22,9 +23,12 @@ const build = Effect.fn("build")(function* build(input: {
   readonly landing: boolean;
 }) {
   const path = yield* Path.Path;
-  const { books, skipped } = yield* readBooks(
-    Arr.map(directoriesOf(input.directories), (directory) => path.resolve(directory)),
+  const directories = yield* expandDirectories(directoriesOf(input.directories));
+  const resolved = pipe(
+    directories,
+    Arr.map((directory) => path.resolve(directory)),
   );
+  const { books, skipped } = yield* readBooks(resolved);
   const files = yield* buildSite({ books, base: input.base, landing: input.landing });
   yield* Bool.match(Arr.isReadonlyArrayNonEmpty(skipped), {
     onTrue: () => Console.log(`skipped (no skills): ${Arr.join(skipped, ", ")}`),
@@ -38,7 +42,9 @@ const command = Command.make(
   "intent-book",
   {
     directories: Argument.String("package").pipe(
-      Argument.withDescription("Directory of an npm package that ships skills/ (default: .)"),
+      Argument.withDescription(
+        "Directory of an npm package that ships skills/, or a glob pattern for several (default: .)",
+      ),
       Argument.variadic(),
     ),
     out: Flag.String("out").pipe(

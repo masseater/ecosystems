@@ -24,7 +24,7 @@ Links between those Markdown files become links between pages. Links to any othe
 intent-book [--out <directory>] [--base <path>] [--no-landing] [<package>...]
 ```
 
-- `<package>` is the directory of an npm package that has `skills/` and a `package.json`. It defaults to the current directory. Give several to build one site that switches between them. A directory without `skills/` is skipped when more than one is given, so a glob such as `node_modules/@scope/*` works.
+- `<package>` is the directory of an npm package that has `skills/` and a `package.json`. It defaults to the current directory. Give several to build one site that switches between them. A directory without `skills/` is skipped when more than one is given, so a glob such as `node_modules/@scope/*` works. The tool expands a glob itself, so it also works where the shell does not expand it, such as in a task command of Vite Task.
 - `--out` is the directory to write to. It defaults to `book`. It is replaced on every build, and a non-empty directory that this tool did not create is refused.
 - `--base` is the path the site is served under, with a leading and a trailing slash. It defaults to `/`.
 - `--no-landing` leaves out the `index.html` at the root, for a site that is copied into another site. The stylesheet, the script and the search index always go to `_intent-book/`, so they do not collide with the other site's files.
