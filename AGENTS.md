@@ -1,10 +1,10 @@
 # ecosystems
 
-Follow `masseater-style`, a skill in masseater/skills that says which skills to load in each situation. `vp install` puts the skills in `.agents/skills/`.
+Follow `masseater-style`, a skill in [masseater/skills](github:masseater/skills) that says which skills to load in each situation. `vp install` puts the skills in `.agents/skills/`.
 
 Each workspace has its own AGENTS.md describing it and the rules that apply only there. Read it before changing that workspace.
 
-This repository holds the toolchain that masseater publishes to npm under `@r_masseater/*`: the repository checks, the linters and their presets, the fumx parser, and the libraries they need. masseater/masseater.dev, masseater/personal-space, masseater/mirucord and masseater/skills use it only through npm, never through a link to this workspace.
+This repository holds the toolchain that masseater publishes to npm under `@r_masseater/*`: the repository checks, the linters and their presets, the fumx parser, and the libraries they need. [masseater/masseater.dev](github:masseater/masseater.dev), [masseater/personal-space](github:masseater/personal-space), [masseater/mirucord](github:masseater/mirucord) and [masseater/skills](github:masseater/skills) use it only through npm, never through a link to this workspace.
 
 ## Tech stack
 
@@ -23,5 +23,5 @@ The base stack is TypeScript 7, Effect and Vite+.
 - Do not write the owner's email address in this repository.
 - Do not put copyrighted works such as songs or source videos in the repository.
 - Every deviation from an upstream package is temporary. Put it only in the root `pnpm-workspace.yaml` (`overrides`, `patchedDependencies`, `packageExtensions`) or the root `Cargo.toml` (`[patch]`), and end its line with `# exit: <condition>` that msch-exits can check.
-- Nothing here may depend on masseater/masseater.dev. msch keeps its own copy of that repository's plugin marketplace in `libs/msch/src/shared/config/masseater-marketplace.json`; change it together with `.claude-plugin/marketplace.json` there.
+- Nothing here may depend on [masseater/masseater.dev](github:masseater/masseater.dev). msch keeps its own copy of that repository's plugin marketplace in `libs/msch/src/shared/config/masseater-marketplace.json`; change it together with `.claude-plugin/marketplace.json` there.
 - Keep Cloudflare out of this repository. CI uses only the credential broker's remote cache grant.

@@ -123,6 +123,17 @@ describe("repositoryConfig dependency allowances", () => {
   });
 });
 
+const VERIFY_DEPENDENCIES = [
+  "web#verify",
+  "fallow",
+  "check",
+  "test",
+  "msch",
+  "audit",
+  "published",
+  "db-check-all",
+];
+
 describe("repositoryConfig", () => {
   it("makes verify depend on workspace verifies and every root task", () => {
     expect(config).toMatchObject({
@@ -130,7 +141,7 @@ describe("repositoryConfig", () => {
         tasks: {
           verify: {
             command: [],
-            dependsOn: ["web#verify", "fallow", "check", "test", "msch", "audit", "db-check-all"],
+            dependsOn: VERIFY_DEPENDENCIES,
           },
         },
       },

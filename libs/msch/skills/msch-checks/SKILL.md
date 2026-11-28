@@ -43,6 +43,12 @@ A Markdown link whose destination is `github:<owner>/<repo>[/<path>][#<symbol>]`
 
 Run `vp exec msch-refs` at the repository root to look each target up on GitHub and npm. It reports a repository that moved or was archived, a path or symbol that is gone, a package or version that is not published and a deprecated version, and exits with 1 when it finds one or cannot check one. `--json` prints the results as JSON. The root `daily` task runs it, and a private repository needs `GH_TOKEN` to be readable.
 
+## Versions of published packages
+
+`unbumped-package` reports a published workspace that changed since the base (`origin/main`, or `VPA_BASE`) while its version is not above the version of the base and of `origin/main`. Two pull requests that claim the same version both look fine alone, and the second one is never published. Test files, fixtures, `AGENTS.md`, `CLAUDE.md` and `CHANGELOG.md` do not count as a change. Bump the version above the one `origin/main` holds.
+
+`msch-published` runs in `verify`. It reports a `workspace:` dependency whose version is on `origin/main` but not on npm, and a `@r_masseater/*` or `@masseater.dev/*` dependency range that no published version satisfies. A sibling workspace that this change bumps is skipped, because it is published first. A lookup that fails reports nothing.
+
 ## Git hooks
 
 | Hook       | Command                  |
