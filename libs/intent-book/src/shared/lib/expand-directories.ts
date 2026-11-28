@@ -16,8 +16,13 @@ const matchingDirectories = Effect.fn("matchingDirectories")(function* matchingD
       ),
     { concurrency: CHECK_CONCURRENCY },
   );
-  return Bool.match(Arr.isArrayNonEmpty(kept), {
-    onTrue: () => kept,
+  const real = yield* Effect.forEach(
+    kept,
+    (directory) => fileSystem.realPath(directory).pipe(Effect.orElseSucceed(() => directory)),
+    { concurrency: CHECK_CONCURRENCY },
+  );
+  return Bool.match(Arr.isArrayNonEmpty(real), {
+    onTrue: () => real,
     onFalse: () => [pattern],
   });
 });
