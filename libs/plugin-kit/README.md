@@ -21,6 +21,10 @@ if (parsed._tag === "Some" && isRecord(parsed.value)) {
 }
 ```
 
+## Agent skills
+
+The package ships an agent skill in `skills/`. Add `permissions: { "@r_masseater/plugin-kit": { skills: true } }` to `pnpm-workspace.yaml` and `vp install` links it into the skill directories of your agents.
+
 ## License
 
 [MIT](LICENSE)
