@@ -192,12 +192,18 @@ const searchDialog = (): Element => {
   return h("dialog", { class: "search", ariaLabel: "Search" }, [input, h("ul")]);
 };
 
+const pageTitle = (shell: Shell): string =>
+  Bool.match(shell.title === shell.book.name, {
+    onTrue: () => shell.title,
+    onFalse: () => `${shell.title} · ${shell.book.name}`,
+  });
+
 const headOf = (shell: Shell): readonly Element[] => [
   charset(),
   h("meta", { name: "viewport", content: "width=device-width, initial-scale=1" }),
   h("meta", { name: "intent-book-base", content: shell.base }),
   h("meta", { name: "description", content: shell.description }),
-  h("title", `${shell.title} · ${shell.book.name}`),
+  h("title", pageTitle(shell)),
   h("link", { rel: "stylesheet", href: `${shell.base}${STYLE_PATH}` }),
   h("script", { src: `${shell.base}${SCRIPT_PATH}`, defer: true }),
 ];
