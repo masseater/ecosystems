@@ -1,7 +1,7 @@
 {
   "name": "@r_masseater/plugin-kit",
-  "version": "0.1.0",
-  "description": "Reads untrusted JSON in Claude Code plugin hooks and scripts: tell a plain object from other values and parse text without throwing.",
+  "version": "0.2.0",
+  "description": "Shared code for Claude Code plugin hooks and scripts: read untrusted JSON without throwing and find the plugin cache folder.",
   "keywords": [
     "claude-code",
     "hooks",
@@ -22,6 +22,7 @@
   "files": [
     "LICENSE",
     "dist",
+    "skills/find-cache-folder",
     "skills/read-hook-input"
   ],
   "type": "module",
@@ -48,6 +49,7 @@
     "prepublishOnly": "vp exec msch-publish prepublish ."
   },
   "devDependencies": {
+    "@effect/vitest": "catalog:",
     "effect": "catalog:stack",
     "vite-plus": "catalog:stack"
   },

@@ -1,6 +1,6 @@
 # @r_masseater/plugin-kit
 
-Reads untrusted JSON in Claude Code plugin hooks and scripts.
+Shared code for Claude Code plugin hooks and scripts: read untrusted JSON and find the cache folder.
 
 It requires Node.js 26 or later. It bundles the little of Effect it needs, so installing it adds no other package.
 
@@ -19,6 +19,16 @@ const parsed = parseJson(text);
 if (parsed._tag === "Some" && isRecord(parsed.value)) {
   console.log(parsed.value["tool_name"]);
 }
+```
+
+## Find the cache folder
+
+`cacheRootOf` returns the folder a plugin keeps downloaded or built files in: `$XDG_CACHE_HOME/<segments>`, or `~/.cache/<segments>` when `XDG_CACHE_HOME` is unset or empty. It builds the path and creates nothing. `cacheRootEffect` is the same lookup as an Effect that fails with `CacheRootError` when neither variable is set.
+
+```ts
+import { cacheRootOf } from "@r_masseater/plugin-kit";
+
+const root = await cacheRootOf(["my-plugin", "runtime"]);
 ```
 
 ## Agent skills
