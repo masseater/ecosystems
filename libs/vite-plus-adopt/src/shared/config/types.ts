@@ -1,7 +1,7 @@
 import type { UserConfig as CommitlintUserConfig } from "@commitlint/types";
 import type { H56mConfig } from "@r_masseater/h56m";
 import type { TextlintRcConfig } from "@textlint/config-loader";
-import type { TextlintKernelRule } from "@textlint/kernel";
+import type { TextlintKernelFilterRule, TextlintKernelRule } from "@textlint/kernel";
 
 import type { DependencyField } from "#/shared/lib/workspace.ts";
 
@@ -24,6 +24,8 @@ export interface TextlintSource extends TextlintRcConfig {
 export interface TextlintConfig extends TextlintRcConfig {
   readonly ignores?: readonly string[];
   readonly presets?: Readonly<Record<string, TextlintPreset>>;
+  readonly filterModules?: Readonly<Record<string, TextlintKernelFilterRule["rule"]>>;
+  readonly reportUnusedDirectives?: boolean;
   readonly sources?: readonly TextlintSource[];
 }
 

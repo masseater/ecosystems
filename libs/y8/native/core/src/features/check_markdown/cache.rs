@@ -5,7 +5,8 @@ use serde_json::{Map, Value};
 
 use super::Diagnostic;
 use super::config::Severity;
-use super::rule::Rule;
+use super::ranges::{UNUSED_DIRECTIVE, UNUSED_RULE};
+use super::rule::{Rule, RuleMeta};
 
 const BUILD: &str = env!("Y8_BUILD_ID");
 
@@ -26,10 +27,15 @@ pub struct ResultCache {
 
 impl ResultCache {
     #[must_use]
-    pub fn new(directory: &Path, config: &Map<String, Value>, inline: bool) -> Self {
+    pub fn new(
+        directory: &Path,
+        config: &Map<String, Value>,
+        inline: bool,
+        report_unused: bool,
+    ) -> Self {
         let mut hasher = blake3::Hasher::new();
         hasher.update(BUILD.as_bytes());
-        hasher.update(&[u8::from(inline)]);
+        hasher.update(&[u8::from(inline), u8::from(report_unused)]);
         hasher.update(Value::Object(config.clone()).to_string().as_bytes());
         Self {
             directory: directory.join(hasher.finalize().to_hex().as_str()),
@@ -57,7 +63,11 @@ impl ResultCache {
         stored
             .into_iter()
             .map(|entry| {
-                let meta = rules.get(entry.rule)?.meta();
+                let meta: &RuleMeta = if entry.rule == UNUSED_RULE {
+                    &UNUSED_DIRECTIVE
+                } else {
+                    rules.get(entry.rule)?.meta()
+                };
                 Some(Diagnostic {
                     line: entry.line,
                     rule_names: meta.names.to_vec(),

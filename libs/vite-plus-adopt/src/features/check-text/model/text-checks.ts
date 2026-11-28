@@ -50,12 +50,12 @@ export const textlintCheck = withSection("textlint", (config, { root }) => {
   const markdown = markdownFiles(root, config.ignores).pipe(
     Effect.flatMap((files) => lintTexts(config, root, files)),
   );
-  const presets = config.presets ?? {};
+  const { presets = {}, filterModules = {}, reportUnusedDirectives = false } = config;
   const sources = pipe(
     config.sources ?? [],
     Arr.map(({ files, ...source }) =>
       Effect.flatMap(sourceFiles(root, files), (listed) =>
-        lintTexts({ ...source, presets }, root, listed),
+        lintTexts({ ...source, presets, filterModules, reportUnusedDirectives }, root, listed),
       ),
     ),
   );

@@ -24,6 +24,7 @@ import type {
   Visitors,
   Y8Error,
 } from "./index.ts";
+import { lintFiles } from "./lint.test.support.ts";
 
 const services = ManagedRuntime.make(nodeServices);
 afterAll(() => services.dispose());
@@ -142,25 +143,6 @@ test("rules for a plugin that is not configured fail loudly", () =>
     const failure = yield* lintDocument({ rules: { "missing/rule": "error" } }).pipe(Effect.flip);
     expect(failure.message).toContain("missing");
   }).pipe(services.runPromise));
-
-const lintFiles = (
-  files: Readonly<Record<string, string>>,
-  config: Y8Config,
-): Effect.Effect<
-  readonly Diagnostic[],
-  Y8Error | PlatformError,
-  FileSystem.FileSystem | Path.Path
-> =>
-  Effect.gen(function* fixture() {
-    const fileSystem = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const root = yield* fileSystem.makeTempDirectoryScoped();
-    for (const [name, text] of Rec.toEntries(files)) {
-      yield* fileSystem.makeDirectory(path.dirname(path.join(root, name)), { recursive: true });
-      yield* fileSystem.writeFileString(path.join(root, name), text);
-    }
-    return yield* lint({ root, files: Rec.keys(files), config });
-  }).pipe(Effect.scoped);
 
 const rulesOf = (diagnostics: readonly Diagnostic[]): readonly string[] =>
   pipe(

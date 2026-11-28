@@ -5,7 +5,7 @@ import type { Y8Config } from "#/shared/config/index.ts";
 
 type Layer = Omit<Y8Config, "extends">;
 
-type Switch = "inlineConfig" | "cache";
+type Switch = "inlineConfig" | "reportUnusedDirectives" | "cache";
 
 const lastOf =
   (key: Switch) =>
@@ -24,6 +24,7 @@ export const flattenConfig = (config: Y8Config): Y8Config => {
   return {
     ...mergedLayers(layers),
     ...lastOf("inlineConfig")(layers),
+    ...lastOf("reportUnusedDirectives")(layers),
     ...lastOf("cache")(layers),
   };
 };

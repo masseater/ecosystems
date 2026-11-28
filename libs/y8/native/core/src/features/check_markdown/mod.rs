@@ -2,6 +2,7 @@ mod cache;
 mod config;
 #[cfg(test)]
 mod conformance;
+mod ranges;
 mod rule;
 mod rules;
 
@@ -9,6 +10,8 @@ pub use cache::ResultCache;
 pub use config::Severity;
 pub use rule::{Rule, RuleMeta};
 pub use rules::builtin as builtin_rules;
+
+use std::collections::HashSet;
 
 use rayon::prelude::*;
 use serde::Serialize;
@@ -54,6 +57,7 @@ pub struct Linter {
     names: Names,
     config: Map<String, Value>,
     inline: bool,
+    report_unused: bool,
     cache: Option<ResultCache>,
 }
 
@@ -72,13 +76,25 @@ impl Linter {
             names,
             config,
             inline,
+            report_unused: false,
             cache: None,
         }
     }
 
     #[must_use]
+    pub fn reporting_unused_directives(mut self, report: bool) -> Self {
+        self.report_unused = report;
+        self
+    }
+
+    #[must_use]
     pub fn with_cache(mut self, directory: &std::path::Path) -> Self {
-        self.cache = Some(ResultCache::new(directory, &self.config, self.inline));
+        self.cache = Some(ResultCache::new(
+            directory,
+            &self.config,
+            self.inline,
+            self.report_unused,
+        ));
         self
     }
 
@@ -92,6 +108,7 @@ impl Linter {
         );
         let cache = Cache::default();
         let mut diagnostics = Vec::new();
+        let mut used: HashSet<(usize, usize)> = HashSet::new();
         for (index, rule) in self.rules.iter().enumerate() {
             if !plan.used(index) {
                 continue;
@@ -117,26 +134,35 @@ impl Linter {
                     .add(source.body_line)
                     .detail("This rule threw an exception");
             }
-            diagnostics.extend(
-                report
-                    .findings
-                    .into_iter()
-                    .filter(|finding| plan.enabled(index, finding.line))
-                    .map(|finding| {
-                        (
-                            index,
-                            Diagnostic {
-                                line: finding.line + 1,
-                                rule_names: meta.names.to_vec(),
-                                description: meta.description,
-                                detail: finding.detail,
-                                context: finding.context.filter(|c| !c.is_empty()),
-                                range: finding.range,
-                                severity: setting.severity,
-                            },
-                        )
-                    }),
-            );
+            for finding in report.findings {
+                if !plan.enabled(index, finding.line) {
+                    continue;
+                }
+                if !plan.ranges.is_empty() {
+                    let column = finding.range.map(|(column, _)| column);
+                    let offset = ranges::offset_of(source, finding.line, column);
+                    let covering = plan.ranges.covering(index, offset);
+                    if !covering.is_empty() {
+                        used.extend(covering);
+                        continue;
+                    }
+                }
+                diagnostics.push((
+                    index,
+                    Diagnostic {
+                        line: finding.line + 1,
+                        rule_names: meta.names.to_vec(),
+                        description: meta.description,
+                        detail: finding.detail,
+                        context: finding.context.filter(|c| !c.is_empty()),
+                        range: finding.range,
+                        severity: setting.severity,
+                    },
+                ));
+            }
+        }
+        if self.report_unused {
+            diagnostics.extend(unused_directives(&plan.ranges, &used));
         }
         diagnostics.sort_by_key(|(_, d)| d.line);
         diagnostics
@@ -197,4 +223,44 @@ impl Linter {
             })
             .collect()
     }
+}
+
+fn unused_directives(
+    ranges: &ranges::Ranges,
+    used: &HashSet<(usize, usize)>,
+) -> Vec<(usize, Diagnostic)> {
+    let meta = &ranges::UNUSED_DIRECTIVE;
+    ranges
+        .owners
+        .iter()
+        .enumerate()
+        .flat_map(|(owner_index, owner)| {
+            owner
+                .names
+                .iter()
+                .enumerate()
+                .filter(move |(name_index, _)| !used.contains(&(owner_index, *name_index)))
+                .map(move |(_, name)| {
+                    let subject = if name.text.is_empty() {
+                        "all rules"
+                    } else {
+                        &name.text
+                    };
+                    (
+                        ranges::UNUSED_RULE,
+                        Diagnostic {
+                            line: owner.line + 1,
+                            rule_names: meta.names.to_vec(),
+                            description: meta.description,
+                            detail: Some(format!(
+                                "{subject} reports nothing in the range of this comment"
+                            )),
+                            context: None,
+                            range: Some((owner.column, owner.length)),
+                            severity: Severity::Error,
+                        },
+                    )
+                })
+        })
+        .collect()
 }

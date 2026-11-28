@@ -20,6 +20,7 @@ pub struct FileInput {
 pub struct LintOptions {
     pub config: Option<Value>,
     pub inline_config: Option<bool>,
+    pub report_unused_directives: Option<bool>,
     pub keep_tree: Option<bool>,
     pub keep_source: Option<bool>,
     pub traceparent: Option<String>,
@@ -48,7 +49,8 @@ fn linter(options: &mut LintOptions) -> Linter {
         Some(Value::Object(map)) => map,
         _ => Map::new(),
     };
-    let linter = Linter::new(config, options.inline_config.unwrap_or(true));
+    let linter = Linter::new(config, options.inline_config.unwrap_or(true))
+        .reporting_unused_directives(options.report_unused_directives.unwrap_or(false));
     match options.cache_dir.as_deref() {
         Some(directory) => linter.with_cache(std::path::Path::new(directory)),
         None => linter,
