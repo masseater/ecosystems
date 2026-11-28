@@ -13,12 +13,12 @@ import {
 import type { Listed } from "#/shared/lib/scanned-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
 
+import { unneededLockfile } from "./lockfiles.ts";
+
 const WORKSPACE_FILE = "pnpm-workspace.yaml";
 const PNPM_DIRECTORY = ".pnpm/";
 const SEPARATOR = "/";
 
-const FOREIGN_LOCKFILE =
-  /(?:^|\/)(?:package-lock\.json|npm-shrinkwrap\.json|yarn\.lock|bun\.lockb?)$/u;
 const CARGO_MANIFEST_FILE = /(?:^|\/)Cargo\.toml$/u;
 const CARGO_LOCK_FILE = /(?:^|\/)Cargo\.lock$/u;
 const PNPM_OUTPUT = /(?:^|\/)\.pnpm\//u;
@@ -162,7 +162,6 @@ const matches =
     pattern.test(name);
 
 const isCargoManifest = matches(CARGO_MANIFEST_FILE);
-const isForeignLockfile = matches(FOREIGN_LOCKFILE);
 const isLegacyCargoConfig = matches(LEGACY_CARGO_CONFIG);
 const isPnpmOutput = matches(PNPM_OUTPUT);
 
@@ -269,7 +268,7 @@ const cargoProblems = (
 const unneededIn = Effect.fn("unneededIn")(function* unneededIn(root: string, enabled: boolean) {
   const listed = yield* listedFiles(root);
   const present = yield* presentFiles(listed);
-  const lockfiles = pipe(present, Arr.filter(isForeignLockfile), Arr.map(foreignLockfile));
+  const lockfiles = pipe(present, Arr.filter(unneededLockfile(present)), Arr.map(foreignLockfile));
   if (!pipe(present, Arr.some(isCargoManifest))) {
     return lockfiles;
   }
