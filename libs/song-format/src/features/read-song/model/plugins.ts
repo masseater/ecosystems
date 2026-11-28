@@ -33,24 +33,28 @@ const moduleFor: From<PluginUseNode, From<PluginNode, string>> = (use) => (plugi
   return pathFrom(home)(there)(plugin.module);
 };
 
+const plain =
+  (kind: "number" | "decibels" | "hertz" | "milliseconds" | "semitones") =>
+  (amount: { readonly value: number }): Option.Option<PluginValue> =>
+    Option.some({ kind, value: amount.value });
+
 const pluginValueOf: From<Value, Option.Option<PluginValue>> = (value) =>
   Match.value(value).pipe(
-    Match.discriminatorsExhaustive("kind")({
-      number: (number) => Option.some<PluginValue>({ kind: "number", value: number.value }),
-      decibels: (amount) => Option.some<PluginValue>({ kind: "decibels", value: amount.value }),
+    Match.discriminators("kind")({
+      number: plain("number"),
+      decibels: plain("decibels"),
+      hertz: plain("hertz"),
+      time: plain("milliseconds"),
+      semitones: plain("semitones"),
       percent: (amount) =>
         Option.some<PluginValue>({ kind: "share", value: amount.value / HUNDRED }),
-      hertz: (amount) => Option.some<PluginValue>({ kind: "hertz", value: amount.value }),
-      time: (amount) => Option.some<PluginValue>({ kind: "milliseconds", value: amount.value }),
-      semitones: (amount) => Option.some<PluginValue>({ kind: "semitones", value: amount.value }),
       duration: (duration) => Option.some<PluginValue>({ kind: "ticks", value: duration.ticks }),
       pitch: (pitch) =>
         Option.some<PluginValue>({ kind: "pitch", midi: pitch.midi, cents: pitch.cents }),
       string: (text) => Option.some<PluginValue>({ kind: "text", value: text.value }),
       bool: (truth) => Option.some<PluginValue>({ kind: "flag", value: truth.value }),
-      list: () => Option.none(),
-      none: () => Option.none(),
     }),
+    Match.orElse(() => Option.none<PluginValue>()),
   );
 
 const typedValueOf: From<readonly [PluginParam, Literal], Compiled<Option.Option<PluginValue>>> = ([

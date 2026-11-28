@@ -37,20 +37,12 @@ const ok: From<Value, Outcome> = (value) => ({ ok: true, value });
 
 const amountOf: From<Value, number> = (value) =>
   Match.value(value).pipe(
-    Match.discriminatorsExhaustive("kind")({
+    Match.discriminators("kind")({
       duration: (duration) => duration.ticks,
       pitch: (pitch) => pitch.midi + pitch.cents / CENTS,
-      number: (number) => number.value,
-      decibels: (amount) => amount.value,
-      percent: (amount) => amount.value,
-      hertz: (amount) => amount.value,
-      time: (amount) => amount.value,
-      semitones: (amount) => amount.value,
-      string: () => Number.NaN,
-      bool: () => Number.NaN,
-      list: () => Number.NaN,
-      none: () => Number.NaN,
     }),
+    Match.when({ value: Match.number }, (amount) => amount.value),
+    Match.orElse(() => Number.NaN),
   );
 
 const ARITHMETIC: Readonly<Record<string, From<readonly [number, number], number>>> = {
@@ -115,6 +107,11 @@ const scalarOf: From<Type, Option.Option<Scalar>> = (type) => {
   }
   return Option.some(type.kind);
 };
+
+const boolRule = (holds: From<Pair, boolean>): Rule => ({
+  result: scalar("bool"),
+  apply: (pair) => ok(boolValue(holds(pair))),
+});
 
 const ruled: From<Scalar, From<Operator, Rule>> = (kind) => (operator) => ({
   result: scalar(kind),
@@ -191,10 +188,9 @@ const equalityRule: From<Operands, Option.Option<Rule>> = ({ operator, left, rig
     return Option.none();
   }
   const wanted = operator === "==";
-  return Option.some({
-    result: scalar("bool"),
-    apply: ({ left: first, right: second }) => ok(boolValue(sameValue(first)(second) === wanted)),
-  });
+  return Option.some(
+    boolRule(({ left: first, right: second }) => sameValue(first)(second) === wanted),
+  );
 };
 
 const orderRule: From<Operands, Option.Option<Rule>> = ({ operator, left, right }) =>
@@ -203,13 +199,9 @@ const orderRule: From<Operands, Option.Option<Rule>> = ({ operator, left, right 
     Option.filter(
       () => left.kind === right.kind && Arr.contains([...COUNTABLE, "pitch"], left.kind),
     ),
-    Option.map((compare) => ({
-      result: scalar("bool"),
-      apply: ({ left: first, right: second }: Pair): Outcome => {
-        const holds = compare([amountOf(first), amountOf(second)]);
-        return ok(boolValue(holds));
-      },
-    })),
+    Option.map((compare) =>
+      boolRule(({ left: first, right: second }) => compare([amountOf(first), amountOf(second)])),
+    ),
   );
 
 const truthOf: From<Value, boolean> = (value) => value.kind === "bool" && value.value;
@@ -219,15 +211,14 @@ const logicRule: From<Operands, Option.Option<Rule>> = ({ operator, left, right 
     return Option.none();
   }
   const both = operator === "and";
-  return Option.some({
-    result: scalar("bool"),
-    apply: ({ left: first, right: second }) => {
+  return Option.some(
+    boolRule(({ left: first, right: second }) => {
       if (both) {
-        return ok(boolValue(truthOf(first) && truthOf(second)));
+        return truthOf(first) && truthOf(second);
       }
-      return ok(boolValue(truthOf(first) || truthOf(second)));
-    },
-  });
+      return truthOf(first) || truthOf(second);
+    }),
+  );
 };
 
 const RULES: readonly From<Operands, Option.Option<Rule>>[] = [

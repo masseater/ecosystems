@@ -18,6 +18,14 @@ export const fieldOf =
       Arr.findFirst((child) => child.field === field),
     );
 
+export const fieldTextOf =
+  (field: string) =>
+  (node: SyntaxNode): Option.Option<string> =>
+    pipe(
+      fieldOf(field)(node),
+      Option.map((child) => child.text),
+    );
+
 export const fieldsOf =
   (field: string) =>
   (node: SyntaxNode): readonly SyntaxNode[] =>
@@ -31,10 +39,15 @@ export const isType =
   (node: SyntaxNode): boolean =>
     types.includes(node.type);
 
-export const namedOfType =
+const typedWithin =
+  (select: (node: SyntaxNode) => readonly SyntaxNode[]) =>
   (...types: readonly string[]) =>
   (node: SyntaxNode): readonly SyntaxNode[] =>
-    pipe(node.namedChildren, Arr.filter(isType(...types)));
+    pipe(select(node), Arr.filter(isType(...types)));
+
+export const namedOfType = typedWithin((node) => node.namedChildren);
+
+export const descendantsOfType = typedWithin(descendants);
 
 export const ofType =
   (...types: readonly string[]) =>

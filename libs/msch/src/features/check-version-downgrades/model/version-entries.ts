@@ -2,18 +2,18 @@ import { Array as Arr, Option, Record as Rec, Schema, String as Str, pipe } from
 import { getStaticTOMLValue, parseTOML } from "toml-eslint-parser";
 import { parse } from "yaml";
 
+import { fieldsOf, namedCatalogsOf } from "#/entities/package/index.ts";
+import type { Fields } from "#/entities/package/index.ts";
+
 export interface VersionEntry {
   readonly key: string;
   readonly name: string;
   readonly spec: string;
 }
 
-type Fields = Readonly<Record<string, unknown>>;
-
 const MANIFEST_SECTIONS = ["dependencies", "devDependencies", "optionalDependencies", "engines"];
 const CARGO_SECTIONS = ["dependencies", "dev-dependencies", "build-dependencies"];
 
-const decodeFields = Schema.decodeUnknownOption(Schema.Record(Schema.String, Schema.Unknown));
 const decodeJson = Schema.decodeUnknownOption(Schema.fromJsonString(Schema.Unknown));
 const decodeString = Schema.decodeUnknownOption(Schema.String);
 const decodeVersioned = Schema.decodeUnknownOption(Schema.Struct({ version: Schema.String }));
@@ -26,8 +26,6 @@ const decodeSpec = (value: unknown): Option.Option<string> =>
 const PackageManager = Schema.String.check(Schema.isPattern(/^[^@]+@[^+]+/u));
 
 const decodePackageManager = Schema.decodeUnknownOption(PackageManager);
-
-const fieldsOf = (value: unknown): Fields => Option.getOrElse(decodeFields(value), () => ({}));
 
 const fieldOf =
   (name: string) =>
@@ -74,9 +72,9 @@ export const manifestEntries = (text: string): readonly VersionEntry[] => {
   ];
 };
 
-const catalogsIn = (held: unknown): readonly VersionEntry[] =>
+const catalogsIn = (settings: Fields): readonly VersionEntry[] =>
   pipe(
-    Rec.toEntries(fieldsOf(held)),
+    namedCatalogsOf(settings),
     Arr.flatMap(([name, catalog]) => entriesIn(`catalogs.${name}`)(catalog)),
   );
 
@@ -85,7 +83,7 @@ export const workspaceEntries = (text: string): readonly VersionEntry[] => {
     Option.getOrUndefined,
     fieldsOf,
   );
-  return [...sectionsIn(["catalog", "overrides"])(settings), ...catalogsIn(settings["catalogs"])];
+  return [...sectionsIn(["catalog", "overrides"])(settings), ...catalogsIn(settings)];
 };
 
 const parseToml = (text: string): Fields =>

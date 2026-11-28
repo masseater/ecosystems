@@ -4,9 +4,8 @@ import { minimatch } from "minimatch";
 import { defineRule } from "#/entities/rule/index.ts";
 import {
   descendants,
-  destinationOf,
+  externalDestinationOf,
   directoryOf,
-  isExternal,
   isPublished,
   joinPath,
   isImageBlock,
@@ -93,11 +92,9 @@ const isDocsLink =
   (node: MarkdownNode): boolean =>
     node.type === "link" &&
     pipe(
-      destinationOf(node),
+      externalDestinationOf(node),
       Option.exists(
-        (destination) =>
-          isExternal(destination) &&
-          (DOCS_LINK.test(destination) || DOCS_LINK.test(plainText(context)(node))),
+        (destination) => DOCS_LINK.test(destination) || DOCS_LINK.test(plainText(context)(node)),
       ),
     );
 

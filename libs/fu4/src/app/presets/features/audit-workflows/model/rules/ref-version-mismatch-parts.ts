@@ -64,15 +64,18 @@ export const commentState = (target: UsesTarget): Option.Option<CommentState> =>
     Option.map(({ concrete }) => stateOf(concrete.comments)),
   );
 
+const notedUses = (target: UsesTarget, annotation: string): SymbolicLocation =>
+  pipe(usesLocation(target), withinText(target.raw), annotated(annotation));
+
 export const flagged =
   (annotation: string) =>
   ({ target }: Pin): SymbolicLocation =>
-    pipe(usesLocation(target), primary, withinText(target.raw), annotated(annotation));
+    primary(notedUses(target, annotation));
 
 export const suggested =
   (tag: string) =>
   (target: UsesTarget): SymbolicLocation =>
-    pipe(usesLocation(target), withinText(target.raw), annotated(`is pointed to by tag ${tag}`));
+    notedUses(target, `is pointed to by tag ${tag}`);
 
 const pointsTo = (found: Option.Option<ResolvedRef>): string =>
   Option.match(found, {

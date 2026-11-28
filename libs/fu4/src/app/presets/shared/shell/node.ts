@@ -1,7 +1,7 @@
 import { ancestorsBy } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Option, pipe } from "effect";
 
-import { anyWithin } from "#/app/presets/shared/syntax/index.ts";
+import { anyWithin, fieldTextOf } from "#/app/presets/shared/syntax/index.ts";
 import type { SyntaxNode } from "#/shared/config/index.ts";
 
 export const parentOf = (node: SyntaxNode): Option.Option<SyntaxNode> =>
@@ -41,3 +41,6 @@ export const keywordOf = (node: SyntaxNode): string =>
     Option.map((child) => child.text),
     Option.getOrElse(() => ""),
   );
+
+export const assignmentNameOf = (node: SyntaxNode): Option.Option<string> =>
+  Option.filter(fieldTextOf("name")(node), () => node.type === "variable_assignment");

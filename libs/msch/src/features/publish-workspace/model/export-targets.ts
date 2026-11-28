@@ -39,24 +39,37 @@ const singleTarget = (target: string): readonly string[] => {
 };
 
 /** @internal */
-export const exportTargetsOf = (exports: unknown): readonly string[] => {
-  if (Predicate.isString(exports)) {
-    return singleTarget(exports);
-  }
-  if (Arr.isArray(exports)) {
-    return pipe(
-      exports,
-      Arr.flatMap((entry) => exportTargetsOf(entry)),
-    );
-  }
-  if (Predicate.isReadonlyObject(exports)) {
-    return pipe(
-      Rec.values(exports),
-      Arr.flatMap((entry) => exportTargetsOf(entry)),
-    );
-  }
-  return [];
-};
+export interface ExportsCases<Result> {
+  readonly string: (target: string) => Result;
+  readonly array: (entries: readonly unknown[]) => Result;
+  readonly object: (record: Readonly<Record<string, unknown>>) => Result;
+  readonly other: () => Result;
+}
+
+/** @internal */
+export const foldExports =
+  <Result>(cases: ExportsCases<Result>) =>
+  (exports: unknown): Result => {
+    if (Predicate.isString(exports)) {
+      return cases.string(exports);
+    }
+    if (Arr.isArray(exports)) {
+      return cases.array(exports);
+    }
+    if (Predicate.isReadonlyObject(exports)) {
+      return cases.object(exports);
+    }
+    return cases.other();
+  };
+
+/** @internal */
+export const exportTargetsOf = (exports: unknown): readonly string[] =>
+  foldExports<readonly string[]>({
+    string: singleTarget,
+    array: Arr.flatMap(exportTargetsOf),
+    object: (record) => Arr.flatMap(Rec.values(record), exportTargetsOf),
+    other: () => [],
+  })(exports);
 
 const publishedExportsOf = (manifest: PublishedManifest): unknown =>
   pipe(

@@ -69,27 +69,49 @@ const effectiveName = (name: string, args: readonly SyntaxNode[]): Option.Option
   return Option.none();
 };
 
-export const effectiveWordOf = (node: SyntaxNode): Option.Option<SyntaxNode> =>
+interface CommandTarget {
+  readonly name: SyntaxNode;
+  readonly text: Option.Option<string>;
+  readonly wrapped: Option.Option<SyntaxNode>;
+}
+
+const targetOf = (node: SyntaxNode): Option.Option<CommandTarget> =>
   pipe(
     fieldOf("name")(node),
-    Option.flatMap((name) =>
-      pipe(
-        literalOf(name),
-        Option.flatMap((text) => effectiveName(text, fieldsOf("argument")(node))),
-        Option.orElse(() => Arr.head(name.namedChildren)),
-      ),
+    Option.map((name) => {
+      const text = literalOf(name);
+      return {
+        name,
+        text,
+        wrapped: pipe(
+          text,
+          Option.flatMap((word) => effectiveName(word, fieldsOf("argument")(node))),
+        ),
+      };
+    }),
+  );
+
+export const effectiveWordOf = (node: SyntaxNode): Option.Option<SyntaxNode> =>
+  pipe(
+    targetOf(node),
+    Option.flatMap(({ name, wrapped }) =>
+      Option.orElse(wrapped, () => Arr.head(name.namedChildren)),
     ),
   );
 
 export const commandNameOf = (node: SyntaxNode): Option.Option<string> =>
   pipe(
-    fieldOf("name")(node),
-    Option.flatMap(literalOf),
-    Option.map((name) =>
+    targetOf(node),
+    Option.flatMap(({ text, wrapped }) =>
       pipe(
-        effectiveName(name, fieldsOf("argument")(node)),
-        Option.flatMap(literalOf),
-        Option.getOrElse(() => name),
+        text,
+        Option.map((name) =>
+          pipe(
+            wrapped,
+            Option.flatMap(literalOf),
+            Option.getOrElse(() => name),
+          ),
+        ),
       ),
     ),
   );

@@ -33,9 +33,8 @@ const orOperands = (spanned: Spanned): readonly Spanned[] => {
   return [spanned];
 };
 
-type Collect = (spanned: Spanned) => readonly Spanned[];
-
 const LAST = 1;
+const SINGLE = 1;
 const ANNOTATION = pipe(
   rootLocation(""),
   annotated("pseudo-ternary has falsy true value"),
@@ -50,23 +49,16 @@ const falsyTrueValue = (operand: Spanned): readonly Spanned[] => {
   return [];
 };
 
-const orValues =
-  (collect: Collect) =>
-  (spanned: Spanned): readonly Spanned[] => {
-    const operands = orOperands(spanned);
-    const falsy = pipe(operands, Arr.dropRight(LAST), Arr.flatMap(falsyTrueValue));
-    return [...falsy, ...pipe(operands, Arr.flatMap(collect))];
-  };
-
-const unsoundTrueValues: Collect = (spanned) => {
-  const { expr } = spanned;
+const unsoundTrueValues = (spanned: Spanned): readonly Spanned[] => {
   if (isConstant(spanned)) {
     return [];
   }
-  if (expr.type === "binary" && expr.op === "or") {
-    return orValues(unsoundTrueValues)(spanned);
+  const operands = orOperands(spanned);
+  if (operands.length > SINGLE) {
+    const falsy = pipe(operands, Arr.dropRight(LAST), Arr.flatMap(falsyTrueValue));
+    return [...falsy, ...pipe(operands, Arr.flatMap(unsoundTrueValues))];
   }
-  return pipe(childrenOf(expr), Arr.flatMap(unsoundTrueValues));
+  return pipe(childrenOf(spanned.expr), Arr.flatMap(unsoundTrueValues));
 };
 
 export const unsoundTernary: Audit = {

@@ -2,6 +2,7 @@ import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import { isAppending, targetOf } from "#/app/presets/shared/shell/assignment.ts";
 import type { Target } from "#/app/presets/shared/shell/assignment.ts";
+import { assignmentNameOf } from "#/app/presets/shared/shell/node.ts";
 import { fieldOf } from "#/app/presets/shared/syntax/index.ts";
 import type { SyntaxNode } from "#/shared/config/index.ts";
 
@@ -71,13 +72,7 @@ const declaredName = (child: SyntaxNode): Option.Option<string> => {
   if (child.type === "variable_name") {
     return Option.some(child.text);
   }
-  if (child.type === "variable_assignment") {
-    return pipe(
-      fieldOf("name")(child),
-      Option.map((named) => named.text),
-    );
-  }
-  return Option.none();
+  return assignmentNameOf(child);
 };
 
 interface Declaration {

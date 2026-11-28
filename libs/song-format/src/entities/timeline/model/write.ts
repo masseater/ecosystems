@@ -39,8 +39,11 @@ const stepText: From<LaidTempo, string> = (step) => {
   return `${bpmText(step.microseconds)}${ramp} ${fractionOf(step.length)}`;
 };
 
+const isSteady: From<LaidBar, boolean> = (bar) =>
+  bar.tempo.length <= SINGLE && !pipe(bar.tempo, Arr.some(isRamp));
+
 const tempoLineOf: From<LaidBar, Option.Option<string>> = (bar) => {
-  if (bar.tempo.length <= SINGLE && !pipe(bar.tempo, Arr.some(isRamp))) {
+  if (isSteady(bar)) {
     return Option.none();
   }
   const steps = pipe(bar.tempo, Arr.map(stepText));
@@ -57,7 +60,7 @@ const headerTempoOf =
   (bar) =>
     pipe(
       Arr.head(bar.tempo),
-      Option.filter(() => bar.tempo.length === SINGLE && !pipe(bar.tempo, Arr.some(isRamp))),
+      Option.filter(() => isSteady(bar)),
       Option.map((step) => step.microseconds),
       Option.filter(differs(previous.microseconds)),
       Option.map((microseconds) => `tempo ${bpmText(microseconds)}`),

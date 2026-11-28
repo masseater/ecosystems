@@ -50,19 +50,28 @@ const parseIntOrName =
       }),
     );
 
+const atMostPair = (
+  parts: readonly string[],
+  expr: string,
+  noun: string,
+): Result.Result<readonly string[], string> => {
+  if (parts.length > PAIR) {
+    return Result.fail(`too many ${noun}: ${expr}`);
+  }
+  return Result.succeed(parts);
+};
+
 const explicitSpan =
   (expr: string, bounds: Bounds) =>
-  (parts: readonly string[]): Result.Result<Span, string> => {
-    if (parts.length > PAIR) {
-      return Result.fail(`too many hyphens: ${expr}`);
-    }
-    const parse = parseIntOrName(bounds);
-    const head = Arr.getUnsafe(parts, NONE);
-    const tail = Option.getOrElse(Arr.get(parts, ONE), () => head);
-    return Result.flatMap(parse(head), (start) =>
-      Result.map(parse(tail), (end) => ({ start, end, star: false, step: ONE })),
-    );
-  };
+  (parts: readonly string[]): Result.Result<Span, string> =>
+    Result.flatMap(atMostPair(parts, expr, "hyphens"), (pair) => {
+      const parse = parseIntOrName(bounds);
+      const head = Arr.getUnsafe(pair, NONE);
+      const tail = Option.getOrElse(Arr.get(pair, ONE), () => head);
+      return Result.flatMap(parse(head), (start) =>
+        Result.map(parse(tail), (end) => ({ start, end, star: false, step: ONE })),
+      );
+    });
 
 const spanOf =
   (expr: string, bounds: Bounds) =>
@@ -91,20 +100,17 @@ const withStep =
       step,
     }));
 
-const steppedSpan = (expr: string, bounds: Bounds): Result.Result<Span, string> => {
-  const steps = Str.split("/")(expr);
-  if (steps.length > PAIR) {
-    return Result.fail(`too many slashes: ${expr}`);
-  }
-  const ranges = Str.split("-")(Arr.getUnsafe(steps, NONE));
-  const step = withStep(bounds, ranges.length === ONE);
-  return Result.flatMap(spanOf(expr, bounds)(ranges), (span) =>
-    Option.match(Arr.get(steps, ONE), {
-      onNone: () => Result.succeed(span),
-      onSome: step(span),
-    }),
-  );
-};
+const steppedSpan = (expr: string, bounds: Bounds): Result.Result<Span, string> =>
+  Result.flatMap(atMostPair(Str.split("/")(expr), expr, "slashes"), (steps) => {
+    const ranges = Str.split("-")(Arr.getUnsafe(steps, NONE));
+    const step = withStep(bounds, ranges.length === ONE);
+    return Result.flatMap(spanOf(expr, bounds)(ranges), (span) =>
+      Option.match(Arr.get(steps, ONE), {
+        onNone: () => Result.succeed(span),
+        onSome: step(span),
+      }),
+    );
+  });
 
 const validated =
   (expr: string, bounds: Bounds) =>

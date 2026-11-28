@@ -157,24 +157,36 @@ const sourceSection = (skill: Skill): readonly Element[] =>
     return [h("section", { class: "sources" }, [h("h2", "Sources"), h("ul", items)])];
   });
 
+const articleOf = (
+  input: SkillPage,
+  trail: readonly (Element | string)[],
+  around: { readonly before: readonly Element[]; readonly after: readonly Element[] },
+): readonly Element[] => [
+  crumbs([bookLink(input.base, input.book), ...trail]),
+  h("h1", input.title),
+  ...around.before,
+  prose(input.tree),
+  ...around.after,
+];
+
 export const skillMain = (input: SkillPage): readonly Element[] => {
   const { base, book, skill } = input;
-  return [
-    crumbs([bookLink(base, book), typeOf(skill), skill.name]),
-    h("h1", input.title),
-    h("p", { class: "lead" }, skill.description),
-    skillChips(base, book, skill),
-    ...readFirst(base, book, skill),
-    prose(input.tree),
-    ...sourceSection(skill),
-    pager(base, book, skill),
-  ];
+  return articleOf(input, [typeOf(skill), skill.name], {
+    before: [
+      h("p", { class: "lead" }, skill.description),
+      skillChips(base, book, skill),
+      ...readFirst(base, book, skill),
+    ],
+    after: [...sourceSection(skill), pager(base, book, skill)],
+  });
 };
 
 export const referenceMain = (input: SkillPage): readonly Element[] => {
   const { base, book, skill } = input;
-  const parent = h("a", { href: skillRoute(base, book, skill) }, skill.name);
-  return [crumbs([bookLink(base, book), parent]), h("h1", input.title), prose(input.tree)];
+  return articleOf(input, [h("a", { href: skillRoute(base, book, skill) }, skill.name)], {
+    before: [],
+    after: [],
+  });
 };
 
 const rowLink = (href: string, name: string, description: string): Element =>

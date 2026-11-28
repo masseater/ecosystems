@@ -189,30 +189,29 @@ const computeType: From<Context, From<Expression, Type>> = (context) => (node) =
     }),
   );
 
-const declaredType: From<Context, From<Binding, Type>> = (context) => (binding) =>
-  Match.value(binding).pipe(
-    Match.discriminatorsExhaustive("$type")({
-      Param: (param) => typeOfRef(param.type),
-      Let: (node) =>
-        pipe(
-          Option.fromNullishOr(node.type),
-          Option.match({
-            onNone: () => context.typeOf(node.value),
-            onSome: (type) => typeOfRef(type),
-          }),
-        ),
-      For: (node) =>
-        pipe(
-          elementOf(context.typeOf(node.items)),
-          Option.getOrElse(() => UNKNOWN),
-        ),
-      Each: (node) =>
-        pipe(
-          elementOf(context.typeOf(node.items)),
-          Option.getOrElse(() => UNKNOWN),
-        ),
-    }),
-  );
+const declaredType: From<Context, From<Binding, Type>> = (context) => {
+  const element = (node: { readonly items: Expression }): Type =>
+    pipe(
+      elementOf(context.typeOf(node.items)),
+      Option.getOrElse(() => UNKNOWN),
+    );
+  return (binding) =>
+    Match.value(binding).pipe(
+      Match.discriminatorsExhaustive("$type")({
+        Param: (param) => typeOfRef(param.type),
+        Let: (node) =>
+          pipe(
+            Option.fromNullishOr(node.type),
+            Option.match({
+              onNone: () => context.typeOf(node.value),
+              onSome: (type) => typeOfRef(type),
+            }),
+          ),
+        For: element,
+        Each: element,
+      }),
+    );
+};
 
 export const checkerFor: From<Problem[], Context> = (problems) => {
   const memo = new Map<AstNode, Type>();

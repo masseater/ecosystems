@@ -154,12 +154,26 @@ const isJSDocTypeAliasWithName = (node: Node): boolean =>
 const isExportedMember = (node: Node): boolean =>
   hasExportModifier(node) || isJSDocTypeAliasWithName(node);
 
-const declareAlias = (binding: FileBinding, node: Node, flags: SymbolFlagPair): BoundSymbol => {
-  if (isExportSpecifier(node) || (isImportEqualsDeclaration(node) && isExportedMember(node))) {
-    return declareExport(binding, node, flags);
-  }
-  return declareLocal(binding, node, flags);
-};
+type Declarer = (binding: FileBinding, node: Node, flags: SymbolFlagPair) => BoundSymbol;
+
+const declareWhen =
+  (binding: FileBinding, node: Node, flags: SymbolFlagPair) =>
+  (exported: boolean, declareExported: Declarer): BoundSymbol => {
+    if (exported) {
+      return declareExported(binding, node, flags);
+    }
+    return declareLocal(binding, node, flags);
+  };
+
+const declareAlias = (binding: FileBinding, node: Node, flags: SymbolFlagPair): BoundSymbol =>
+  declareWhen(
+    binding,
+    node,
+    flags,
+  )(
+    isExportSpecifier(node) || (isImportEqualsDeclaration(node) && isExportedMember(node)),
+    declareExport,
+  );
 
 const localExportFlags = (flags: SymbolFlagPair): SymbolFlagPair => ({
   includes: Number(hasFlag(flags.includes, SymbolFlags.Value)) * SymbolFlags.ExportValue,
@@ -193,10 +207,11 @@ const declareModuleMember = (
   if (hasFlag(flags.includes, SymbolFlags.Alias)) {
     return declareAlias(binding, node, flags);
   }
-  if (isExportedDeclaration(binding, node)) {
-    return declareExportedMember(binding, node, flags);
-  }
-  return declareLocal(binding, node, flags);
+  return declareWhen(
+    binding,
+    node,
+    flags,
+  )(isExportedDeclaration(binding, node), declareExportedMember);
 };
 
 export const declareSourceFileMember: {

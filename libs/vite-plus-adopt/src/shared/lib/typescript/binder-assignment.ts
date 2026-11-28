@@ -98,28 +98,6 @@ const isExportsProperty = (left: AccessExpression): boolean =>
 const isNamedProperty = (left: AccessExpression): boolean =>
   isBindableStatic(left, STATIC_NAME) || isDynamicElementAccess(left);
 
-const STATIC_NAME_KINDS: readonly KindRule<AccessExpression>[] = [
-  [(left): boolean => isPrototypeAccess(left.expression), AssignmentKind.PrototypeProperty],
-  [isExportsProperty, AssignmentKind.ExportsProperty],
-  [isNamedProperty, AssignmentKind.Property],
-];
-
-const staticNamePropertyKind = (left: AccessExpression): AssignmentDeclarationKind =>
-  firstMatchingKind(STATIC_NAME_KINDS, left);
-
-const propertyAccessKind = (left: AccessExpression): AssignmentDeclarationKind => {
-  if (isThisKeyword(left.expression)) {
-    return AssignmentKind.ThisProperty;
-  }
-  if (isModuleExportsAccessExpression(left)) {
-    return AssignmentKind.ModuleExports;
-  }
-  if (isBindableStatic(left.expression, STATIC_NAME)) {
-    return staticNamePropertyKind(left);
-  }
-  return AssignmentKind.None;
-};
-
 const initializerOfBinary = (node: BinaryExpression): Node => {
   let current = node;
   while (isBinaryExpression(current.right)) {
@@ -142,19 +120,28 @@ const assignedAccess = (node: BinaryExpression): Option.Option<AccessExpression>
     Option.filter(() => isPlainAssignment(node)),
   );
 
-const accessAssignmentKind = (
-  node: BinaryExpression,
-  left: AccessExpression,
-): AssignmentDeclarationKind => {
-  if (isPrototypeObjectAssignment(node, left)) {
-    return AssignmentKind.Prototype;
-  }
-  return propertyAccessKind(left);
-};
+interface AccessAssignment {
+  readonly node: BinaryExpression;
+  readonly left: AccessExpression;
+}
+
+const onStaticName =
+  (matches: (left: AccessExpression) => boolean) =>
+  ({ left }: AccessAssignment): boolean =>
+    isBindableStatic(left.expression, STATIC_NAME) && matches(left);
+
+const ACCESS_ASSIGNMENT_KINDS: readonly KindRule<AccessAssignment>[] = [
+  [({ node, left }): boolean => isPrototypeObjectAssignment(node, left), AssignmentKind.Prototype],
+  [({ left }): boolean => isThisKeyword(left.expression), AssignmentKind.ThisProperty],
+  [({ left }): boolean => isModuleExportsAccessExpression(left), AssignmentKind.ModuleExports],
+  [onStaticName((left) => isPrototypeAccess(left.expression)), AssignmentKind.PrototypeProperty],
+  [onStaticName(isExportsProperty), AssignmentKind.ExportsProperty],
+  [onStaticName(isNamedProperty), AssignmentKind.Property],
+];
 
 const binaryAssignmentKind = (node: BinaryExpression): AssignmentDeclarationKind =>
   assignedAccess(node).pipe(
-    Option.map((left) => accessAssignmentKind(node, left)),
+    Option.map((left) => firstMatchingKind(ACCESS_ASSIGNMENT_KINDS, { node, left })),
     Option.getOrElse((): AssignmentDeclarationKind => AssignmentKind.None),
   );
 

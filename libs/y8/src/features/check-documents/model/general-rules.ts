@@ -2,8 +2,7 @@ import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import { defineRule } from "#/entities/rule/index.ts";
 import {
-  destinationOf,
-  isExternal,
+  internalDestinationOf,
   linksOf,
   localTargetOf,
   proseNodes,
@@ -36,12 +35,7 @@ export const linkTargetExists: Rule = defineRule({
 });
 
 const hasBackslash = (node: MarkdownNode): boolean =>
-  pipe(
-    destinationOf(node),
-    Option.exists(
-      (destination) => !isExternal(destination) && Str.includes(BACKSLASH)(destination),
-    ),
-  );
+  pipe(internalDestinationOf(node), Option.exists(Str.includes(BACKSLASH)));
 
 export const linkForwardSlash: Rule = defineRule({
   meta: { description: "Link paths use forward slashes" },

@@ -41,10 +41,12 @@ const masterOf: From<LiveSet, Option.Option<AlsMaster>> = (liveSet) =>
     Option.fromUndefinedOr(liveSet.MainTrack),
   );
 
-const mixerOf: From<
-  AlsMaster,
-  Option.Option<{ readonly Tempo: Parameter; readonly TimeSignature: Parameter }>
-> = (master) =>
+interface Mixer {
+  readonly Tempo: Parameter;
+  readonly TimeSignature: Parameter;
+}
+
+const mixerOf: From<AlsMaster, Option.Option<Mixer>> = (master) =>
   pipe(
     Option.fromUndefinedOr(master.DeviceChain),
     Option.orElse(() => Option.fromUndefinedOr(master.MasterChain)),
@@ -100,29 +102,45 @@ export const envelopeOf =
 const SINGLE = 1;
 const NEXT = 1;
 
-const tempoOf: From<
-  LiveSet,
-  Option.Option<{ readonly master: AlsMaster; readonly tempo: Parameter }>
-> = (liveSet) =>
-  pipe(
-    masterOf(liveSet),
-    Option.flatMap((master) =>
-      pipe(
-        mixerOf(master),
-        Option.map((mixer) => ({ master, tempo: mixer.Tempo })),
+interface Automation {
+  readonly events: readonly AutomationEvent[];
+  readonly manual: Option.Option<number>;
+}
+
+const automationOf =
+  (select: From<Mixer, Parameter>): From<LiveSet, Option.Option<Automation>> =>
+  (liveSet) =>
+    pipe(
+      masterOf(liveSet),
+      Option.flatMap((master) =>
+        pipe(
+          mixerOf(master),
+          Option.map((mixer): Automation => {
+            const parameter = select(mixer);
+            return {
+              events: envelopeOf(master)(parameter),
+              manual: pipe(
+                Option.fromUndefinedOr(parameter.Manual),
+                Option.map((manual) => manual.Value),
+              ),
+            };
+          }),
+        ),
       ),
-    ),
+    );
+
+const tempoAutomationOf = automationOf((mixer) => mixer.Tempo);
+
+const pointsOf = (events: readonly AutomationEvent[]): readonly Point[] =>
+  pipe(
+    events,
+    Arr.map((event): Point => ({ beat: event.Time, value: Number(event.Value) })),
   );
 
 export const tempoEnvelopeOf: From<LiveSet, readonly Point[]> = (liveSet) =>
   pipe(
-    tempoOf(liveSet),
-    Option.map(({ master, tempo }) =>
-      pipe(
-        envelopeOf(master)(tempo),
-        Arr.map((event): Point => ({ beat: event.Time, value: Number(event.Value) })),
-      ),
-    ),
+    tempoAutomationOf(liveSet),
+    Option.map(({ events }) => pointsOf(events)),
     Option.getOrElse((): readonly Point[] => []),
   );
 
@@ -132,9 +150,9 @@ export const tempoPointsOf: From<LiveSet, readonly Point[]> = (liveSet) => {
     return envelope;
   }
   return pipe(
-    tempoOf(liveSet),
-    Option.flatMap(({ tempo }) => Option.fromUndefinedOr(tempo.Manual)),
-    Option.map((manual): readonly Point[] => [{ beat: SONG_START, value: manual.Value }]),
+    tempoAutomationOf(liveSet),
+    Option.flatMap(({ manual }) => manual),
+    Option.map((value): readonly Point[] => [{ beat: SONG_START, value }]),
     Option.getOrElse(() => envelope),
   );
 };
@@ -215,27 +233,20 @@ const meterOfId = (beat: number, id: number): Option.Option<MeterChange> =>
 
 export const metersOf: From<LiveSet, readonly MeterChange[]> = (liveSet) =>
   pipe(
-    masterOf(liveSet),
-    Option.flatMap((master) =>
-      pipe(
-        mixerOf(master),
-        Option.map((mixer) => {
-          const events = envelopeOf(master)(mixer.TimeSignature);
-          const manual = Option.fromUndefinedOr(mixer.TimeSignature.Manual);
-          if (events.length > SINGLE || Option.isNone(manual)) {
-            return pipe(
-              events,
-              Arr.map((event) => meterOfId(event.Time, Number(event.Value))),
-              Arr.getSomes,
-              Arr.reverse,
-              Arr.dedupeAdjacentWith((later, earlier) => later.beat === earlier.beat),
-              Arr.reverse,
-            );
-          }
-          return Option.toArray(meterOfId(SONG_START, manual.value.Value));
-        }),
-      ),
-    ),
+    automationOf((mixer) => mixer.TimeSignature)(liveSet),
+    Option.map(({ events, manual }) => {
+      if (events.length > SINGLE || Option.isNone(manual)) {
+        return pipe(
+          events,
+          Arr.map((event) => meterOfId(event.Time, Number(event.Value))),
+          Arr.getSomes,
+          Arr.reverse,
+          Arr.dedupeAdjacentWith((later, earlier) => later.beat === earlier.beat),
+          Arr.reverse,
+        );
+      }
+      return Option.toArray(meterOfId(SONG_START, manual.value));
+    }),
     Option.getOrElse((): readonly MeterChange[] => []),
   );
 
