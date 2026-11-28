@@ -131,9 +131,9 @@ const onStaticName =
     isBindableStatic(left.expression, STATIC_NAME) && matches(left);
 
 const ACCESS_ASSIGNMENT_KINDS: readonly KindRule<AccessAssignment>[] = [
-  [({ node, left }) => isPrototypeObjectAssignment(node, left), AssignmentKind.Prototype],
-  [({ left }) => isThisKeyword(left.expression), AssignmentKind.ThisProperty],
-  [({ left }) => isModuleExportsAccessExpression(left), AssignmentKind.ModuleExports],
+  [({ node, left }): boolean => isPrototypeObjectAssignment(node, left), AssignmentKind.Prototype],
+  [({ left }): boolean => isThisKeyword(left.expression), AssignmentKind.ThisProperty],
+  [({ left }): boolean => isModuleExportsAccessExpression(left), AssignmentKind.ModuleExports],
   [onStaticName((left) => isPrototypeAccess(left.expression)), AssignmentKind.PrototypeProperty],
   [onStaticName(isExportsProperty), AssignmentKind.ExportsProperty],
   [onStaticName(isNamedProperty), AssignmentKind.Property],
