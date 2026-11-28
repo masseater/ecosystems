@@ -1,5 +1,7 @@
 export { MANIFEST_FILE, readManifest } from "./model/dependencies.ts";
 export type { Manifest } from "./model/dependencies.ts";
+export { exportEntriesOf } from "./model/export-subpaths.ts";
+export { ROOT_SUBPATH, importSpecifierOf } from "./model/import-specifier.ts";
 export {
   EntryManifestJson,
   entryNameOf,

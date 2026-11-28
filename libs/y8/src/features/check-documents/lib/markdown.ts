@@ -187,11 +187,12 @@ export const internalDestinationOf = (node: MarkdownNode): Option.Option<string>
     Option.filter((destination) => !isExternal(destination)),
   );
 
-export const linksOf = (context: RuleContext): readonly MarkdownNode[] =>
-  pipe(
-    descendants(context.root),
-    Arr.filter((node) => node.type === "link" || node.type === "image"),
-  );
+const nodesWhere =
+  (accepts: (node: MarkdownNode) => boolean) =>
+  (context: RuleContext): readonly MarkdownNode[] =>
+    pipe(descendants(context.root), Arr.filter(accepts));
+
+export const linksOf = nodesWhere((node) => node.type === "link" || node.type === "image");
 
 export const localTargetOf =
   (context: RuleContext) =>
@@ -213,11 +214,7 @@ const isInCode = (node: MarkdownNode): boolean =>
     }),
   );
 
-export const proseNodes = (context: RuleContext): readonly MarkdownNode[] =>
-  pipe(
-    descendants(context.root),
-    Arr.filter((node) => node.type === "text" && !isInCode(node)),
-  );
+export const proseNodes = nodesWhere((node) => node.type === "text" && !isInCode(node));
 
 export const SKILL_FILE = /(?:^|\/)skills\/(?<name>[^/]+)\/SKILL\.md$/u;
 

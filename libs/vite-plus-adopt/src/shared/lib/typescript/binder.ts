@@ -58,12 +58,11 @@ const createBinding = (file: SourceFile): FileBinding => {
 };
 
 const declareFileSymbol = (binding: FileBinding): void => {
-  if (binding.isExternalModule) {
+  const json = !binding.isExternalModule && binding.file.scriptKind === ScriptKind.JSON;
+  if (binding.isExternalModule || json) {
     createFileSymbol(binding);
-    return;
   }
-  if (binding.file.scriptKind === ScriptKind.JSON) {
-    createFileSymbol(binding);
+  if (json) {
     declareExport(binding, binding.file, JSON_EXPORT);
   }
 };

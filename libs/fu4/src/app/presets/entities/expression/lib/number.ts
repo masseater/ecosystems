@@ -1,10 +1,11 @@
 import { Result, pipe } from "effect";
+import type { Option } from "effect";
 
 import type { TokenKind } from "#/app/presets/entities/expression/model/ast.ts";
 
-import { advance, isAlnum, isChar, isHex, peek, textOf } from "./cursor.ts";
+import { advance, isAlnum, isChar, peek, textOf } from "./cursor.ts";
 import type { Cursor, Scan } from "./cursor.ts";
-import { DIGITS, PUNCT, digitsFrom, finished, optionally, skipWhile, unexpected } from "./lexed.ts";
+import { PUNCT, digitsFrom, finished, hexDigitsFrom, optionally, unexpected } from "./lexed.ts";
 import type { Lexed } from "./lexed.ts";
 
 interface Num {
@@ -12,41 +13,52 @@ interface Num {
   readonly float: boolean;
 }
 
-const fraction =
+type Digits = (at: Cursor) => Result.Result<Cursor, Lexed>;
+
+interface FloatPart {
+  readonly starts: (char: Option.Option<string>) => boolean;
+  readonly digits: (scan: Scan) => Digits;
+}
+
+const floatPart =
+  ({ starts, digits }: FloatPart) =>
   (scan: Scan) =>
   (num: Num): Result.Result<Num, Lexed> => {
-    if (!isChar(".")(peek(scan.src)(num.at))) {
-      return Result.succeed(num);
-    }
-    return pipe(
-      digitsFrom("fraction part of float number")(scan)(advance(scan.src)(num.at)),
-      Result.map((at): Num => ({ at, float: true })),
-    );
-  };
-
-const exponentDigits =
-  (scan: Scan) =>
-  (at: Cursor): Result.Result<Cursor, Lexed> => {
-    if (isChar("0")(peek(scan.src)(at))) {
-      return Result.succeed(advance(scan.src)(at));
-    }
-    return digitsFrom("exponent part of float number")(scan)(at);
-  };
-
-const exponent =
-  (scan: Scan) =>
-  (num: Num): Result.Result<Num, Lexed> => {
-    const char = peek(scan.src)(num.at);
-    if (!isChar("e")(char) && !isChar("E")(char)) {
+    if (!starts(peek(scan.src)(num.at))) {
       return Result.succeed(num);
     }
     return pipe(
       advance(scan.src)(num.at),
-      optionally("-")(scan),
-      exponentDigits(scan),
+      digits(scan),
       Result.map((at): Num => ({ at, float: true })),
     );
   };
+
+const zeroOr =
+  (scan: Scan, digits: Digits): Digits =>
+  (at) => {
+    if (isChar("0")(peek(scan.src)(at))) {
+      return Result.succeed(advance(scan.src)(at));
+    }
+    return digits(at);
+  };
+
+const exponentDigits =
+  (scan: Scan): Digits =>
+  (signed) => {
+    const digits = digitsFrom("exponent part of float number")(scan);
+    return zeroOr(scan, digits)(optionally("-")(scan)(signed));
+  };
+
+const fraction = floatPart({
+  starts: isChar("."),
+  digits: digitsFrom("fraction part of float number"),
+});
+
+const exponent = floatPart({
+  starts: (char) => isChar("e")(char) || isChar("E")(char),
+  digits: exponentDigits,
+});
 
 const trailing =
   (scan: Scan, what: string) =>
@@ -63,20 +75,11 @@ const trailing =
     return Result.succeed(at);
   };
 
+const hexDigits = hexDigitsFrom("hex integer");
+
 const lexHex = (scan: Scan, from: Cursor): Lexed => {
   const digits = pipe(
-    Result.succeed(from),
-    Result.flatMap((at) => {
-      if (isChar("0")(peek(scan.src)(at))) {
-        return Result.succeed(advance(scan.src)(at));
-      }
-      if (!isHex(peek(scan.src)(at))) {
-        return Result.fail(
-          unexpected(scan)({ at, place: "hex integer", expected: `${DIGITS}, 'a'..'f', 'A'..'F'` }),
-        );
-      }
-      return Result.succeed(skipWhile(isHex)(scan.src)(at));
-    }),
+    zeroOr(scan, hexDigits(scan))(from),
     Result.flatMap(trailing(scan, "hex integer")),
   );
   return Result.match(digits, {
@@ -85,17 +88,12 @@ const lexHex = (scan: Scan, from: Cursor): Lexed => {
   });
 };
 
-const integerPart = (scan: Scan, at: Cursor): Result.Result<Num, Lexed> =>
-  pipe(
-    digitsFrom("integer part of number")(scan)(at),
+const integerOf = (scan: Scan, at: Cursor): Result.Result<Num, Lexed> => {
+  const digits = digitsFrom("integer part of number")(scan);
+  return pipe(
+    zeroOr(scan, digits)(at),
     Result.map((end): Num => ({ at: end, float: false })),
   );
-
-const integerOf = (scan: Scan, at: Cursor): Result.Result<Num, Lexed> => {
-  if (isChar("0")(peek(scan.src)(at))) {
-    return Result.succeed({ at: advance(scan.src)(at), float: false });
-  }
-  return integerPart(scan, at);
 };
 
 const kindOf = (num: Num): TokenKind => {

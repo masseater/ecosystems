@@ -1,6 +1,14 @@
 import { isComment, isTag, isText } from "domhandler";
 import type { AnyNode, Text } from "domhandler";
-import { Array as Arr, Effect, Option, Record as Rec, String as Str, pipe } from "effect";
+import {
+  Array as Arr,
+  Effect,
+  Option,
+  Predicate,
+  Record as Rec,
+  String as Str,
+  pipe,
+} from "effect";
 import { DomUtils, parseDocument } from "htmlparser2";
 
 import { loadLanguage, readTree } from "#/shared/lib/tree-sitter.ts";
@@ -62,7 +70,7 @@ const commentNodesIn = (language: Language, source: string): readonly FoundComme
       read: (root) =>
         pipe(
           root.descendantsOfType(COMMENT_NODES),
-          Arr.flatMap((node) => Option.toArray(Option.fromNullishOr(node))),
+          Arr.filter(Predicate.isNotNullish),
           Arr.map((node) => ({ index: node.startIndex, text: node.text })),
         ),
     }),
@@ -96,15 +104,15 @@ const scriptGrammar = (attribs: EmbeddingTag["attribs"]): Option.Option<Grammar>
   return Option.liftPredicate<Grammar>("javascript", () => SCRIPT_TYPE.test(type));
 };
 
-const embeddedGrammar = ({ name, attribs }: EmbeddingTag): Option.Option<Grammar> => {
-  if (name === "style") {
-    return Option.some<Grammar>("css");
-  }
-  if (name === "script") {
-    return scriptGrammar(attribs);
-  }
-  return Option.none();
+const EMBEDDED_GRAMMARS: Readonly<
+  Record<string, (attribs: EmbeddingTag["attribs"]) => Option.Option<Grammar>>
+> = {
+  style: () => Option.some<Grammar>("css"),
+  script: scriptGrammar,
 };
+
+const embeddedGrammar = ({ name, attribs }: EmbeddingTag): Option.Option<Grammar> =>
+  Rec.get(EMBEDDED_GRAMMARS, name).pipe(Option.flatMap((grammarOf) => grammarOf(attribs)));
 
 const shifted =
   (offset: number) =>

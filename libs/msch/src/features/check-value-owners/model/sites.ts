@@ -115,35 +115,23 @@ const selectsKeys =
 
 const FILTERED_TYPE = 0;
 
-const isConditionalAlias =
-  (checker: Checker) =>
-  (reference: Node): boolean =>
-    isTypeReferenceNode(reference) &&
-    symbolAtLocation(checker)(reference.typeName).pipe(
-      Option.map(declarationsOf),
-      Option.exists(
-        Arr.some(
-          (declaration) =>
-            isTypeAliasDeclaration(declaration) &&
-            declaration.type.kind === SyntaxKind.ConditionalType,
-        ),
-      ),
-    );
+const isConditionalAlias = (declaration: Node): boolean =>
+  isTypeAliasDeclaration(declaration) && declaration.type.kind === SyntaxKind.ConditionalType;
 
 const filtersBy =
   (checker: Checker) =>
   (node: Node): boolean => {
     const { parent } = node;
-    if (isTypeReferenceNode(parent)) {
-      const typeArguments: readonly TypeNode[] = parent.typeArguments ?? [];
-      const filtering = Arr.findFirstIndex(typeArguments, (argument) => argument === node).pipe(
+    const filtering =
+      isTypeReferenceNode(parent) &&
+      Arr.findFirstIndex(parent.typeArguments ?? [], (argument) => argument === node).pipe(
         Option.exists((position) => position > FILTERED_TYPE),
+      ) &&
+      symbolAtLocation(checker)(parent.typeName).pipe(
+        Option.map(declarationsOf),
+        Option.exists(Arr.some(isConditionalAlias)),
       );
-      if (filtering && isConditionalAlias(checker)(parent)) {
-        return true;
-      }
-    }
-    return parent.kind !== SyntaxKind.SourceFile && filtersBy(checker)(parent);
+    return filtering || (parent.kind !== SyntaxKind.SourceFile && filtersBy(checker)(parent));
   };
 
 const unionValuesOf =

@@ -78,25 +78,6 @@ const foundAs =
   (isExternalLibraryImport: boolean) =>
   (resolved: Resolved): Found => ({ resolved, isExternalLibraryImport });
 
-const resolveNonRelative = (
-  lookup: ModuleLookup,
-  features: Features,
-  state: ResolutionState,
-): FoundResult => {
-  const external = foundAs(true);
-  return fromPackageImports(lookup, features, state).pipe(
-    Option.orElse(() => fromSelfName(lookup, features, state)),
-    Option.orElse(() => resolveFromNodeModulesWithTrace(lookup, state)),
-    Option.map(Option.map(external)),
-  );
-};
-
-const resolveRelative = (lookup: ModuleLookup, state: ResolutionState): Option.Option<Found> => {
-  const { resolved, insideNodeModules } = loadRelativeModule(lookup, state);
-  const found = foundAs(insideNodeModules);
-  return resolved.pipe(Option.map(found));
-};
-
 const tryResolve = (
   extensions: Extensions,
   request: WorkerRequest,
@@ -108,9 +89,15 @@ const tryResolve = (
     directory: request.containingDirectory,
   };
   if (!isExternalModuleNameRelative(request.moduleName)) {
-    return resolveNonRelative(lookup, request.features, state);
+    const external = Option.map(foundAs(true));
+    return fromPackageImports(lookup, request.features, state).pipe(
+      Option.orElse(() => fromSelfName(lookup, request.features, state)),
+      Option.orElse(() => resolveFromNodeModulesWithTrace(lookup, state)),
+      Option.map(external),
+    );
   }
-  return resolveRelative(lookup, state).pipe(Option.map((found) => Option.some(found)));
+  const { resolved, insideNodeModules } = loadRelativeModule(lookup, state);
+  return resolved.pipe(Option.map(foundAs(insideNodeModules)), Option.map(Option.some));
 };
 
 const tryNonEmpty = (

@@ -11,6 +11,7 @@ import {
 } from "effect";
 
 import { MANIFEST_FILE } from "#/entities/package/index.ts";
+import { keysOf } from "#/shared/lib/keys.ts";
 import { NODE_MODULES, RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
 const EMPTY = 0;
@@ -34,13 +35,6 @@ interface Collect {
 }
 
 const decodeManifest = Schema.decodeOption(Schema.fromJsonString(InstalledManifest));
-
-export const keysOf = (map: Readonly<Record<string, string>> | undefined): readonly string[] =>
-  pipe(
-    Option.fromUndefinedOr(map),
-    Option.map(Rec.keys),
-    Option.getOrElse((): readonly string[] => []),
-  );
 
 const isOptionalPeer = (manifest: Installed, name: string): boolean =>
   pipe(

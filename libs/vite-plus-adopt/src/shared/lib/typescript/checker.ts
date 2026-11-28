@@ -111,8 +111,9 @@ const aliasHasTypeOnlyDeclaration = (session: CheckerSession, symbol: CheckerSym
   pipe(
     symbol.declarations,
     Arr.some((handle) =>
-      Option.fromNullishOr(handle.resolve(session.project)).pipe(
-        Option.exists((declaration) => isTypeOnlyImportOrExportDeclaration(declaration)),
+      Option.exists(
+        Option.fromNullishOr(handle.resolve(session.project)),
+        isTypeOnlyImportOrExportDeclaration,
       ),
     ),
   );

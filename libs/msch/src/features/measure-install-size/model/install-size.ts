@@ -15,12 +15,13 @@ import {
 import { MANIFEST_FILE, publicEntriesOf, publishedWorkspaces } from "#/entities/package/index.ts";
 import type { PublicEntry, PublishedWorkspace } from "#/entities/package/index.ts";
 import { typeScriptCompiler } from "#/entities/project/index.ts";
+import { keysOf } from "#/shared/lib/keys.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
 
 import { packagesByEntry } from "./import-graph.ts";
-import { installedClosure, installedSize, keysOf } from "./installed-closure.ts";
+import { installedClosure, installedSize } from "./installed-closure.ts";
 
 const INSTALL_SIZE: RuleName = "install-size";
 const STACK_DEPENDENCY: RuleName = "stack-dependency";

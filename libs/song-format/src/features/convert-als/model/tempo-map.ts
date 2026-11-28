@@ -137,24 +137,32 @@ const pointsOf = (events: readonly AutomationEvent[]): readonly Point[] =>
     Arr.map((event): Point => ({ beat: event.Time, value: Number(event.Value) })),
   );
 
-export const tempoEnvelopeOf: From<LiveSet, readonly Point[]> = (liveSet) =>
+const tempoFrom =
+  (resolve: From<Automation, readonly Point[]>): From<LiveSet, readonly Point[]> =>
+  (liveSet) =>
+    pipe(
+      tempoAutomationOf(liveSet),
+      Option.map(resolve),
+      Option.getOrElse((): readonly Point[] => []),
+    );
+
+export const tempoEnvelopeOf = tempoFrom(({ events }) => pointsOf(events));
+
+const manualPointsOf = tempoFrom(({ manual }) =>
   pipe(
-    tempoAutomationOf(liveSet),
-    Option.map(({ events }) => pointsOf(events)),
+    manual,
+    Option.map((value): readonly Point[] => [{ beat: SONG_START, value }]),
     Option.getOrElse((): readonly Point[] => []),
-  );
+  ),
+);
 
 export const tempoPointsOf: From<LiveSet, readonly Point[]> = (liveSet) => {
   const envelope = tempoEnvelopeOf(liveSet);
-  if (envelope.length > SINGLE) {
+  const manual = manualPointsOf(liveSet);
+  if (envelope.length > SINGLE || !Arr.isReadonlyArrayNonEmpty(manual)) {
     return envelope;
   }
-  return pipe(
-    tempoAutomationOf(liveSet),
-    Option.flatMap(({ manual }) => manual),
-    Option.map((value): readonly Point[] => [{ beat: SONG_START, value }]),
-    Option.getOrElse(() => envelope),
-  );
+  return manual;
 };
 
 const valueAt =

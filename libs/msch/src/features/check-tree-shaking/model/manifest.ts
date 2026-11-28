@@ -1,4 +1,5 @@
-import { Array as Arr, Option, Record as Rec, Schema, pipe } from "effect";
+import type { Option } from "effect";
+import { Array as Arr, Schema, pipe } from "effect";
 
 import { entryNameOf } from "#/entities/package/index.ts";
 import type { PackedWorkspace } from "#/entities/package/index.ts";
@@ -17,13 +18,6 @@ export const Manifest = Schema.Struct({
 const decode = Schema.decodeOption(Schema.fromJsonString(Manifest));
 
 export const manifestOf = (text: string): Option.Option<typeof Manifest.Type> => decode(text);
-
-export const dependencyNames = (manifest: typeof Manifest.Type): readonly string[] =>
-  pipe(
-    Option.fromUndefinedOr(manifest.dependencies),
-    Option.map(Rec.keys),
-    Option.getOrElse((): readonly string[] => []),
-  );
 
 export interface Declared {
   readonly effectful: Effectful;

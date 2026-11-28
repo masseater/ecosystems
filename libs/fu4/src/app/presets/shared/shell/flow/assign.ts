@@ -144,29 +144,29 @@ const declareChild = (analysis: Analysis, declaration: Declaration, child: Synta
   };
 };
 
+const integerMarks =
+  (node: SyntaxNode, declaration: Declaration): Step =>
+  (flow) =>
+    pipe(
+      integerStatus(node, declaration.integer),
+      Option.match({
+        onNone: () => flow,
+        onSome: (status) =>
+          setAll(
+            pipe(
+              node.namedChildren,
+              Arr.flatMap((child) => Option.toArray(declaredName(child))),
+              Arr.map((name) => ({ name: integerKey(name), status })),
+            ),
+          )(flow),
+      }),
+    );
+
 const declare: Execute = (analysis, flow, node) => {
   const declaration = declarationOf(node);
-  const names = pipe(
-    node.namedChildren,
-    Arr.flatMap((child) => Option.toArray(declaredName(child))),
+  return Arr.reduce(node.namedChildren, integerMarks(node, declaration)(flow), (current, child) =>
+    declareChild(analysis, declaration, child)(current),
   );
-  let current = pipe(
-    integerStatus(node, declaration.integer),
-    Option.match({
-      onNone: () => flow,
-      onSome: (status) =>
-        setAll(
-          pipe(
-            names,
-            Arr.map((name) => ({ name: integerKey(name), status })),
-          ),
-        )(flow),
-    }),
-  );
-  for (const child of node.namedChildren) {
-    current = declareChild(analysis, declaration, child)(current);
-  }
-  return current;
 };
 
 export const ASSIGN_HANDLERS: ReadonlyMap<string, Execute> = new Map<string, Execute>([

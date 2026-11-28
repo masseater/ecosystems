@@ -12,6 +12,9 @@ import {
 
 import { RepositoryFiles, NODE_MODULES } from "#/shared/lib/repository-files.ts";
 
+import { exportEntriesOf } from "./export-subpaths.ts";
+import { ROOT_SUBPATH, SUBPATH_PREFIX, importSpecifierOf } from "./import-specifier.ts";
+
 export interface DependencyEntry {
   readonly packageName: string;
   readonly specifier: string;
@@ -36,8 +39,6 @@ export type Manifest = typeof PackageManifest.Type;
 
 export const MANIFEST_FILE = "package.json";
 const WORKSPACE_PROTOCOL = "workspace:";
-const ROOT_SUBPATH = ".";
-const SUBPATH_PREFIX = "./";
 const WILDCARD = "*";
 const TYPES_CONDITION = "types";
 const TYPES_SCOPE = "@types/";
@@ -93,34 +94,9 @@ const anyConditionIn = (held: unknown, depth: number): Option.Option<string> => 
 const targetPathsOf = (target: unknown): readonly string[] =>
   Arr.getSomes([typesConditionIn(target, ROOT_DEPTH), anyConditionIn(target, ROOT_DEPTH)]);
 
-interface SubpathTarget {
-  readonly subpath: string;
-  readonly target: unknown;
-}
-
-const subpathTargetsOf = (exportsField: unknown): readonly SubpathTarget[] => {
-  if (Predicate.isString(exportsField)) {
-    return [{ subpath: ROOT_SUBPATH, target: exportsField }];
-  }
-  const entries = conditionsOf(exportsField);
-  if (
-    !pipe(
-      entries,
-      Arr.some(([subpath]) => Str.startsWith(ROOT_SUBPATH)(subpath)),
-    )
-  ) {
-    return Arr.match(entries, {
-      onEmpty: () => [],
-      onNonEmpty: () => [{ subpath: ROOT_SUBPATH, target: exportsField }],
-    });
-  }
-  return pipe(
-    entries,
-    Arr.filter(([subpath]) => subpath === ROOT_SUBPATH || Str.startsWith(SUBPATH_PREFIX)(subpath)),
-    Arr.filter(([subpath]) => !Str.includes(WILDCARD)(subpath)),
-    Arr.map(([subpath, target]) => ({ subpath, target })),
-  );
-};
+const isDeclaredSubpath = ([subpath]: readonly [string, unknown]): boolean =>
+  (subpath === ROOT_SUBPATH || Str.startsWith(SUBPATH_PREFIX)(subpath)) &&
+  !Str.includes(WILDCARD)(subpath);
 
 const declarationsCandidateFor = (entryPath: string): Option.Option<string> => {
   if (DECLARATIONS_SUFFIX.test(entryPath)) {
@@ -167,14 +143,6 @@ const importNameOf = (packageName: string): string => {
   return `@${Str.replace(TYPES_SCOPE_SEPARATOR, "/")(unscoped)}`;
 };
 
-const specifierFor = (packageName: string, subpath: string): string => {
-  const importName = importNameOf(packageName);
-  if (subpath === ROOT_SUBPATH) {
-    return importName;
-  }
-  return `${importName}/${Str.slice(SUBPATH_PREFIX.length)(subpath)}`;
-};
-
 const rootEntryPaths = (manifest: Manifest): readonly string[] =>
   Arr.getSomes([
     Option.fromUndefinedOr(manifest.types),
@@ -188,13 +156,13 @@ const subpathEntriesOf = Effect.fn("subpathEntriesOf")(function* subpathEntriesO
   manifest: Manifest,
 ) {
   const found = yield* Effect.forEach(
-    subpathTargetsOf(manifest.exports),
-    ({ subpath, target }) =>
+    pipe(exportEntriesOf(manifest.exports), Arr.filter(isDeclaredSubpath)),
+    ([subpath, target]) =>
       firstDeclarationsAmong(directory, targetPathsOf(target)).pipe(
         Effect.map(
           Option.map((declarationsPath) => ({
             packageName,
-            specifier: specifierFor(packageName, subpath),
+            specifier: importSpecifierOf(importNameOf(packageName), subpath),
             declarationsPath,
           })),
         ),
@@ -213,7 +181,7 @@ const entriesOfDependency = Effect.fn("entriesOfDependency")(function* entriesOf
     return [];
   }
   const subpathEntries = yield* subpathEntriesOf(packageName, directory, manifest.value);
-  const rootSpecifier = specifierFor(packageName, ROOT_SUBPATH);
+  const rootSpecifier = importSpecifierOf(importNameOf(packageName), ROOT_SUBPATH);
   if (
     pipe(
       subpathEntries,

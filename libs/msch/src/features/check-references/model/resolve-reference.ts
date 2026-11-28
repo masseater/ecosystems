@@ -98,12 +98,16 @@ const symbolOutcome = Effect.fn("symbolOutcome")(function* symbolOutcome(
   });
 });
 
-const pathOutcome = (
+const repositoryContentsOutcome = (
   reference: GithubReference,
-  defaultBranch: string,
+  repository: typeof Repository.Type,
   token: Option.Option<string>,
 ): Lookups => {
-  const branch = Option.getOrElse(reference.ref, () => defaultBranch);
+  const checked = repositoryOutcome(reference, repository);
+  if (checked.kind !== "found" || reference.path === NO_PATH) {
+    return Effect.succeed(checked);
+  }
+  const branch = Option.getOrElse(reference.ref, () => repository.default_branch);
   const url = `${GITHUB}${reference.owner}/${reference.repo}/contents/${encodedPath(reference.path)}?ref=${encodeURIComponent(branch)}`;
   const missing = `${reference.path} does not exist on ${branch} of ${reference.owner}/${reference.repo}. Point at where it lives now.`;
   return Option.match(reference.symbol, {
@@ -115,24 +119,17 @@ const pathOutcome = (
   });
 };
 
-const repositoryStep =
-  (reference: GithubReference, token: Option.Option<string>) =>
-  (response: HttpClientResponse.HttpClientResponse): Lookups =>
-    Effect.flatMap(HttpClientResponse.schemaBodyJson(Repository)(response), (repository) => {
-      const checked = repositoryOutcome(reference, repository);
-      if (checked.kind !== "found" || reference.path === NO_PATH) {
-        return Effect.succeed(checked);
-      }
-      return pathOutcome(reference, repository.default_branch, token);
-    });
-
 const githubOutcome = Effect.fn("githubOutcome")(function* githubOutcome(
   reference: GithubReference,
 ) {
   const token = yield* githubToken;
   const lookup = jsonLookup({ url: `${GITHUB}${reference.owner}/${reference.repo}`, token });
   const missing = `${reference.owner}/${reference.repo} does not exist, or the token in GH_TOKEN cannot read it.`;
-  return yield* answered(lookup, missing, repositoryStep(reference, token));
+  return yield* answered(lookup, missing, (response) =>
+    Effect.flatMap(HttpClientResponse.schemaBodyJson(Repository)(response), (repository) =>
+      repositoryContentsOutcome(reference, repository, token),
+    ),
+  );
 });
 
 const versionOf = (

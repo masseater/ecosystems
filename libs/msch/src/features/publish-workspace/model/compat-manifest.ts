@@ -12,11 +12,12 @@ import {
 } from "effect";
 import semver from "semver";
 
+import { ROOT_SUBPATH, importSpecifierOf, exportEntriesOf } from "#/entities/package/index.ts";
+
 import { foldExports } from "./export-targets.ts";
 
 const PACKAGE_JSON_EXPORT = "./package.json";
 const PATTERN = "*";
-const ROOT_EXPORT = ".";
 const UNVERSIONED = "0.0.0";
 const VITE = "vite";
 
@@ -155,42 +156,29 @@ export const compatCasesOf = (manifest: CompatManifest): readonly CompatCase[] =
     }),
   );
 
-const isTypesOnly = (target: Option.Option<unknown>): boolean =>
-  Option.match(target, {
-    onNone: () => false,
-    onSome: (value) =>
-      Predicate.isReadonlyObject(value) &&
-      pipe(
-        Rec.keys(value),
-        Arr.every((key) => key === TYPES),
-      ),
-  });
-
-const exportedSubpaths = (exports: Readonly<Record<string, unknown>>): readonly string[] => {
-  const keys = Rec.keys(exports);
-  if (!pipe(keys, Arr.every(Str.startsWith(ROOT_EXPORT)))) {
-    return [ROOT_EXPORT];
-  }
-  return pipe(
-    keys,
-    Arr.filter((key) => key !== PACKAGE_JSON_EXPORT && !Str.includes(PATTERN)(key)),
-    Arr.filter((key) => !isTypesOnly(Rec.get(exports, key))),
+const isTypesOnly = (target: unknown): boolean =>
+  Predicate.isReadonlyObject(target) &&
+  pipe(
+    Rec.keys(target),
+    Arr.every((key) => key === TYPES),
   );
-};
+
+const exportedSubpaths = (exports: Readonly<Record<string, unknown>>): readonly string[] =>
+  pipe(
+    exportEntriesOf(exports),
+    Arr.filter(
+      ([subpath, target]) =>
+        subpath !== PACKAGE_JSON_EXPORT && !Str.includes(PATTERN)(subpath) && !isTypesOnly(target),
+    ),
+    Arr.map(([subpath]) => subpath),
+  );
 
 const subpathsOf = foldExports<readonly string[]>({
-  string: () => [ROOT_EXPORT],
-  array: () => [ROOT_EXPORT],
+  string: () => [ROOT_SUBPATH],
+  array: () => [ROOT_SUBPATH],
   object: exportedSubpaths,
   other: () => [],
 });
-
-const specifierOf = (name: string, subpath: string): string => {
-  if (subpath === ROOT_EXPORT) {
-    return name;
-  }
-  return `${name}${Str.replace(ROOT_EXPORT, "")(subpath)}`;
-};
 
 const binFilesOf = (bin: CompatManifest["bin"]): readonly string[] => {
   if (Predicate.isUndefined(bin)) {
@@ -218,7 +206,7 @@ export const smokeTargetsOf = (manifest: CompatManifest): SmokeTargets => {
   return {
     imports: pipe(
       subpathsOf(exports),
-      Arr.map((subpath) => specifierOf(manifest.name, subpath)),
+      Arr.map((subpath) => importSpecifierOf(manifest.name, subpath)),
     ),
     bins: binFilesOf(bin),
   };

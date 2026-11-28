@@ -48,12 +48,14 @@ const escaped = (glob: Glob, backslash: Option.Option<string>): Option.Option<st
   return glob.next();
 };
 
-const repeat = (glob: Glob, char: string, what: string): Option.Option<string> => {
-  if (!glob.prec()) {
-    unexpected(glob)(Option.some(char), what, SPECIAL_REASON);
-  }
-  return Option.some(char);
-};
+const repeating =
+  (char: string, what: string) =>
+  (glob: Glob): Option.Option<Option.Option<string>> => {
+    if (!glob.prec()) {
+      unexpected(glob)(Option.some(char), what, SPECIAL_REASON);
+    }
+    return Option.some(Option.some(char));
+  };
 
 const carriage = (glob: Glob, char: Option.Option<string>): Option.Option<string> => {
   const last = pipe(
@@ -69,8 +71,8 @@ const HANDLERS: Readonly<
   Record<string, (glob: Glob, char: Option.Option<string>) => Option.Option<Option.Option<string>>>
 > = {
   "\\": (glob, char) => Option.some(escaped(glob, char)),
-  "?": (glob) => Option.some(repeat(glob, "?", "special character ? (zero or one)")),
-  "+": (glob) => Option.some(repeat(glob, "+", "special character + (one or more)")),
+  "?": repeating("?", "special character ? (zero or one)"),
+  "+": repeating("+", "special character + (one or more)"),
   "*": (_glob, char) => Option.some(char),
   "[": (glob) => validateClass(glob),
   "\r": (glob, char) => Option.some(carriage(glob, char)),

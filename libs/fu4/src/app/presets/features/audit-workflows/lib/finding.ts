@@ -31,6 +31,11 @@ export const finding = (meta: AuditMeta): FindingDraft => ({
   tip: Option.none(),
 });
 
+export const singleDraft = (
+  meta: AuditMeta,
+  ...steps: readonly ((draft: FindingDraft) => FindingDraft)[]
+): readonly FindingDraft[] => [Arr.reduce(steps, finding(meta), (draft, step) => step(draft))];
+
 export const severity =
   (value: Severity) =>
   (draft: FindingDraft): FindingDraft => ({ ...draft, severity: value });

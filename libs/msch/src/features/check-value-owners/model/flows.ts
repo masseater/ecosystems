@@ -20,6 +20,7 @@ import type {
   Program,
   SignatureDeclaration,
   SourceFile,
+  TypeNode,
   TypeSymbol,
   Type,
 } from "#/shared/lib/compiler.ts";
@@ -107,21 +108,29 @@ const siteWithin =
   (node: Node): Option.Option<ValueSite> =>
     Arr.findFirst(context.sites, (site) => contains(node)(site.node));
 
+const aliasDeclarationOf = (type: Type): Option.Option<Node> =>
+  Option.fromUndefinedOr(type.getAliasSymbol()).pipe(
+    Option.flatMap((alias) => Arr.findFirst(declarationsOf(alias), isTypeAliasDeclaration)),
+  );
+
 const aliasSite =
   (context: FlowContext) =>
   (type: Type): Option.Option<ValueSite> =>
-    Option.fromUndefinedOr(type.getAliasSymbol()).pipe(
-      Option.flatMap((alias) => Arr.findFirst(declarationsOf(alias), isTypeAliasDeclaration)),
-      Option.flatMap(siteWithin(context)),
+    Option.flatMap(aliasDeclarationOf(type), siteWithin(context));
+
+const annotationAt =
+  (checker: Checker) =>
+  (expression: Expression): Option.Option<TypeNode> =>
+    symbolAt(checker)(expression).pipe(
+      Option.flatMap((symbol) => Option.fromUndefinedOr(symbol.valueDeclaration)),
+      Option.flatMap((handle) => Option.fromUndefinedOr(handle.resolve())),
+      Option.flatMap(annotationOf),
     );
 
 const annotationSite =
   (context: FlowContext) =>
   (expression: Expression): Option.Option<ValueSite> =>
-    symbolAt(context.checker)(expression).pipe(
-      Option.flatMap((symbol) => Option.fromUndefinedOr(symbol.valueDeclaration)),
-      Option.flatMap((handle) => Option.fromUndefinedOr(handle.resolve())),
-      Option.flatMap(annotationOf),
+    annotationAt(context.checker)(expression).pipe(
       Option.flatMap((annotation) =>
         siteWithin(context)(annotation).pipe(
           Option.orElse(() => aliasSite(context)(context.checker.getTypeFromTypeNode(annotation))),

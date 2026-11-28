@@ -9,12 +9,12 @@ import {
   pipe,
 } from "effect";
 
+import { exportEntriesOf } from "./export-subpaths.ts";
 import type { PackEntrySource } from "./published.ts";
 
 const SOURCE = /\.[cm]?tsx?$/u;
 const BUILT = /\.(?:d\.)?[cm]?[jt]s$/u;
 const DECLARATION = ".d.";
-const ROOT_SUBPATH = ".";
 const BIN_LABEL = "bin";
 
 export interface PublicEntry {
@@ -45,22 +45,6 @@ export const targetsIn = (held: unknown): readonly string[] => {
     return [];
   }
   return pipe(Rec.values(held), Arr.flatMap(targetsIn));
-};
-
-const subpathsOf = (exportsField: unknown): readonly (readonly [string, unknown])[] => {
-  if (!Predicate.isObject(exportsField)) {
-    return [[ROOT_SUBPATH, exportsField]];
-  }
-  const entries = Rec.toEntries(exportsField);
-  if (
-    pipe(
-      entries,
-      Arr.some(([key]) => Str.startsWith(ROOT_SUBPATH)(key)),
-    )
-  ) {
-    return entries;
-  }
-  return [[ROOT_SUBPATH, exportsField]];
 };
 
 const binsOf = (manifest: EntryManifest): readonly (readonly [string, unknown])[] => {
@@ -95,7 +79,7 @@ const sourceOf =
 
 export const publicEntriesOf = (lookup: EntryLookup): readonly PublicEntry[] =>
   pipe(
-    [...subpathsOf(lookup.manifest.exports), ...binsOf(lookup.manifest)],
+    [...exportEntriesOf(lookup.manifest.exports), ...binsOf(lookup.manifest)],
     Arr.flatMap(([label, held]) =>
       pipe(
         targetsIn(held),

@@ -5,13 +5,7 @@ import { Messages, traceMessage } from "./messages.ts";
 import { parseNodeModuleFromPath } from "./node-modules-paths.ts";
 import { resolvePackageJsonInfo, withPackageId } from "./package-json.ts";
 import { getDirectoryPath, hasTrailingDirectorySeparator } from "./paths.ts";
-import type {
-  ModuleLookup,
-  PackageJsonInfo,
-  PathAndExtension,
-  Resolved,
-  ResolutionState,
-} from "./resolution-types.ts";
+import type { ModuleLookup, Resolved, ResolutionState } from "./resolution-types.ts";
 import { loadNodeModuleFromDirectory } from "./resolver-directory.ts";
 import type { RelativeRequest } from "./resolver-directory.ts";
 import { loadModuleFromFile } from "./resolver-files.ts";
@@ -40,21 +34,17 @@ export const directoryMissing: {
   return true;
 });
 
-const packageInfoOfFile = (
-  request: RelativeRequest,
-  resolved: PathAndExtension,
-  state: ResolutionState,
-): Option.Option<PackageJsonInfo> =>
-  Option.liftPredicate(request.considerPackageJson, (consider) => consider).pipe(
-    Option.flatMap(() => parseNodeModuleFromPath(resolved.path)),
-    Option.flatMap((packageDirectory) => resolvePackageJsonInfo(packageDirectory, false, state)),
-  );
-
 const loadAsFile = (request: RelativeRequest, state: ResolutionState): Option.Option<Resolved> =>
   loadModuleFromFile(request, state).pipe(
-    Option.flatMap((resolved) =>
-      withPackageId(packageInfoOfFile(request, resolved, state), Option.some(resolved), state),
-    ),
+    Option.flatMap((resolved) => {
+      const info = Option.liftPredicate(request.considerPackageJson, (consider) => consider).pipe(
+        Option.flatMap(() => parseNodeModuleFromPath(resolved.path)),
+        Option.flatMap((packageDirectory) =>
+          resolvePackageJsonInfo(packageDirectory, false, state),
+        ),
+      );
+      return withPackageId(info, Option.some(resolved), state);
+    }),
   );
 
 const fileAttempt = (request: RelativeRequest, state: ResolutionState): FileAttempt => {

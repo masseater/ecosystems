@@ -59,11 +59,14 @@ const strings =
 
 const CONTAINER_KEYS = ["image", "credentials", "env", "ports", "volumes", "options"];
 
-const containerMapping =
+export const parseContainer =
   (sink: Sink) =>
-  (name: string, node: YamlNode): Container => {
+  (name: string, at: Position, node: YamlNode): Container => {
+    if (node.kind === "scalar") {
+      return { ports: [], volumes: [], image: parseString(sink)(node, false) };
+    }
     const { set, setSome } = setters<Container>();
-    return foldEntries<Container>({
+    const container = foldEntries<Container>({
       entries: section(sink)(name, node),
       initial: { ports: [], volumes: [] },
       handlers: [
@@ -76,15 +79,6 @@ const containerMapping =
       ],
       unknown: rejecting({ sink, section: name, expected: CONTAINER_KEYS }),
     });
-  };
-
-export const parseContainer =
-  (sink: Sink) =>
-  (name: string, at: Position, node: YamlNode): Container => {
-    if (node.kind === "scalar") {
-      return { ports: [], volumes: [], image: parseString(sink)(node, false) };
-    }
-    const container = containerMapping(sink)(name, node);
     reportMissing(sink)(container.image, at, `"image" is missing in ${quote(name)} section`);
     return container;
   };
