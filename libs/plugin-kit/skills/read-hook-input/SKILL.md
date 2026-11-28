@@ -7,7 +7,7 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/plugin-kit"
-  library_version: 0.1.0
+  library_version: 0.2.0
 sources:
   - src/app/**
   - README.md
