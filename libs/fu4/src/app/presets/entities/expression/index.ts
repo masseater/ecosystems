@@ -3,7 +3,7 @@ export type { Checker } from "./lib/checker.ts";
 export { isConstant } from "./lib/functions.ts";
 export { parse } from "./lib/parser.ts";
 export { assignable } from "./model/assign.ts";
-export { merge } from "./model/merge.ts";
+export { merge, mergeAll } from "./model/merge.ts";
 export {
   ANY,
   BOOL,

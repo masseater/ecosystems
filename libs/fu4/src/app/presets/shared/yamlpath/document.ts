@@ -1,6 +1,7 @@
 import { Array as Arr, Option, Result, String as Str, pipe } from "effect";
 
 import { anyWithin, descendants } from "#/app/presets/shared/syntax/index.ts";
+import { lineStartsOf } from "#/entities/source/index.ts";
 import type { Source, SyntaxNode } from "#/shared/config/index.ts";
 
 import { isAnchor, isComment, isContainer, namedWhere, parentOf } from "./nodes.ts";
@@ -38,14 +39,6 @@ const anchorOf = (anchor: SyntaxNode): Option.Option<Anchor> =>
       target,
     })),
   );
-
-const lineStartsOf = (text: string): readonly number[] => {
-  const starts = [NONE];
-  for (const match of Str.matchAll(/\n/gu)(text)) {
-    starts.push(Option.getOrElse(Option.fromNullishOr(match.index), () => NONE) + NAME_START);
-  }
-  return starts;
-};
 
 const topOf = (root: SyntaxNode): Result.Result<SyntaxNode, string> =>
   pipe(

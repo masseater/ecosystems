@@ -80,21 +80,6 @@ export const display: (value: Evaluation) => string = Match.type<Evaluation>().p
   }),
 );
 
-export const semaEquals =
-  (left: Evaluation) =>
-  (right: Evaluation): boolean => {
-    if (left.type === "null" && right.type === "null") {
-      return true;
-    }
-    if (left.type === "boolean" && right.type === "boolean") {
-      return left.value === right.value;
-    }
-    if (left.type === "string" && right.type === "string") {
-      return upperSpecial(left.value) === upperSpecial(right.value);
-    }
-    return asNumber(left) === asNumber(right);
-  };
-
 const compareNumbers = (left: number, right: number): Option.Option<number> =>
   Option.liftPredicate(
     Order.Number(left, right),
@@ -115,6 +100,11 @@ export const semaCompare =
     }
     return compareNumbers(asNumber(left), asNumber(right));
   };
+
+export const semaEquals =
+  (left: Evaluation) =>
+  (right: Evaluation): boolean =>
+    Option.exists(semaCompare(left)(right), (order) => order === EQUAL);
 
 export const isPrimitive = (value: Evaluation): boolean =>
   value.type !== "array" && value.type !== "object";

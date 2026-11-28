@@ -1,6 +1,7 @@
 import { Option, Function as Fn } from "effect";
 import { NodeFlags, ScriptKind } from "typescript/ast";
 import type { Node, SourceFile } from "typescript/ast";
+import { isSourceFile } from "typescript/ast/is";
 
 import { hasFlag } from "./flags.ts";
 import type { PackageJsonInfo, ResolutionMode } from "./resolution-types.ts";
@@ -88,3 +89,11 @@ export const isSourceFileJS = (sourceFile: SourceFile): boolean =>
   sourceFile.scriptKind === ScriptKind.JS || sourceFile.scriptKind === ScriptKind.JSX;
 
 export const isJSDocNode = (node: Node): boolean => hasFlag(node.flags, NodeFlags.JSDoc);
+
+export const sourceFileOf = (node: Node): SourceFile => {
+  let current = node;
+  while (!isSourceFile(current)) {
+    current = current.parent;
+  }
+  return current;
+};

@@ -1,6 +1,6 @@
-import { Array as Arr, Match, Option, pipe } from "effect";
+import { Array as Arr, Option, pipe } from "effect";
 
-import { asBoolean, consteval } from "#/app/presets/entities/expression-tree/index.ts";
+import { asBoolean, childrenOf, consteval } from "#/app/presets/entities/expression-tree/index.ts";
 import type { Spanned } from "#/app/presets/entities/expression-tree/index.ts";
 import {
   atRaw,
@@ -58,29 +58,15 @@ const orValues =
     return [...falsy, ...pipe(operands, Arr.flatMap(collect))];
   };
 
-const none = (): readonly Spanned[] => [];
-
 const unsoundTrueValues: Collect = (spanned) => {
+  const { expr } = spanned;
   if (isConstant(spanned)) {
     return [];
   }
-  return Match.value(spanned.expr).pipe(
-    Match.discriminatorsExhaustive("type")({
-      literal: none,
-      star: none,
-      identifier: none,
-      call: (expr) => pipe(expr.args, Arr.flatMap(unsoundTrueValues)),
-      context: (expr) => pipe(expr.parts, Arr.flatMap(unsoundTrueValues)),
-      binary: (expr) => {
-        if (expr.op === "or") {
-          return orValues(unsoundTrueValues)(spanned);
-        }
-        return [...unsoundTrueValues(expr.lhs), ...unsoundTrueValues(expr.rhs)];
-      },
-      not: (expr) => unsoundTrueValues(expr.inner),
-      index: (expr) => unsoundTrueValues(expr.inner),
-    }),
-  );
+  if (expr.type === "binary" && expr.op === "or") {
+    return orValues(unsoundTrueValues)(spanned);
+  }
+  return pipe(childrenOf(expr), Arr.flatMap(unsoundTrueValues));
 };
 
 export const unsoundTernary: Audit = {

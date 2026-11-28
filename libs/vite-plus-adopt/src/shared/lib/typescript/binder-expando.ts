@@ -14,6 +14,7 @@ import {
   forEachIdentifierInEntityName,
   isExportsOrModuleExportsOrAlias,
   lookupIdentifier,
+  memberOfAccess,
 } from "./binder-cjs.ts";
 import { declare, exportsOf } from "./binder-declarations.ts";
 import type { FileBinding, Scope, SymbolFlagPair } from "./binder-declarations.ts";
@@ -22,13 +23,8 @@ import {
   isExpandoSymbol,
   isFunctionSymbol,
 } from "./binder-expando-symbol.ts";
-import { exportOf } from "./binder-symbols.ts";
 import type { BoundSymbol } from "./binder-symbols.ts";
-import {
-  getElementOrPropertyAccessName,
-  isAccessExpression,
-  isDynamicElementAccess,
-} from "./binder-syntax.ts";
+import { isAccessExpression, isDynamicElementAccess } from "./binder-syntax.ts";
 import type { AccessExpression } from "./binder-syntax.ts";
 import { EMPTY, combineFlags, hasFlag, withFlags, withoutFlags } from "./flags.ts";
 
@@ -78,10 +74,7 @@ const lookupSymbolForPropertyAccess = (
   if (!isAccessExpression(node)) {
     return Option.none();
   }
-  const parent = lookupSymbolForPropertyAccess(binding, node.expression);
-  return getElementOrPropertyAccessName(node).pipe(
-    Option.flatMap((name) => parent.pipe(Option.flatMap((owner) => exportOf(owner, name)))),
-  );
+  return memberOfAccess(node, lookupSymbolForPropertyAccess(binding, node.expression));
 };
 
 const isAliasSymbol = (symbol: Option.Option<BoundSymbol>): boolean =>

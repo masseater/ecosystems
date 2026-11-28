@@ -30,7 +30,7 @@ import type {
 } from "#/shared/lib/compiler.ts";
 import { problemAt } from "#/shared/lib/problem.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
-import { descendantsOf } from "#/shared/lib/syntax.ts";
+import { descendantsOf, symbolAtLocation } from "#/shared/lib/syntax.ts";
 
 type Wrapper = FunctionDeclaration | ArrowFunction | FunctionExpression;
 
@@ -239,7 +239,7 @@ const isOverloaded =
   (checker: Checker) =>
   (name: Identifier): boolean =>
     Option.exists(
-      Option.fromUndefinedOr(checker.getSymbolAtLocation(name)),
+      symbolAtLocation(checker)(name),
       (symbol) => symbol.declarations.length > SINGLE_DECLARATION,
     );
 

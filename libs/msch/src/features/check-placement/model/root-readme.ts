@@ -1,3 +1,4 @@
+import { baseName } from "@masseater.dev/path-kit";
 import { Array as Arr, Effect, Option, Predicate, Schema, String as Str, pipe } from "effect";
 
 import { namedWorkspaces, patternOf } from "#/entities/workspace/index.ts";
@@ -14,7 +15,6 @@ const START = 0;
 const CHECK_POLICY = "@r_masseater/msch";
 const MARKETPLACE = ".claude-plugin/marketplace.json";
 const RELATIVE = /^\.\//u;
-const SEPARATOR = "/";
 const MarketplacePlugin = Schema.Struct({
   name: Schema.optional(Schema.String),
   source: Schema.Unknown,
@@ -36,13 +36,6 @@ const isCheckPolicy = ({ packageName }: NamedWorkspace): boolean =>
 const messageFor = (directory: string): string =>
   `names the workspace ${directory}. The root README, AGENTS.md and CLAUDE.md describe the repository as a whole. Write what belongs to the workspace in ${directory}/README.md, or for agents in ${directory}/AGENTS.md.`;
 
-const lastSegment = (directory: string): string =>
-  pipe(
-    Str.split(SEPARATOR)(directory),
-    Arr.last,
-    Option.getOrElse(() => directory),
-  );
-
 const pluginsOf = (plugins: readonly (typeof MarketplacePlugin.Type)[]): Plugins => {
   const directories = pipe(
     plugins,
@@ -50,7 +43,7 @@ const pluginsOf = (plugins: readonly (typeof MarketplacePlugin.Type)[]): Plugins
     Arr.filter(Predicate.isString),
     Arr.map(Str.replace(RELATIVE, "")),
   );
-  const segments = pipe(directories, Arr.map(lastSegment));
+  const segments = pipe(directories, Arr.map(baseName));
   const names = pipe(
     plugins,
     Arr.map(({ name }) => name),

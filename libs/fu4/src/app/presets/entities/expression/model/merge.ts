@@ -90,3 +90,9 @@ export const merge: Merge = (type) => (other) => {
   }
   return ANY;
 };
+
+export const mergeAll = (types: readonly ExprType[]): ExprType =>
+  Arr.match(types, {
+    onEmpty: () => ANY,
+    onNonEmpty: ([first, ...rest]) => Arr.reduce(rest, first, (acc, type) => merge(acc)(type)),
+  });

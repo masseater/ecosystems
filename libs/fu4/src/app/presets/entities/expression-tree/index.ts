@@ -3,6 +3,7 @@ export { consteval } from "./lib/consteval.ts";
 export { asPattern, childOf, matchesPattern, singleTail } from "./lib/context.ts";
 export { parseExpression } from "./lib/parser.ts";
 export {
+  childrenOf,
   commutativeMatches,
   computedIndices,
   constevalSubexprs,

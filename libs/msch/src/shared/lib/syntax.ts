@@ -130,12 +130,15 @@ export const resolvedSymbol =
     return checker.getAliasedSymbol(symbol);
   };
 
+export const symbolAtLocation =
+  (checker: Checker) =>
+  (node: Node): Option.Option<TypeSymbol> =>
+    Option.fromUndefinedOr(checker.getSymbolAtLocation(node));
+
 export const symbolAt =
   (checker: Checker) =>
   (node: Node): Option.Option<TypeSymbol> =>
-    Option.fromUndefinedOr(checker.getSymbolAtLocation(node)).pipe(
-      Option.map(resolvedSymbol(checker)),
-    );
+    symbolAtLocation(checker)(node).pipe(Option.map(resolvedSymbol(checker)));
 
 export const referencedSymbols =
   (checker: Checker) =>

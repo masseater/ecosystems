@@ -22,22 +22,29 @@ const DATAFLOW_CALLS = new Set(["tojson", "fromjson", "format", "join"]);
 const PAIR = 2;
 const VALUE = 1;
 
-const noContexts = (): readonly ContextAt[] => [];
 const noSpanned = (): readonly Spanned[] => [];
 
-export const contexts = (spanned: Spanned): readonly ContextAt[] =>
-  Match.value(spanned.expr).pipe(
-    Match.discriminatorsExhaustive("type")({
-      literal: noContexts,
-      star: noContexts,
-      identifier: noContexts,
-      index: (expr) => contexts(expr.inner),
-      not: (expr) => contexts(expr.inner),
-      call: (expr) => pipe(expr.args, Arr.flatMap(contexts)),
-      context: (expr) => [{ context: expr, spanned }, ...pipe(expr.parts, Arr.flatMap(contexts))],
-      binary: (expr) => [...contexts(expr.lhs), ...contexts(expr.rhs)],
-    }),
-  );
+export const childrenOf: (expr: Expr) => readonly Spanned[] = Match.type<Expr>().pipe(
+  Match.discriminatorsExhaustive("type")({
+    literal: noSpanned,
+    star: noSpanned,
+    identifier: noSpanned,
+    call: (expr) => expr.args,
+    context: (expr) => expr.parts,
+    binary: (expr) => [expr.lhs, expr.rhs],
+    not: (expr) => [expr.inner],
+    index: (expr) => [expr.inner],
+  }),
+);
+
+export const contexts = (spanned: Spanned): readonly ContextAt[] => {
+  const { expr } = spanned;
+  const inner = pipe(childrenOf(expr), Arr.flatMap(contexts));
+  if (expr.type === "context") {
+    return [{ context: expr, spanned }, ...inner];
+  }
+  return inner;
+};
 
 const valueOf = (chunk: readonly Spanned[]): readonly Spanned[] =>
   Option.toArray(Arr.get(chunk, VALUE));
@@ -90,32 +97,13 @@ export const leafExpressions = (spanned: Spanned): readonly Spanned[] => {
 const isComputed = (inner: Spanned): boolean =>
   inner.expr.type !== "literal" && inner.expr.type !== "star";
 
-export const computedIndices = (spanned: Spanned): readonly Spanned[] =>
-  Match.value(spanned.expr).pipe(
-    Match.discriminatorsExhaustive("type")({
-      literal: noSpanned,
-      star: noSpanned,
-      identifier: noSpanned,
-      call: (expr) => pipe(expr.args, Arr.flatMap(computedIndices)),
-      index: (expr) => Option.toArray(Option.liftPredicate(spanned, () => isComputed(expr.inner))),
-      context: (expr) => pipe(expr.parts, Arr.flatMap(computedIndices)),
-      binary: (expr) => [...computedIndices(expr.lhs), ...computedIndices(expr.rhs)],
-      not: (expr) => computedIndices(expr.inner),
-    }),
-  );
-
-const childrenOf: (expr: Expr) => readonly Spanned[] = Match.type<Expr>().pipe(
-  Match.discriminatorsExhaustive("type")({
-    literal: noSpanned,
-    star: noSpanned,
-    identifier: noSpanned,
-    call: (expr) => expr.args,
-    context: (expr) => expr.parts,
-    binary: (expr) => [expr.lhs, expr.rhs],
-    not: (expr) => [expr.inner],
-    index: (expr) => [expr.inner],
-  }),
-);
+export const computedIndices = (spanned: Spanned): readonly Spanned[] => {
+  const { expr } = spanned;
+  if (expr.type === "index") {
+    return Option.toArray(Option.liftPredicate(spanned, () => isComputed(expr.inner)));
+  }
+  return pipe(childrenOf(expr), Arr.flatMap(computedIndices));
+};
 
 export const constevalSubexprs = (
   spanned: Spanned,
