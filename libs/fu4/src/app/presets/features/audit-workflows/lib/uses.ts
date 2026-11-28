@@ -156,7 +156,9 @@ const sameRepo = (
 
 const subpathEquals = Option.makeEquivalence(Str.Equivalence);
 
-const matchesUses = (uses: RepositoryUses): ((pattern: UsesPattern) => boolean) =>
+const matchesUses = (
+  uses: Pick<RepositoryUses, "gitRef" | "owner" | "repo" | "subpath">,
+): ((pattern: UsesPattern) => boolean) =>
   Match.type<UsesPattern>().pipe(
     Match.discriminatorsExhaustive("type")({
       "exact-with-ref": (pattern) =>
@@ -172,19 +174,6 @@ const matchesUses = (uses: RepositoryUses): ((pattern: UsesPattern) => boolean) 
     }),
   );
 
-const matchesSlug = (slug: Slug, gitRef: string): ((pattern: UsesPattern) => boolean) =>
-  Match.type<UsesPattern>().pipe(
-    Match.discriminatorsExhaustive("type")({
-      "exact-with-ref": (pattern) =>
-        Option.isNone(pattern.subpath) && sameRepo(slug, pattern) && gitRef === pattern.gitRef,
-      "exact-path": () => false,
-      "exact-repo": (pattern) => sameRepo(slug, pattern),
-      "in-repo": (pattern) => sameRepo(slug, pattern),
-      "in-owner": (pattern) => same(slug.owner, pattern.owner),
-      any: () => true,
-    }),
-  );
-
 export const patternMatches =
   (pattern: UsesPattern) =>
   (ref: RepoRef): boolean => {
@@ -193,7 +182,9 @@ export const patternMatches =
     }
     return pipe(
       ref.slug,
-      Option.exists((slug) => matchesSlug(slug, ref.gitRef)(pattern)),
+      Option.exists((slug) =>
+        matchesUses({ ...slug, gitRef: ref.gitRef, subpath: Option.none() })(pattern),
+      ),
     );
   };
 
