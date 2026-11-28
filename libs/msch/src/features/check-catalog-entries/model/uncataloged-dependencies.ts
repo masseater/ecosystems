@@ -1,6 +1,13 @@
-import { Array as Arr, Effect, Option, Record as Rec, Schema, String as Str, pipe } from "effect";
+import { Array as Arr, Effect, Option, String as Str, pipe } from "effect";
 
-import { MANIFEST_FILE } from "#/entities/package/index.ts";
+import {
+  MANIFEST_FILE,
+  decodeManifest,
+  manifestPattern,
+  offsetIn,
+  specifiedIn,
+} from "#/entities/package/index.ts";
+import type { Specified } from "#/entities/package/index.ts";
 import { workspaceDirectories } from "#/entities/workspace/index.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
@@ -12,54 +19,13 @@ const RULE: RuleName = "uncataloged-dependency";
 const SECTIONS = ["dependencies", "devDependencies", "optionalDependencies"] as const;
 const OWNED_ELSEWHERE: readonly string[] = ["catalog:", "workspace:", "link:", "file:"];
 const ROOT_DIRECTORY = ".";
-const START = 0;
 const MESSAGE =
   "is a version written in this package.json. Add it to the catalog in pnpm-workspace.yaml and write `catalog:` here, so that one entry owns the version and every package that uses the dependency moves together.";
-
-type Fields = Readonly<Record<string, unknown>>;
-
-const FieldsSchema = Schema.Record(Schema.String, Schema.Unknown);
-const decodeFields = Schema.decodeUnknownOption(FieldsSchema);
-const decodeManifest = Schema.decodeUnknownOption(Schema.fromJsonString(FieldsSchema));
-const decodeString = Schema.decodeUnknownOption(Schema.String);
-
-const fieldsOf = (value: unknown): Fields => Option.getOrElse(decodeFields(value), () => ({}));
-
-const quoted = (text: string): string =>
-  Str.replaceAll(/[$()*+.?[\\\]^{|}]/gu, String.raw`\$&`)(text);
-
-interface Specified {
-  readonly name: string;
-  readonly specifier: string;
-}
-
-const specifiedIn = (held: unknown): readonly Specified[] =>
-  pipe(
-    fieldsOf(held),
-    Rec.toEntries,
-    Arr.flatMap(([name, value]) =>
-      pipe(
-        decodeString(value),
-        Option.map((specifier) => ({ name, specifier })),
-        Option.toArray,
-      ),
-    ),
-  );
 
 const isOwnedElsewhere = ({ specifier }: Specified): boolean =>
   pipe(
     OWNED_ELSEWHERE,
     Arr.some((protocol) => Str.startsWith(protocol)(specifier)),
-  );
-
-const patternOf = ({ name, specifier }: Specified): RegExp =>
-  new RegExp(`"${quoted(name)}"\\s*:\\s*"${quoted(specifier)}"`, "u");
-
-const offsetOf = (source: string, found: Specified): number =>
-  pipe(
-    Option.fromNullishOr(patternOf(found).exec(source)),
-    Option.map(({ index }) => index),
-    Option.getOrElse(() => START),
   );
 
 const problemsIn = (entry: Listed, source: string): readonly Problem[] =>
@@ -72,7 +38,7 @@ const problemsIn = (entry: Listed, source: string): readonly Problem[] =>
         Arr.filter((found) => !isOwnedElsewhere(found)),
         Arr.map((found): Problem => ({
           file: entry.file,
-          ...positionOf(source)(offsetOf(source, found)),
+          ...positionOf(source)(offsetIn(source)(manifestPattern(found))),
           rule: RULE,
           message: `\`${found.name}\` \`${found.specifier}\` ${MESSAGE}`,
         })),
