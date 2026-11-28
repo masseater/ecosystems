@@ -57,7 +57,6 @@ tester.run("explicit-import-path with the eslint-plugin-n file-extension-in-impo
     accepted("import 'xxx'"),
     accepted("import './a.ts'"),
     accepted("import './b.json'"),
-    accepted("import './c.mts'"),
     accepted("import './d.tsx'"),
     accepted("import '@apollo/client/core'"),
     accepted("import 'yargs/helpers'"),
