@@ -49,3 +49,16 @@ it.effect("a kind that does not exist fails with the Typst message", () =>
     expect(failure.message).toMatch(/stranger/v);
   }),
 );
+
+const FIGURES = ["cycle", "tree", "timeline", "nested", "fork"] as const;
+
+for (const figure of FIGURES) {
+  it.effect(`the ${figure} part renders in both themes`, () =>
+    Effect.gen(function* figureRenders() {
+      const light = yield* render(`${figure}.typ`, "light", "svg");
+      const dark = yield* render(`${figure}.typ`, "dark", "svg");
+      expect(light).toContain("<svg");
+      expect(dark).toContain("#14181c");
+    }),
+  );
+}

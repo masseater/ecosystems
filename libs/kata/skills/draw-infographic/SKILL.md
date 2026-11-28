@@ -45,6 +45,8 @@ Give each node the kind that matches what happens to it: `person` acts, `system`
 
 `bars(rows: (...), limit: (...))` draws bars in the amount color and a dashed limit line in the condition color.
 
+Pick the part by what the figure shows: `flow` for steps, `fork` for a split at a condition, `cycle` for a repeat, `tree` for parent and child, `nested` for inside and outside, `timeline` for dates, `bars` for a size against a limit. The README lists their arguments.
+
 ## Render
 
 ```sh
