@@ -45,7 +45,7 @@ The chart parts `trend`, `stacked`, `funnel` and `sankey` come from `#import "/.
 
 ## Examples
 
-`examples/` holds one working source per figure type, with its light and dark SVG next to it. Copy the one that matches the figure and change its content.
+`assets/` holds one working source per figure type, with its light and dark SVG next to it. Copy the one that matches the figure and change its content.
 
 | Figure                   | Example            |
 | ------------------------ | ------------------ |

@@ -62,7 +62,7 @@ The chart parts wrap [primaviz](https://typst.app/universe/package/primaviz), wh
 
 ## Examples
 
-The agent skill ships `examples/`, one working source per figure type with its light and dark SVG.
+The agent skill ships `assets/`, one working source per figure type with its light and dark SVG.
 
 ## Render
 

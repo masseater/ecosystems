@@ -94,7 +94,7 @@ const EXAMPLES = [
 ] as const;
 
 const example = (name: string): string =>
-  new URL(`../../skills/draw-infographic/examples/${name}.typ`, import.meta.url).pathname;
+  new URL(`../../skills/draw-infographic/assets/${name}.typ`, import.meta.url).pathname;
 
 for (const name of EXAMPLES) {
   it.effect(`the ${name} example renders in both themes`, () =>
