@@ -44,7 +44,6 @@ catalog:
   "@types/node": 26.6.10
   eslint-plugin-react-hooks: 7.1.1
   vite: npm:@voidzero-dev/vite-plus-core@8.3.8001
-  eslint-plugin-no-comments: 1.2.1
   eslint-plugin-baseline-js: 0.7.7
   "@html-eslint/eslint-plugin-react": 0.68.0
   "@commitlint/config-conventional": 21.2.4

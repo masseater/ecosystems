@@ -89,9 +89,6 @@
     "access": "public",
     "provenance": true
   },
-  "scripts": {
-    "prepublishOnly": "vp exec msch-publish prepublish ."
-  },
   "dependencies": {
     "ableton-als": "catalog:",
     "fast-xml-parser": "catalog:",

@@ -9,7 +9,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/oxlint-typed-rules"
-  library_version: 0.5.0
 sources:
   - src/app/**
   - src/entities/typed-rule/**

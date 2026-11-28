@@ -8,7 +8,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/h56m"
-  library_version: 0.1.0
 sources:
   - src/app/index.ts
   - src/shared/config/types.ts

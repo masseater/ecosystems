@@ -7,7 +7,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/song-format"
-  library_version: 0.2.0
 sources:
   - src/app/index.ts
   - src/app/analysis.ts

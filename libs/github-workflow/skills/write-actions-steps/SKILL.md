@@ -8,7 +8,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/github-workflow"
-  library_version: 0.1.0
 sources:
   - src/app/**
   - src/shared/**

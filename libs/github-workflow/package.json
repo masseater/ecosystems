@@ -44,9 +44,6 @@
     "access": "public",
     "provenance": true
   },
-  "scripts": {
-    "prepublishOnly": "vp exec msch-publish prepublish ."
-  },
   "devDependencies": {
     "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",

@@ -6,7 +6,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/y8"
-  library_version: 0.1.0
 sources:
   - src/app/presets.ts
   - src/features/check-documents/model/recommended.ts
