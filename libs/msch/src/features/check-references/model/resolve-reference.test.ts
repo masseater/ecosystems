@@ -1,10 +1,10 @@
 import { it } from "@effect/vitest";
+import { referenceOf } from "@r_masseater/y8";
 import { Array as Arr, Effect, Option, Record as Rec } from "effect";
 import { HttpClient, HttpClientResponse } from "effect/http";
 import type { HttpClientRequest } from "effect/http";
 import { expect } from "vite-plus/test";
 
-import { referenceOf } from "./reference-links.ts";
 import { resolveReference } from "./resolve-reference.ts";
 import type { Outcome } from "./resolve-reference.ts";
 
@@ -42,7 +42,10 @@ const routes: Readonly<Record<string, () => Response>> = {
   "api.github.com/repos/o/r/contents/src/b.ts?ref=dev": () => new Response(SOURCE),
   "api.github.com/repos/o/r/contents/data.json": () => new Response("{}"),
   "registry.npmjs.org/effect": () =>
-    json({ "dist-tags": { latest: "1.0.0" }, versions: { "1.0.0": {} } }),
+    json({
+      "dist-tags": { latest: "2.0.0", next: "3.0.0-beta.1" },
+      versions: { "1.0.0": { deprecated: "use 2" }, "2.0.0": {}, "3.0.0-beta.1": {} },
+    }),
   "registry.npmjs.org/old-package": () =>
     json({
       "dist-tags": { latest: "1.0.0" },
@@ -140,6 +143,27 @@ it.effect("checks npm packages", () =>
       FOUND,
       expect.stringContaining("deprecated: use new-package"),
       expect.stringContaining("is not published on npm"),
+    ]);
+  }),
+);
+
+it.effect("checks the version of an npm package", () =>
+  Effect.gen(function* checksVersion() {
+    const outcomes = yield* resolved([
+      "npm:effect@2.0.0",
+      "npm:effect@latest",
+      "npm:effect@next",
+      "npm:effect@1.0.0",
+      "npm:effect@9.9.9",
+      "npm:effect@unknown",
+    ]);
+    expect(outcomes).toStrictEqual([
+      FOUND,
+      FOUND,
+      FOUND,
+      expect.stringContaining("effect@1.0.0 is deprecated: use 2"),
+      expect.stringContaining("effect@9.9.9 is not published on npm"),
+      expect.stringContaining("effect@unknown is not published on npm"),
     ]);
   }),
 );

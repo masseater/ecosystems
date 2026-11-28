@@ -1,7 +1,7 @@
 import { Option, Result } from "effect";
 import { expect, it } from "vite-plus/test";
 
-import { branchLinkReference, describeReference, parseReference } from "./reference.ts";
+import { branchLinkReference, describeReference, parseReference } from "./source-reference.ts";
 
 const written = (destination: string): string =>
   Result.match(parseReference(destination), {
@@ -39,6 +39,21 @@ it("parseReference keeps the parts apart", () => {
 it("parseReference reads an npm package", () => {
   expect(written("npm:effect")).toBe("npm:effect");
   expect(written("npm:@r_masseater/msch")).toBe("npm:@r_masseater/msch");
+});
+
+it("parseReference reads the version of an npm package", () => {
+  expect(written("npm:effect@4.0.0-beta.9")).toBe("npm:effect@4.0.0-beta.9");
+  expect(written("npm:@r_masseater/msch@0.64.1")).toBe("npm:@r_masseater/msch@0.64.1");
+  expect(written("npm:effect@latest")).toBe("npm:effect@latest");
+  expect(Result.getSuccess(parseReference("npm:@r_masseater/msch@next"))).toStrictEqual(
+    Option.some({ kind: "npm", name: "@r_masseater/msch", version: Option.some("next") }),
+  );
+});
+
+it("parseReference rejects a version range", () => {
+  expect(written("npm:effect@^4")).toContain("neither an exact version nor a dist-tag");
+  expect(written("npm:effect@>=4.0.0")).toContain("neither an exact version nor a dist-tag");
+  expect(written("npm:effect@4")).toContain("neither an exact version nor a dist-tag");
 });
 
 it("parseReference rejects a path that cannot name a file", () => {

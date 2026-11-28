@@ -63,6 +63,7 @@ const LITERAL_SETTINGS = {
     shadcnUi: ["apps/web/src/shared/ui/**"],
     publicEntries: [],
     deployEntries: [],
+    siteEntries: [],
   },
   testProjects: [
     {

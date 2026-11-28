@@ -1,5 +1,5 @@
 import type { Rule } from "@r_masseater/wism";
-import { Option, Record as Rec, pipe } from "effect";
+import { Array as Arr, Option, Record as Rec, pipe } from "effect";
 import { describe, expect, it } from "vite-plus/test";
 
 import type { WorkspaceSettings } from "#/features/build-workspace-settings/index.ts";
@@ -13,6 +13,7 @@ const WORKSPACE: WorkspaceSettings = {
     shadcnUi: [],
     publicEntries: ["libs/kit/src/index.ts"],
     deployEntries: ["apps/web/src/app/worker.ts"],
+    siteEntries: ["apps/docs/src/app/entry.server.ts"],
   },
   members: ["apps/web", "libs/kit"],
   ignoredDirectories: [{ pattern: "!**/dist", base: "workspace" }],
@@ -164,5 +165,30 @@ describe("repositoryConfig", () => {
     expect(config).toMatchObject({
       h56m: { filter: `matchesAny(finding.line, [\`${BEACON}\`, \`${OWNER}\`])` },
     });
+  });
+});
+
+describe("repositoryConfig default exports", () => {
+  it("allows a default export in public, deploy and site entries", () => {
+    const allowed = pipe(
+      Option.fromNullishOr(config.lint),
+      Option.flatMap(({ overrides }) => Option.fromNullishOr(overrides)),
+      Option.toArray,
+      Arr.flatten,
+      Arr.filter(({ rules }) =>
+        pipe(
+          Option.fromNullishOr(rules),
+          Option.exists((ruleMap) => ruleMap["import/no-default-export"] === "off"),
+        ),
+      ),
+      Arr.flatMap(({ files }) => files),
+    );
+    expect(allowed).toStrictEqual(
+      expect.arrayContaining([
+        "libs/kit/src/index.ts",
+        "apps/web/src/app/worker.ts",
+        "apps/docs/src/app/entry.server.ts",
+      ]),
+    );
   });
 });

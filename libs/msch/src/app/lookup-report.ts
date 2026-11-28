@@ -17,9 +17,9 @@ export interface Place {
 }
 
 /** @internal */
-export interface LookupReport<Row extends Place, Requirements> {
+export interface LookupReport<Row extends Place, Failure, Requirements> {
   readonly row: Schema.Codec<Row>;
-  readonly rows: (root: string) => Effect.Effect<readonly Row[], never, Requirements>;
+  readonly rows: (root: string) => Effect.Effect<readonly Row[], Failure, Requirements>;
   readonly describe: (row: Row) => string;
 }
 
@@ -39,13 +39,13 @@ const textOf =
   };
 
 /** @internal */
-export const lookupReport = <Row extends Place, Requirements>({
+export const lookupReport = <Row extends Place, Failure, Requirements>({
   row,
   rows,
   describe,
-}: LookupReport<Row, Requirements>): Effect.Effect<
+}: LookupReport<Row, Failure, Requirements>): Effect.Effect<
   number,
-  Schema.SchemaError | ProblemsFound,
+  Failure | Schema.SchemaError | ProblemsFound,
   Requirements | RepositoryFiles | Stdio.Stdio
 > =>
   Effect.gen(function* report() {

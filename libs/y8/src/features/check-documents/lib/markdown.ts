@@ -175,7 +175,7 @@ const decoded = (path: string): string =>
 const isExternal = (destination: string): boolean =>
   SCHEME.test(destination) || Str.startsWith(PROTOCOL_RELATIVE)(destination);
 
-const destinationOf = (node: MarkdownNode): Option.Option<string> =>
+export const destinationOf = (node: MarkdownNode): Option.Option<string> =>
   pipe(Option.fromNullishOr(node.data["destination"]), Option.filter(Predicate.isString));
 
 export const externalDestinationOf = (node: MarkdownNode): Option.Option<string> =>

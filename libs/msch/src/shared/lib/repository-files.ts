@@ -4,6 +4,7 @@ import {
   NodePath,
   NodeStdio,
 } from "@effect/platform-node-shared";
+import { groupOf } from "@masseater.dev/lint-host/collections";
 import {
   Array as Arr,
   Context,
@@ -18,8 +19,6 @@ import {
 } from "effect";
 import { Digest } from "effect/crypto";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
-
-import { groupOf } from "./match-groups.ts";
 
 /** @internal */
 export const nodeServicesLayer = Layer.provideMerge(

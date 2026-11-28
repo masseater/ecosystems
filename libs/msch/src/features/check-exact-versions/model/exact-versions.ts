@@ -1,3 +1,4 @@
+import { groupOf } from "@masseater.dev/lint-host/collections";
 import { Array as Arr, Effect, Option, Record as Rec, String as Str, pipe } from "effect";
 import semver from "semver";
 
@@ -12,7 +13,6 @@ import {
 } from "#/entities/package/index.ts";
 import type { Fields, Specified } from "#/entities/package/index.ts";
 import { workspaceManifest } from "#/entities/workspace/index.ts";
-import { groupOf } from "#/shared/lib/match-groups.ts";
 import type { Problem, RuleName } from "#/shared/lib/problem.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { scanText } from "#/shared/lib/scanned-files.ts";
