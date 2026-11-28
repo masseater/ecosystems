@@ -31,6 +31,7 @@ import {
   isTypeDeclaration,
   propertyNamesOf,
   referencedSymbols,
+  symbolAtLocation,
 } from "#/shared/lib/syntax.ts";
 import { finiteValuesOf, isSubsetOf, literalUnionOf, schemaTypeOf } from "#/shared/lib/values.ts";
 import type { Value } from "#/shared/lib/values.ts";
@@ -118,7 +119,7 @@ const isConditionalAlias =
   (checker: Checker) =>
   (reference: Node): boolean =>
     isTypeReferenceNode(reference) &&
-    Option.fromUndefinedOr(checker.getSymbolAtLocation(reference.typeName)).pipe(
+    symbolAtLocation(checker)(reference.typeName).pipe(
       Option.map(declarationsOf),
       Option.exists(
         Arr.some(

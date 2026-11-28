@@ -128,7 +128,7 @@ const syntaxTree = (view: SourceView): ((id: number) => SyntaxNode) => {
   return at;
 };
 
-const lineStartsOf = (text: string): readonly number[] => [
+export const lineStartsOf = (text: string): readonly number[] => [
   FIRST_LINE,
   ...Array.from(Str.matchAll(NEWLINES)(text), (match) => (match.index ?? FIRST_LINE) + FIRST),
 ];

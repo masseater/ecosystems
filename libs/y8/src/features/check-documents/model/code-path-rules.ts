@@ -1,3 +1,4 @@
+import { segments } from "@masseater.dev/path-kit";
 import { Array as Arr, Option, Predicate, String as Str, pipe } from "effect";
 
 import { defineRule } from "#/entities/rule/index.ts";
@@ -43,17 +44,10 @@ const basesOf = (context: RuleContext): readonly string[] => {
   return [own];
 };
 
-const firstSegment = (path: string): string =>
-  pipe(
-    Str.split(path, SEPARATOR),
-    Arr.head,
-    Option.getOrElse(() => path),
-  );
-
 const resolvedIn =
   (context: RuleContext, path: string) =>
   (base: string): Option.Option<string> => {
-    const start = joinPath(base, firstSegment(path));
+    const start = joinPath(base, Arr.headNonEmpty(segments(path)));
     return pipe(
       normalized(start),
       Option.filter(context.exists),

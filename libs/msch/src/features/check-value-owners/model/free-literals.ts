@@ -13,7 +13,12 @@ import {
   SyntaxKind,
 } from "#/shared/lib/compiler.ts";
 import type { Checker, Node, SourceFile, StringLiteral } from "#/shared/lib/compiler.ts";
-import { declarationsOf, descendantsOf, isInsideAny } from "#/shared/lib/syntax.ts";
+import {
+  declarationsOf,
+  descendantsOf,
+  isInsideAny,
+  symbolAtLocation,
+} from "#/shared/lib/syntax.ts";
 import { finiteValuesOf } from "#/shared/lib/values.ts";
 
 const NAME = /^[\w@.#/:$-]{2,}$/u;
@@ -82,7 +87,7 @@ const importedFilesOf =
       Arr.getSomes,
       Arr.flatMap((specifier) =>
         pipe(
-          Option.fromUndefinedOr(checker.getSymbolAtLocation(specifier)),
+          symbolAtLocation(checker)(specifier),
           Option.flatMap((symbol) => Arr.head(declarationsOf(symbol))),
           Option.map((declaration) => declaration.getSourceFile().fileName),
           Option.toArray,

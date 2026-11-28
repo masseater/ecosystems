@@ -1,11 +1,11 @@
 import { Option, Predicate, String as Str, Function as Fn } from "effect";
-import { NodeFlags, ScriptKind, SyntaxKind } from "typescript/ast";
+import { NodeFlags, SyntaxKind } from "typescript/ast";
 import type { Node } from "typescript/ast";
-import { isSourceFile } from "typescript/ast/is";
 import { SymbolFlags } from "typescript/sync";
 
 import { SymbolTable } from "./binder-symbol-table.ts";
 import { EMPTY, combineFlags, hasFlag, withFlags } from "./flags.ts";
+import { isSourceFileJS, sourceFileOf } from "./source-file.ts";
 
 const DATA_FIRST_ARITY = 2;
 
@@ -37,14 +37,6 @@ export const escapeLeadingUnderscores = (name: string): string => {
   return name;
 };
 
-const isInJsFileNode = (node: Node): boolean => {
-  let current = node;
-  while (!isSourceFile(current)) {
-    current = current.parent;
-  }
-  return current.scriptKind === ScriptKind.JS || current.scriptKind === ScriptKind.JSX;
-};
-
 const isAmbientNode = (node: Node): boolean => hasFlag(node.flags, NodeFlags.Ambient);
 
 const ASSIGNMENT_DECLARATION_KINDS: ReadonlySet<SyntaxKind> = new Set([
@@ -62,7 +54,7 @@ const isEffectiveModuleDeclaration = (node: Node): boolean =>
   node.kind === SyntaxKind.ModuleDeclaration || node.kind === SyntaxKind.Identifier;
 
 const isAmbientOverride = (existing: Node, node: Node): boolean =>
-  isAmbientNode(node) && !isInJsFileNode(node) && !isAmbientNode(existing);
+  isAmbientNode(node) && !isSourceFileJS(sourceFileOf(node)) && !isAmbientNode(existing);
 
 const replacesAssignmentDeclaration = (existing: Node, node: Node): boolean =>
   !isAmbientOverride(existing, node) &&

@@ -37,10 +37,16 @@ const shown = (node: YamlNode): string => {
   return `${node.tag} \`${head}\``;
 };
 
+export const custom =
+  (sink: Sink) =>
+  (node: YamlNode, message: string): void => {
+    sink(`line ${String(node.line)}: ${message}`);
+  };
+
 export const typeError =
   (sink: Sink) =>
   (node: YamlNode, target: string): void => {
-    sink(`line ${String(node.line)}: cannot unmarshal ${shown(node)} into ${target}`);
+    custom(sink)(node, `cannot unmarshal ${shown(node)} into ${target}`);
   };
 
 export const decodeString =
@@ -122,16 +128,11 @@ export const isMappingOrError =
     if (node.kind === "mapping") {
       return true;
     }
-    sink(
-      `line ${String(node.line)}: yaml: ${where} must be mapping node but ${node.kind} node was found at line:${String(node.line)}, col:${String(node.column)}`,
+    custom(sink)(
+      node,
+      `yaml: ${where} must be mapping node but ${node.kind} node was found at line:${String(node.line)}, col:${String(node.column)}`,
     );
     return false;
   };
 
 export const lowerKey = (node: YamlNode): string => Str.toLowerCase(node.value);
-
-export const custom =
-  (sink: Sink) =>
-  (node: YamlNode, message: string): void => {
-    sink(`line ${String(node.line)}: ${message}`);
-  };

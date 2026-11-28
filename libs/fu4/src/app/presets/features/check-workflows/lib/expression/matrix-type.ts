@@ -9,6 +9,7 @@ import {
   arrayOf,
   loose,
   merge,
+  mergeAll,
   strict,
 } from "#/app/presets/entities/expression/index.ts";
 import type { ExprType, ObjectType } from "#/app/presets/entities/expression/index.ts";
@@ -38,14 +39,6 @@ export const literalType = (value: string): ExprType => {
     Option.orElse(() => Option.as(parseGoFloat(trimmed), NUMBER)),
     Option.getOrElse(() => STRING),
   );
-};
-
-const mergeAll = (types: readonly ExprType[]): ExprType => {
-  let out = Option.none<ExprType>();
-  for (const type of types) {
-    out = Option.some(Option.match(out, { onNone: () => type, onSome: (acc) => merge(acc)(type) }));
-  }
-  return Option.getOrElse(out, () => ANY);
 };
 
 const elemOf = (type: ExprType): Option.Option<ExprType> => {

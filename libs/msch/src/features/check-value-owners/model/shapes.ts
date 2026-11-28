@@ -27,7 +27,12 @@ import type {
 } from "#/shared/lib/compiler.ts";
 import { CANDIDATE_LIMIT, problemAt } from "#/shared/lib/problem.ts";
 import type { Problem } from "#/shared/lib/problem.ts";
-import { descendantsOf, isGenericDeclaration, isTypeDeclaration } from "#/shared/lib/syntax.ts";
+import {
+  descendantsOf,
+  isGenericDeclaration,
+  isTypeDeclaration,
+  symbolAtLocation,
+} from "#/shared/lib/syntax.ts";
 import { schemaTypeOf } from "#/shared/lib/values.ts";
 
 import { derivedDeclarationsOf } from "./derivation.ts";
@@ -138,18 +143,13 @@ const declarationAt =
       ),
     );
 
-const symbolOfDeclaration =
-  (checker: Checker) =>
-  (declaration: IndexedDeclaration): Option.Option<TypeSymbol> =>
-    Option.fromUndefinedOr(checker.getSymbolAtLocation(declaration.name));
-
 const shapeTypeOf =
   (context: ShapeContext) =>
   (shape: LibraryShape): Option.Option<Type> => {
     const { checker } = context;
     return declarationAt(context.program)(shape.declaration).pipe(
       Option.flatMap((declaration) =>
-        symbolOfDeclaration(checker)(declaration).pipe(
+        symbolAtLocation(checker)(declaration.name).pipe(
           Option.flatMap((symbol) => {
             if (shape.form === "declared") {
               return Option.some(checker.getDeclaredTypeOfSymbol(symbol));

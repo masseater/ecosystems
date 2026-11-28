@@ -145,13 +145,12 @@ const lookupInFileContainer = (
     Option.flatMap((bound) => lookupIdentifier(bound, walk.node)),
   );
 
-const memberOfAccess = (
-  node: AccessExpression,
-  parent: Option.Option<BoundSymbol>,
-): Option.Option<BoundSymbol> =>
-  getElementOrPropertyAccessName(node).pipe(
-    Option.flatMap((key) => parent.pipe(Option.flatMap((symbol) => exportOf(symbol, key)))),
-  );
+export const memberOfAccess =
+  (parent: Option.Option<BoundSymbol>) =>
+  (node: AccessExpression): Option.Option<BoundSymbol> =>
+    getElementOrPropertyAccessName(node).pipe(
+      Option.flatMap((key) => parent.pipe(Option.flatMap((symbol) => exportOf(symbol, key)))),
+    );
 
 export const forEachIdentifierInEntityName: {
   (walk: EntityNameWalk): (binding: FileBinding) => Option.Option<BoundSymbol>;
@@ -170,7 +169,7 @@ export const forEachIdentifierInEntityName: {
       return Option.none();
     }
     const parent = forEachIdentifierInEntityName(binding, { ...walk, node: node.expression });
-    return walk.action(accessNameOrArgument(node), memberOfAccess(node, parent), parent);
+    return walk.action(accessNameOrArgument(node), memberOfAccess(parent)(node), parent);
   },
 );
 

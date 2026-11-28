@@ -1,2 +1,2 @@
 export { kindOf } from "./model/kind.ts";
-export { sourceOf } from "./model/source.ts";
+export { lineStartsOf, sourceOf } from "./model/source.ts";

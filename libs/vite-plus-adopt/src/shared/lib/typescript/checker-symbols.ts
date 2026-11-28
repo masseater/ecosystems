@@ -29,6 +29,7 @@ import type { BoundSymbol } from "./binder-symbols.ts";
 import { bindingOf } from "./binder.ts";
 import type { CheckerSession } from "./checker-session.ts";
 import { hasFlag } from "./flags.ts";
+import { sourceFileOf } from "./source-file.ts";
 
 const DATA_FIRST_ARITY = 2;
 
@@ -40,14 +41,6 @@ export const EXPORT_EQUALS = "export=";
 
 export const isCheckerSymbol = (symbol: AnySymbol): symbol is CheckerSymbol =>
   "getExports" in symbol;
-
-const sourceFileOf = (node: Node): SourceFile => {
-  let current = node;
-  while (!isSourceFile(current)) {
-    current = current.parent;
-  }
-  return current;
-};
 
 const firstDeclaration = (symbol: BoundSymbol): Option.Option<Node> =>
   Option.fromNullishOr(symbol.declarations).pipe(
