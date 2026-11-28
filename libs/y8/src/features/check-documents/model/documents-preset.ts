@@ -9,6 +9,7 @@ import {
   noEmail,
   noLocalPath,
   noPlaceholder,
+  sourceReference,
 } from "./general-rules.ts";
 
 const DOCUMENTS: RuleSet = {
@@ -16,6 +17,7 @@ const DOCUMENTS: RuleSet = {
   rules: {
     "link-target-exists": linkTargetExists,
     "link-forward-slash": linkForwardSlash,
+    "source-reference": sourceReference,
     "no-local-path": noLocalPath,
     "no-email": noEmail,
     "no-placeholder": noPlaceholder,

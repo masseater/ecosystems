@@ -141,14 +141,11 @@
     "htmlparser2": "catalog:",
     "modern-web-guidance": "catalog:",
     "oxlint-plugin-eslint": "catalog:",
-    "remark-parse": "catalog:",
     "semver": "catalog:",
     "sql-parser-cst": "catalog:",
     "synckit": "catalog:",
     "textlint-rule-preset-ja-technical-writing": "catalog:",
     "toml-eslint-parser": "catalog:",
-    "unified": "catalog:",
-    "unist-util-visit": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {
@@ -158,7 +155,6 @@
     "@r_masseater/github-workflow": "workspace:*",
     "@r_masseater/node-main": "workspace:*",
     "@r_masseater/vitest-otlp": "workspace:*",
-    "@types/mdast": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
     "effect": "catalog:stack",

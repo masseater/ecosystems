@@ -1,3 +1,5 @@
+import { NO_PATH } from "@r_masseater/y8";
+import type { GithubReference, NpmReference, Reference } from "@r_masseater/y8";
 import { Array as Arr, Effect, HashSet, Match, Option, Schema, String as Str, pipe } from "effect";
 import { HttpClientResponse } from "effect/http";
 import type { HttpClient, HttpClientError } from "effect/http";
@@ -6,8 +8,6 @@ import { githubToken, jsonLookup, publicLookup, sent } from "#/shared/lib/lookup
 import type { Lookup } from "#/shared/lib/lookup.ts";
 
 import { declaredSymbols, grammarOf, supportedExtensions } from "./declared-symbols.ts";
-import { NO_PATH } from "./reference.ts";
-import type { GithubReference, NpmReference, Reference } from "./reference.ts";
 
 const GITHUB = "https://api.github.com/repos/";
 const NPM = "https://registry.npmjs.org/";
@@ -16,6 +16,7 @@ const ABBREVIATED = "application/vnd.npm.install-v1+json";
 const NOT_FOUND = 404;
 const MULTIPLE_CHOICES = 300;
 const SEPARATOR = "/";
+const LATEST = "latest";
 
 /** @internal */
 export type Outcome =
@@ -34,7 +35,7 @@ const Repository = Schema.Struct({
 });
 const Version = Schema.Struct({ deprecated: Schema.optional(Schema.String) });
 const Packument = Schema.Struct({
-  "dist-tags": Schema.Struct({ latest: Schema.String }),
+  "dist-tags": Schema.Record(Schema.String, Schema.String),
   versions: Schema.Record(Schema.String, Version),
 });
 
@@ -134,28 +135,43 @@ const githubOutcome = Effect.fn("githubOutcome")(function* githubOutcome(
   return yield* answered(lookup, missing, repositoryStep(reference, token));
 });
 
-const deprecation = ({
-  "dist-tags": tags,
-  versions,
-}: typeof Packument.Type): Option.Option<string> =>
-  pipe(
-    Option.fromNullishOr(versions[tags.latest]),
-    Option.flatMap(({ deprecated }) => Option.fromNullishOr(deprecated)),
-  );
+const versionOf = (
+  { "dist-tags": tags }: typeof Packument.Type,
+  requested: Option.Option<string>,
+): Option.Option<string> =>
+  Option.match(requested, {
+    onNone: () => Option.fromNullishOr(tags[LATEST]),
+    onSome: (asked) =>
+      Option.some(Option.getOrElse(Option.fromNullishOr(tags[asked]), () => asked)),
+  });
 
-const npmOutcome = ({ name }: NpmReference): Lookups =>
+const versionOutcome = (
+  { name, version }: NpmReference,
+  packument: typeof Packument.Type,
+): Outcome =>
+  Option.match(versionOf(packument, version), {
+    onNone: () => broken(`${name} has no ${LATEST} tag.`),
+    onSome: (resolved) =>
+      Option.match(Option.fromNullishOr(packument.versions[resolved]), {
+        onNone: () => broken(`${name}@${resolved} is not published on npm.`),
+        onSome: ({ deprecated }) =>
+          Option.match(Option.fromNullishOr(deprecated), {
+            onNone: () => found,
+            onSome: (message) => broken(`${name}@${resolved} is deprecated: ${message}`),
+          }),
+      }),
+  });
+
+const npmOutcome = (reference: NpmReference): Lookups =>
   answered(
     {
-      ...publicLookup(`${NPM}${Str.replace("/", "%2f")(name)}`),
+      ...publicLookup(`${NPM}${Str.replace("/", "%2f")(reference.name)}`),
       accept: ABBREVIATED,
     },
-    `${name} is not published on npm.`,
+    `${reference.name} is not published on npm.`,
     (response) =>
       Effect.map(HttpClientResponse.schemaBodyJson(Packument)(response), (packument) =>
-        Option.match(deprecation(packument), {
-          onNone: () => found,
-          onSome: (message) => broken(`${name} is deprecated: ${message}`),
-        }),
+        versionOutcome(reference, packument),
       ),
   );
 

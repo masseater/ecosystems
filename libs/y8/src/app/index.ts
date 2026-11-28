@@ -2,6 +2,17 @@ export { agnix, definePlugin, defineRule } from "#/entities/rule/index.ts";
 export { diagnosticDetail, formatDiagnostic as format } from "@masseater.dev/lint-host";
 export { lint } from "./lint.ts";
 export { tokenize, morphemesOf } from "#/features/split-morphemes/index.ts";
+export { linksIn } from "#/features/read-links/index.ts";
+export type { LinkAt } from "#/features/read-links/index.ts";
+export {
+  NO_PATH,
+  REFERENCE_GRAMMAR,
+  branchLinkReference,
+  describeReference,
+  parseReference,
+  referenceOf,
+} from "#/features/check-documents/index.ts";
+export type { GithubReference, NpmReference, Reference } from "#/features/check-documents/index.ts";
 export { markdownPathspecs, y8Section } from "./section.ts";
 export type { PathspecInput } from "./section.ts";
 export type { LintInput } from "./lint.ts";

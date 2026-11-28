@@ -2,12 +2,14 @@ import { Array as Arr, Option, String as Str, pipe } from "effect";
 
 import { defineRule } from "#/entities/rule/index.ts";
 import {
+  destinationOf,
   internalDestinationOf,
   linksOf,
   localTargetOf,
   proseNodes,
 } from "#/features/check-documents/lib/markdown.ts";
 import { stringsOption } from "#/features/check-documents/lib/options.ts";
+import { referenceProblem } from "#/features/check-documents/lib/source-reference.ts";
 import type { MarkdownNode, Rule } from "#/shared/config/index.ts";
 
 const BACKSLASH = "\\";
@@ -28,6 +30,20 @@ export const linkTargetExists: Rule = defineRule({
           if (!context.exists(target)) {
             context.report({ node, message: `Link target ${target} does not exist` });
           }
+        }
+      }
+    },
+  }),
+});
+
+export const sourceReference: Rule = defineRule({
+  meta: { description: "A github: or npm: link is written in the form msch-refs can look up" },
+  create: (context) => ({
+    document: (): void => {
+      for (const node of linksOf(context)) {
+        const problem = pipe(destinationOf(node), Option.flatMap(referenceProblem));
+        for (const message of Option.toArray(problem)) {
+          context.report({ node, message });
         }
       }
     },

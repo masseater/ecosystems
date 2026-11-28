@@ -1,11 +1,10 @@
+import { describeReference, linksIn, referenceOf } from "@r_masseater/y8";
+import type { LinkAt, Reference } from "@r_masseater/y8";
 import { Array as Arr, Effect, HashMap, Option, pipe } from "effect";
 
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
-import { positionOf } from "#/shared/lib/text-position.ts";
 
-import { linksIn, markdownTexts, referenceOf } from "./reference-links.ts";
-import { describeReference } from "./reference.ts";
-import type { Reference } from "./reference.ts";
+import { markdownTexts } from "./markdown-texts.ts";
 import { resolveReference } from "./resolve-reference.ts";
 import type { Outcome } from "./resolve-reference.ts";
 
@@ -26,19 +25,12 @@ interface Occurrence {
   readonly reference: Reference;
 }
 
-const occurrencesIn = (file: string, source: string): readonly Occurrence[] =>
-  pipe(
-    linksIn(source),
-    Arr.flatMap(({ destination, index }) =>
-      pipe(
-        referenceOf(destination),
-        Option.map((reference): Occurrence => ({
-          file,
-          line: positionOf(source)(index).line,
-          reference,
-        })),
-        Option.toArray,
-      ),
+const occurrencesIn = (links: readonly LinkAt[]): readonly Occurrence[] =>
+  Arr.flatMap(links, ({ path, line, destination }) =>
+    pipe(
+      referenceOf(destination),
+      Option.map((reference): Occurrence => ({ file: path, line, reference })),
+      Option.toArray,
     ),
   );
 
@@ -74,10 +66,10 @@ export const unresolvedReferences = Effect.fn("unresolvedReferences")(
   function* unresolvedReferences(root: string) {
     const files = yield* RepositoryFiles;
     const texts = yield* markdownTexts(root);
-    const occurrences = pipe(
-      texts,
-      Arr.flatMap(({ file, source }) => occurrencesIn(files.relative(root, file), source)),
+    const links = yield* linksIn(
+      Arr.map(texts, ({ file, source }) => ({ path: files.relative(root, file), text: source })),
     );
+    const occurrences = occurrencesIn(links);
     const distinct = pipe(
       occurrences,
       Arr.dedupeWith(
