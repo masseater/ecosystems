@@ -1,8 +1,9 @@
 import { baseName, parent } from "@masseater.dev/path-kit";
-import { withTypeInformation } from "@r_masseater/oxlint-typed-rules";
 import type { ParserServices, TypedContext } from "@r_masseater/oxlint-typed-rules";
 import { Array as Arr, Option, Predicate, String as Str, pipe } from "effect";
 import type { ESTree, Rule, Visitor } from "vite-plus/lint/plugins";
+
+import { typedRuleOf } from "./typed-rule.ts";
 
 const MESSAGE_ID = "spellOut";
 const MESSAGE =
@@ -110,14 +111,7 @@ const visitorOf = (context: TypedContext, services: ParserServices): Visitor => 
   };
 };
 
-export const explicitImportPath: Rule = withTypeInformation({
+export const explicitImportPath: Rule = typedRuleOf({
   meta: { type: "suggestion", fixable: "code", messages: { [MESSAGE_ID]: MESSAGE } },
-  create: (context: TypedContext) =>
-    pipe(
-      Option.fromNullishOr(context.sourceCode.parserServices),
-      Option.match({
-        onNone: (): Visitor => ({}),
-        onSome: (services) => visitorOf(context, services),
-      }),
-    ),
+  visitorOf,
 });

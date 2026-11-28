@@ -1,4 +1,3 @@
-import { withTypeInformation } from "@r_masseater/oxlint-typed-rules";
 import type { ParserServices, TypedContext } from "@r_masseater/oxlint-typed-rules";
 import { Array as Arr, Match, Option, String as Str, pipe } from "effect";
 import type { Node } from "typescript/ast";
@@ -6,6 +5,7 @@ import { isTypeNode } from "typescript/ast/is";
 import type { Type } from "typescript/sync";
 import type { ESTree, Rule, Visitor } from "vite-plus/lint/plugins";
 
+import { typedRuleOf } from "./typed-rule.ts";
 import { ELEMENT, writablePartOf } from "./writable-part.ts";
 import type { Mutability, WritablePart } from "./writable-part.ts";
 
@@ -140,17 +140,7 @@ const visitorOf = (context: TypedContext, services: ParserServices): Visitor => 
   };
 };
 
-export const readonlyParameters: Rule = withTypeInformation({
-  meta: {
-    type: "suggestion",
-    messages: { [MESSAGE_ID]: MESSAGE },
-  },
-  create: (context: TypedContext) =>
-    pipe(
-      Option.fromNullishOr(context.sourceCode.parserServices),
-      Option.match({
-        onNone: (): Visitor => ({}),
-        onSome: (services) => visitorOf(context, services),
-      }),
-    ),
+export const readonlyParameters: Rule = typedRuleOf({
+  meta: { type: "suggestion", messages: { [MESSAGE_ID]: MESSAGE } },
+  visitorOf,
 });
