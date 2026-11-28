@@ -1,11 +1,10 @@
-import { Array as Arr, Effect, Option, String as Str, pipe } from "effect";
+import { Array as Arr, Effect, String as Str, pipe } from "effect";
 
 import {
   MANIFEST_FILE,
-  decodeManifest,
+  manifestSpecifiers,
   manifestPattern,
   offsetIn,
-  specifiedIn,
 } from "#/entities/package/index.ts";
 import type { Specified } from "#/entities/package/index.ts";
 import { workspaceDirectories } from "#/entities/workspace/index.ts";
@@ -16,7 +15,6 @@ import type { Listed } from "#/shared/lib/scanned-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
 
 const RULE: RuleName = "uncataloged-dependency";
-const SECTIONS = ["dependencies", "devDependencies", "optionalDependencies"] as const;
 const OWNED_ELSEWHERE: readonly string[] = ["catalog:", "workspace:", "link:", "file:"];
 const ROOT_DIRECTORY = ".";
 const MESSAGE =
@@ -30,21 +28,14 @@ const isOwnedElsewhere = ({ specifier }: Specified): boolean =>
 
 const problemsIn = (entry: Listed, source: string): readonly Problem[] =>
   pipe(
-    decodeManifest(source),
-    Option.map((manifest) =>
-      pipe(
-        SECTIONS,
-        Arr.flatMap((section) => specifiedIn(manifest[section])),
-        Arr.filter((found) => !isOwnedElsewhere(found)),
-        Arr.map((found): Problem => ({
-          file: entry.file,
-          ...positionOf(source)(offsetIn(source)(manifestPattern(found))),
-          rule: RULE,
-          message: `\`${found.name}\` \`${found.specifier}\` ${MESSAGE}`,
-        })),
-      ),
-    ),
-    Option.getOrElse((): readonly Problem[] => []),
+    manifestSpecifiers(source),
+    Arr.filter((found) => !isOwnedElsewhere(found)),
+    Arr.map((found): Problem => ({
+      file: entry.file,
+      ...positionOf(source)(offsetIn(source)(manifestPattern(found))),
+      rule: RULE,
+      message: `\`${found.name}\` \`${found.specifier}\` ${MESSAGE}`,
+    })),
   );
 
 /** @internal */

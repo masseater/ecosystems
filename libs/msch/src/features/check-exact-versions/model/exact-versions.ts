@@ -3,7 +3,7 @@ import semver from "semver";
 
 import {
   MANIFEST_FILE,
-  decodeManifest,
+  manifestSpecifiers,
   fieldsOf,
   manifestPattern,
   offsetIn,
@@ -24,7 +24,6 @@ const WORKSPACE_FILE = "pnpm-workspace.yaml";
 const ALIAS = /^npm:(?:@[^/@]+\/)?[^@]+@(?<version>.+)$/u;
 const PROTOCOL = /^[a-z+]+:/u;
 const PATH_LIKE = "/";
-const SECTIONS = ["dependencies", "devDependencies", "optionalDependencies"] as const;
 const EXCLUDED: readonly string[] = [
   ":(exclude,attr:linguist-vendored)",
   ":(exclude,attr:linguist-generated)",
@@ -61,17 +60,7 @@ const catalogPattern = ({ name }: Specified): RegExp =>
   new RegExp(`^\\s+["']?${quoted(name)}["']?:`, "mu");
 
 const manifestProblems = (entry: Listed, source: string): readonly Problem[] =>
-  pipe(
-    decodeManifest(source),
-    Option.map((manifest) =>
-      pipe(
-        SECTIONS,
-        Arr.flatMap((section) => specifiedIn(manifest[section])),
-        problemsFor(entry.file, source, manifestPattern),
-      ),
-    ),
-    Option.getOrElse((): readonly Problem[] => []),
-  );
+  problemsFor(entry.file, source, manifestPattern)(manifestSpecifiers(source));
 
 const catalogSpecifiers = (settings: Fields): readonly Specified[] => [
   ...specifiedIn(settings["catalog"]),

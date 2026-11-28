@@ -54,3 +54,18 @@ export const offsetIn =
       Option.map(({ index }) => index),
       Option.getOrElse(() => START),
     );
+
+const SECTIONS = ["dependencies", "devDependencies", "optionalDependencies"] as const;
+
+/** @internal */
+export const manifestSpecifiers = (source: string): readonly Specified[] =>
+  pipe(
+    decodeJson(source),
+    Option.map((manifest) =>
+      pipe(
+        SECTIONS,
+        Arr.flatMap((section) => specifiedIn(manifest[section])),
+      ),
+    ),
+    Option.getOrElse((): readonly Specified[] => []),
+  );
