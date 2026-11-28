@@ -1,4 +1,3 @@
-import { updateWorkspaceManifest } from "@pnpm/workspace.workspace-manifest-writer";
 import { Array as Arr, Effect, Option, Record as Rec, String as Str, pipe } from "effect";
 
 import { manifestPattern } from "#/entities/package/index.ts";
@@ -6,12 +5,14 @@ import type { Specified } from "#/entities/package/index.ts";
 import { workspaceManifest } from "#/entities/workspace/index.ts";
 import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 
+import { withCatalogEntries } from "./catalog-source.ts";
+import type { Catalog } from "./catalog-source.ts";
 import { installedManifests, uncatalogedIn } from "./uncataloged-dependencies.ts";
 
 const CATALOG_SPECIFIER = "catalog:";
 const READ_CONCURRENCY = 16;
-
-type Catalog = Readonly<Record<string, string>>;
+const WORKSPACE_FILE = "pnpm-workspace.yaml";
+const EMPTY = "";
 
 interface Move {
   readonly file: string;
@@ -110,8 +111,16 @@ const addToCatalog = Effect.fn("addToCatalog")(function* addToCatalog(
   if (Rec.isEmptyRecord(added)) {
     return;
   }
-  yield* Effect.promise(() =>
-    updateWorkspaceManifest(root, { updatedCatalogs: { default: { ...added } } }),
+  const files = yield* RepositoryFiles;
+  const file = files.join(root, WORKSPACE_FILE);
+  const source = yield* files.readFile(file);
+  yield* files.writeFile(
+    file,
+    pipe(
+      source,
+      Option.getOrElse(() => EMPTY),
+      withCatalogEntries(added),
+    ),
   );
 });
 

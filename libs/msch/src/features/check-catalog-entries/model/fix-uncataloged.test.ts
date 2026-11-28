@@ -9,10 +9,20 @@ import { fixUncatalogedDependencies } from "./fix-uncataloged.ts";
 import { uncatalogedDependencies } from "./uncataloged-dependencies.ts";
 
 const CLASHING = 1;
+const EXIT_LINE = "  safer@1.0.0: # exit: npm:other@>1.0.0";
 const lines = (text: readonly string[]): string => pipe([...text, ""], Arr.join("\n"));
 
 const FIXTURE = {
-  "pnpm-workspace.yaml": lines(["packages:", "  - libs/*", "catalog:", "  held: 1.0.0"]),
+  "pnpm-workspace.yaml": lines([
+    "packages:",
+    "  - libs/*",
+    "catalog:",
+    "  held: 1.0.0",
+    "packageExtensions:",
+    EXIT_LINE,
+    "    dependencies:",
+    "      buffer: ^6.0.3",
+  ]),
   "package.json": lines(["{", '  "devDependencies": { "fresh": "2.0.0" }', "}"]),
   "libs/a/package.json": lines([
     "{",
@@ -35,6 +45,11 @@ const readAll = (root: string): Effect.Effect<Record<string, string>, never, Rep
     return Rec.fromEntries(Arr.zip(NAMES, texts));
   });
 
+const expectCatalogWritten = (workspace: string): void => {
+  expect(workspace).toContain("  held: 1.0.0\n  fresh: 2.0.0\n  clash: 3.0.0\n");
+  expect(workspace).toContain(EXIT_LINE);
+};
+
 const movesVersionsIntoTheCatalog = Effect.gen(function* movesVersionsIntoTheCatalog() {
   const root = yield* gitRepositoryWith(FIXTURE);
   const report = yield* fixUncatalogedDependencies(root);
@@ -42,7 +57,7 @@ const movesVersionsIntoTheCatalog = Effect.gen(function* movesVersionsIntoTheCat
   expect(texts["package.json"]).toContain('"fresh": "catalog:"');
   expect(texts["libs/a/package.json"]).toContain('"held": "catalog:"');
   expect(texts["libs/b/package.json"]).toContain('"clash": "4.0.0"');
-  expect(texts["pnpm-workspace.yaml"]).toContain("clash: 3.0.0");
+  expectCatalogWritten(texts["pnpm-workspace.yaml"] ?? "");
   expect(report).toContain(
     "libs/b/package.json: `clash` `4.0.0` differs from the catalog's `3.0.0`. Align the versions by hand.",
   );
