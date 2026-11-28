@@ -82,6 +82,7 @@ const rules = {
   ...webGuidanceRules,
   "msch-lint/array-from-async": "error",
   "msch-lint/ecosystem-readers": "error",
+  "msch-lint/explicit-import-path": "error",
   "msch-lint/get-or-insert": "error",
   "msch-lint/mcp-tool-layer": "error",
   "msch-lint/inline-exports": "error",

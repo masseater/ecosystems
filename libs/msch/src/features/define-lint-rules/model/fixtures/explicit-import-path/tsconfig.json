@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "target": "esnext",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "noEmit": true
+  },
+  "include": ["**/*.ts", "**/*.mts", "**/*.tsx"]
+}
