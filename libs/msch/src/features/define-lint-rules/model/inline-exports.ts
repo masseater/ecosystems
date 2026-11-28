@@ -1,82 +1,47 @@
-import { Array as Arr, Option, pipe } from "effect";
+import { Array as Arr, pipe } from "effect";
 import type { Context, ESTree, Rule } from "vite-plus/lint/plugins";
-
-import { editsOf } from "./inline-exports-plan.ts";
-import { isTypeOnlyClass } from "./inline-exports-resolve.ts";
-import { exportListOf } from "./inline-exports-source.ts";
-import type { ExportList, Range } from "./inline-exports-source.ts";
-import type { Source } from "./inline-exports-text.ts";
 
 const MESSAGE =
   "export は宣言に付ける（export const・export function など）。ファイルの末尾で export { … } にまとめない。";
-const START = 0;
-const END = 1;
+const TYPE = "type";
+const CLASS_NAME = "ClassName";
 
-const outside =
-  (list: Range) =>
-  (range: Range): boolean =>
-    range[START] < list[START] || range[END] > list[END];
+const isList = (node: ESTree.ExportNamedDeclaration): boolean =>
+  node.declaration === null && node.source === null && !Arr.isReadonlyArrayEmpty(node.specifiers);
 
-const usedOutside = (context: Context, list: ExportList): readonly string[] =>
+const localName = (specifier: ESTree.ExportSpecifier): string => {
+  if (specifier.local.type === "Literal") {
+    return specifier.local.value;
+  }
+  return specifier.local.name;
+};
+
+const isClass = (context: Context, name: string): boolean =>
   pipe(
     context.sourceCode.scopeManager.scopes,
     Arr.flatMap((scope) => scope.variables),
-    Arr.filter((variable) =>
+    Arr.filter((variable) => variable.name === name),
+    Arr.flatMap((variable) => variable.defs),
+    (defs) =>
+      Arr.isReadonlyArrayNonEmpty(defs) &&
       pipe(
-        variable.references,
-        Arr.some((reference) => outside(list.range)(reference.identifier.range)),
+        defs,
+        Arr.every(({ type }) => type === CLASS_NAME),
       ),
-    ),
-    Arr.map((variable) => variable.name),
   );
 
-const sourceOf = (context: Context, list: ExportList): Source => ({
-  text: context.sourceCode.text,
-  comments: pipe(
-    context.sourceCode.getAllComments(),
-    Arr.map((comment) => comment.range),
-  ),
-  usedOutside: usedOutside(context, list),
-});
-
-const reportList = (
-  context: Context,
-  node: ESTree.ExportNamedDeclaration,
-  list: ExportList,
-): void => {
-  pipe(
-    editsOf(sourceOf(context, list))(list),
-    Option.match({
-      onNone: () => {
-        context.report({ node, message: MESSAGE });
-      },
-      onSome: (edits) => {
-        context.report({
-          node,
-          message: MESSAGE,
-          fix: (fixer) =>
-            pipe(
-              edits,
-              Arr.map((edit) =>
-                fixer.replaceTextRange([edit.range[START], edit.range[END]], edit.text),
-              ),
-            ),
-        });
-      },
-    }),
-  );
-};
+const isTypeOnlyClass =
+  (context: Context, node: ESTree.ExportNamedDeclaration) =>
+  (specifier: ESTree.ExportSpecifier): boolean =>
+    (node.exportKind === TYPE || specifier.exportKind === TYPE) &&
+    isClass(context, localName(specifier));
 
 export const inlineExports: Rule = {
-  meta: { type: "suggestion", fixable: "code" },
+  meta: { type: "suggestion" },
   create: (context) => ({
     ExportNamedDeclaration: (node): void => {
-      const list = exportListOf(node);
-      if (
-        Option.isSome(list) &&
-        !pipe(list.value.specifiers, Arr.every(isTypeOnlyClass(list.value)))
-      ) {
-        reportList(context, node, list.value);
+      if (isList(node) && !pipe(node.specifiers, Arr.every(isTypeOnlyClass(context, node)))) {
+        context.report({ node, message: MESSAGE });
       }
     },
   }),

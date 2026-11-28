@@ -7,7 +7,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/intent-book"
-  library_version: 0.0.0
 sources:
   - src/features/**
   - README.md

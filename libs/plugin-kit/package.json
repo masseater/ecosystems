@@ -45,9 +45,6 @@
     "access": "public",
     "provenance": true
   },
-  "scripts": {
-    "prepublishOnly": "vp exec msch-publish prepublish ."
-  },
   "devDependencies": {
     "@effect/vitest": "catalog:",
     "effect": "catalog:stack",

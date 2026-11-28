@@ -7,7 +7,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/fu4"
-  library_version: 0.1.0
 sources:
   - src/app/index.ts
   - src/shared/config/types.ts

@@ -2,7 +2,7 @@ import type { RuleEntry, Y8Config } from "@r_masseater/y8";
 import { recommended } from "@r_masseater/y8/presets";
 import type { RecommendedOptions } from "@r_masseater/y8/presets";
 
-const INDEX_SKILL = "masseater-ecosystem";
+const INDEX_SKILL = "masseater-style";
 
 const MASSEATER_DOCS: RecommendedOptions = {
   agents: {

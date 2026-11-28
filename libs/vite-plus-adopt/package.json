@@ -50,9 +50,6 @@
     "access": "public",
     "provenance": true
   },
-  "scripts": {
-    "prepublishOnly": "vp exec msch-publish prepublish ."
-  },
   "dependencies": {
     "@commitlint/format": "catalog:",
     "@commitlint/lint": "catalog:",

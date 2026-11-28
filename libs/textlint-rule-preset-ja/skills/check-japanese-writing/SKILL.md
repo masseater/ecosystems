@@ -8,7 +8,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/textlint-rule-preset-ja"
-  library_version: 0.1.1
 sources:
   - src/app/index.ts
   - src/features/**

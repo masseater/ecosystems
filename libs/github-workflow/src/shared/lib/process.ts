@@ -1,8 +1,10 @@
-import { Array as Arr, Effect, Schema, Stream, String as Str } from "effect";
+import { Array as Arr, Duration, Effect, Schema, Stream, String as Str } from "effect";
 import type { PlatformError } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/process";
 
 const SUCCESS = 0;
+const FORCE_KILL_AFTER_SECONDS = 10;
+const FORCE_KILL_AFTER = Duration.seconds(FORCE_KILL_AFTER_SECONDS);
 
 const taggedError = Schema.TaggedError;
 
@@ -16,6 +18,7 @@ export interface Command {
   readonly args: readonly string[];
   readonly env?: Readonly<Record<string, string>>;
   readonly cwd?: string;
+  readonly forceKillAfter?: Duration.Input;
 }
 
 /** @internal */
@@ -33,6 +36,7 @@ const exitCodeOf = Effect.fn("exitCodeOf")(function* exitCodeOf({
   args,
   env,
   cwd,
+  forceKillAfter = FORCE_KILL_AFTER,
 }: Command) {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
   return yield* spawner.exitCode(
@@ -43,6 +47,7 @@ const exitCodeOf = Effect.fn("exitCodeOf")(function* exitCodeOf({
       stdin: "ignore",
       stdout: "inherit",
       stderr: "inherit",
+      forceKillAfter,
     }),
   );
 });
@@ -59,13 +64,20 @@ const mustSucceedWith = (command: Command): Spawned<void> =>
     Effect.asVoid,
   );
 
-const collected = Effect.fn("collected")(function* collected({ command, args, env, cwd }: Command) {
+const collected = Effect.fn("collected")(function* collected({
+  command,
+  args,
+  env,
+  cwd,
+  forceKillAfter = FORCE_KILL_AFTER,
+}: Command) {
   const handle = yield* ChildProcess.make(command, args, {
     cwd,
     env,
     extendEnv: true,
     stdin: "ignore",
     stderr: "inherit",
+    forceKillAfter,
   });
   const [output, code] = yield* Effect.all(
     [handle.stdout.pipe(Stream.decodeText(), Stream.mkString), handle.exitCode],

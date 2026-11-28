@@ -47,7 +47,7 @@ export const stop = fail("The check failed.");
 
 ## Run commands
 
-`succeeds` returns whether a command exited with code 0. `mustSucceed` fails with `CommandFailed` otherwise. `outputOf` returns the trimmed standard output of a command that succeeded, and `finished` returns the output and the exit code without failing.
+`succeeds` returns whether a command exited with code 0. `mustSucceed` fails with `CommandFailed` otherwise. `outputOf` returns the trimmed standard output of a command that succeeded, and `finished` returns the output and the exit code without failing. A command that is interrupted gets `SIGTERM` and then `SIGKILL` after `forceKillAfter`, 10 seconds by default, so that an interrupted step such as a timeout never waits for a process that ignores `SIGTERM`.
 
 ```ts
 import { outputOf } from "@r_masseater/github-workflow";

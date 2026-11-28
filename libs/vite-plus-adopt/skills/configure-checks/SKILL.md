@@ -7,7 +7,6 @@ description: >
 metadata:
   type: core
   library: "@r_masseater/vite-plus-adopt"
-  library_version: 0.8.1
 sources:
   - src/app/**
   - src/features/**

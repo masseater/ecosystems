@@ -18,43 +18,15 @@ import { RepositoryFiles } from "#/shared/lib/repository-files.ts";
 import { positionOf } from "#/shared/lib/text-position.ts";
 
 import { commentsWith, loadGrammars } from "./comment-readers.ts";
-import type { Reader } from "./comment-readers.ts";
 import type { FoundComment } from "./found-comment.ts";
+import { readerOf } from "./reader-of.ts";
 
 const RULE: RuleName = "comment";
+const UNUSED_RULE: RuleName = "unused-comment-allowance";
 const CONFIG_FILE = "vite.config.ts";
 const VENDORED_PATHSPEC = ":(attr:linguist-vendored)";
 const READ_CONCURRENCY = 64;
 const START = 0;
-
-const READERS: readonly (readonly [RegExp, Reader])[] = [
-  [/\.(?:[cm]?jsx?)$/u, "javascript"],
-  [/\.(?:[cm]?ts)$/u, "typescript"],
-  [/\.tsx$/u, "tsx"],
-  [/\.rs$/u, "rust"],
-  [/\.(?:cs|csx)$/u, "c-sharp"],
-  [/\.(?:sh|bash|zsh|ksh)$/u, "bash"],
-  [/(?:^|\/)\.(?:vite-hooks|husky|githooks)\/[^./][^/]*$/u, "bash"],
-  [/\.(?:ps1|psm1|psd1)$/u, "powershell"],
-  [/\.go$/u, "go"],
-  [/\.(?:java|kt|kts)$/u, "java"],
-  [/\.(?:rb|rake)$/u, "ruby"],
-  [/\.php$/u, "php"],
-  [/\.(?:c|h|cc|cpp|cxx|hpp|hh|m|mm|glsl|frag|vert|comp|wgsl|hlsl|metal)$/u, "cpp"],
-  [/\.(?:css|pcss)$/u, "css"],
-  [/\.(?:html?|vue|svelte|astro)$/u, "html"],
-  [/\.(?:xml|xaml|plist|resx|props|targets|[a-z]+proj|manifest|nuspec)$/u, "xml"],
-  [/\.ya?ml$/u, "yaml"],
-  [/\.toml$/u, "toml"],
-  [/\.sql$/u, "sql"],
-  [/(?:^|\/)(?:Dockerfile|Containerfile)(?:\.[^/]+)?$|\.dockerfile$/u, "dockerfile"],
-];
-
-const SHEBANG_READERS: readonly (readonly [RegExp, Reader])[] = [
-  [/^#!.*\b(?:ba|z|k|da)?sh\b/u, "bash"],
-  [/^#!.*\b(?:node|bun|deno|tsx)\b/u, "javascript"],
-  [/^#!.*\bpwsh\b/u, "powershell"],
-];
 
 const SHEBANG = "#!";
 const PIN = /@(?:[0-9a-f]{40}|sha256:[0-9a-f]{64})\s*$/u;
@@ -86,7 +58,6 @@ interface Listed {
 }
 
 const NO_SETTINGS: RootSettings = { allow: [], ignorePatterns: [] };
-const NONE: readonly Problem[] = [];
 
 const taggedError = Schema.TaggedError;
 
@@ -94,24 +65,6 @@ class CommentConfigUnreadable extends taggedError<
   CommentConfigUnreadable,
   { readonly brand: unique symbol }
 >()("CommentConfigUnreadable", { file: Schema.String }) {}
-
-const shebangReader = (source: string): Option.Option<readonly [RegExp, Reader]> => {
-  if (!Str.startsWith(SHEBANG)(source)) {
-    return Option.none();
-  }
-  return pipe(
-    SHEBANG_READERS,
-    Arr.findFirst(([pattern]) => pattern.test(source)),
-  );
-};
-
-const readerOf = (name: string, source: string): Option.Option<Reader> =>
-  pipe(
-    READERS,
-    Arr.findFirst(([pattern]) => pattern.test(name)),
-    Option.orElse(() => shebangReader(source)),
-    Option.map(([, reader]) => reader),
-  );
 
 const valueOf = (text: string): string => Str.replaceAll(DELIMITERS, "")(text);
 
@@ -130,6 +83,16 @@ const isAllowed =
   (source: string, directives: RegExp) =>
   (comment: FoundComment): boolean =>
     isShebang(comment) || directives.test(valueOf(comment.text)) || isPinVersion(source, comment);
+
+interface Scanned {
+  readonly problems: readonly Problem[];
+  readonly used: readonly number[];
+}
+
+const NOTHING: Scanned = { problems: [], used: [] };
+
+const unusedMessage = (entry: string): string =>
+  `allows the comment pattern \`${entry}\`, but no comment in the repository matches it. Delete the entry and add it back when a comment needs it.`;
 
 const problemOf =
   (file: string, source: string) =>
@@ -198,49 +161,122 @@ const scannedFiles = Effect.fn("scannedFiles")(function* scannedFiles(
   );
 });
 
+const usedAllowances = (
+  allowances: readonly RegExp[],
+  found: readonly FoundComment[],
+): readonly number[] =>
+  pipe(
+    allowances,
+    Arr.map((pattern, index) => [pattern, index] as const),
+    Arr.filter(([pattern]) =>
+      pipe(
+        found,
+        Arr.some((comment) => pattern.test(valueOf(comment.text))),
+      ),
+    ),
+    Arr.map(([, index]) => index),
+  );
+
+const entryOffset = (source: string, entry: string): number =>
+  pipe(
+    Str.indexOf(entry)(source),
+    Option.getOrElse(() => START),
+  );
+
+const unusedAllowances = Effect.fn("unusedAllowances")(function* unusedAllowances(
+  root: string,
+  settings: RootSettings,
+  used: HashSet.HashSet<number>,
+) {
+  const files = yield* RepositoryFiles;
+  const file = files.join(root, CONFIG_FILE);
+  const text = yield* files.readFile(file);
+  const source = Option.getOrElse(text, () => "");
+  return pipe(
+    settings.allow,
+    Arr.filter((_entry, index) => !HashSet.has(used, index)),
+    Arr.map((entry): Problem => ({
+      file,
+      ...positionOf(source)(entryOffset(source, entry)),
+      rule: UNUSED_RULE,
+      message: unusedMessage(entry),
+    })),
+  );
+});
+
+interface Scanning {
+  readonly directives: RegExp;
+  readonly allowances: readonly RegExp[];
+  readonly comments: ReturnType<typeof commentsWith>;
+}
+
+const scanFile =
+  ({ directives, allowances, comments }: Scanning) =>
+  ({ name, file }: Listed, source: string): Effect.Effect<Scanned> => {
+    const kept = Predicate.not(isAllowed(source, directives));
+    const toProblem = problemOf(file, source);
+    return Option.match(readerOf(name)(source), {
+      onNone: () => Effect.succeed(NOTHING),
+      onSome: (reader) =>
+        comments(reader, source).pipe(
+          Effect.map((found): Scanned => ({
+            problems: pipe(found, Arr.filter(kept), Arr.map(toProblem)),
+            used: usedAllowances(allowances, found),
+          })),
+          Effect.catchTag("CommentsUnreadable", ({ message }) =>
+            Effect.succeed({
+              problems: [
+                problemInFile(RULE)(
+                  file,
+                  `msch could not read the comments in this file: ${message}`,
+                ),
+              ],
+              used: [],
+            }),
+          ),
+        ),
+    });
+  };
+
 /** @internal */
 export const checkComments = Effect.fn("checkComments")(function* checkComments(root: string) {
   const files = yield* RepositoryFiles;
   const settings = yield* rootSettings(root);
   const scanned = yield* scannedFiles(root, settings);
-  const directives = directivePattern([...COMMENT_DIRECTIVES, ...settings.allow]);
   const grammars = yield* loadGrammars();
-  const comments = commentsWith(grammars);
-  const problemsIn = (
-    { name, file }: Listed,
-    source: string,
-  ): Effect.Effect<readonly Problem[]> => {
-    const kept = Predicate.not(isAllowed(source, directives));
-    const toProblem = problemOf(file, source);
-    return Option.match(readerOf(name, source), {
-      onNone: () => Effect.succeed(NONE),
-      onSome: (reader) =>
-        comments(reader, source).pipe(
-          Effect.map(Arr.filter(kept)),
-          Effect.map(Arr.map(toProblem)),
-          Effect.catchTag("CommentsUnreadable", ({ message }) =>
-            Effect.succeed([
-              problemInFile(RULE)(
-                file,
-                `msch could not read the comments in this file: ${message}`,
-              ),
-            ]),
-          ),
-        ),
-    });
-  };
+  const scan = scanFile({
+    directives: directivePattern([...COMMENT_DIRECTIVES, ...settings.allow]),
+    allowances: pipe(
+      settings.allow,
+      Arr.map((entry) => directivePattern([entry])),
+    ),
+    comments: commentsWith(grammars),
+  });
   const found = yield* Effect.forEach(
     scanned,
     (entry) =>
       files.readFile(entry.file).pipe(
         Effect.flatMap(
           Option.match({
-            onNone: () => Effect.succeed(NONE),
-            onSome: (source) => problemsIn(entry, source),
+            onNone: () => Effect.succeed(NOTHING),
+            onSome: (source) => scan(entry, source),
           }),
         ),
       ),
     { concurrency: READ_CONCURRENCY },
   );
-  return Arr.flatten(found);
+  const used = HashSet.fromIterable(
+    pipe(
+      found,
+      Arr.flatMap(({ used: indexes }) => indexes),
+    ),
+  );
+  const unused = yield* unusedAllowances(root, settings, used);
+  return [
+    ...pipe(
+      found,
+      Arr.flatMap(({ problems }) => problems),
+    ),
+    ...unused,
+  ];
 });

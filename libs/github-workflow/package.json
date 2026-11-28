@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/github-workflow",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Helpers for GitHub Actions steps written with Effect: call the repository's GitHub API, write step outputs and warnings, and run commands.",
   "keywords": [
     "actions",
@@ -43,9 +43,6 @@
     },
     "access": "public",
     "provenance": true
-  },
-  "scripts": {
-    "prepublishOnly": "vp exec msch-publish prepublish ."
   },
   "devDependencies": {
     "@effect/platform-node": "catalog:",
