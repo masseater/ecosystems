@@ -37,6 +37,12 @@ Run `vp exec msch-exits` at the repository root to look the conditions up on npm
 
 For a met condition, remove the entry and its patch file and run verify. If verify still needs the deviation, keep it and replace the condition with the next event that could end it.
 
+## Reference links
+
+A Markdown link whose destination is `github:<owner>/<repo>[/<path>][#<symbol>]` or `npm:<package>` points at a source. msch checks the shape of every such link. A link to a path of a branch on github.com (`https://github.com/<owner>/<repo>/blob/<branch>/<path>`) is checked as the same kind of pointer, so a README can keep a link that readers can click.
+
+Run `vp exec msch-refs` at the repository root to look each target up on GitHub and npm. It reports a repository that moved or was archived, a path or symbol that is gone and a deprecated package, and exits with 1 when it finds one or cannot check one. `--json` prints the results as JSON. The root `daily` task runs it, and a private repository needs `GH_TOKEN` to be readable.
+
 ## Git hooks
 
 | Hook       | Command                  |

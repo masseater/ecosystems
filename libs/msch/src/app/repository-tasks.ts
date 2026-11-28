@@ -59,6 +59,8 @@ const checkCommand = (launcher: string): string =>
 const AUDIT =
   'before="$(cksum pnpm-workspace.yaml)"; vp pm audit --fix || exit; if [ "$before" != "$(cksum pnpm-workspace.yaml)" ]; then echo "vp pm audit --fix rewrote pnpm-workspace.yaml. Run vp install and commit the diff." >&2; exit 1; fi';
 
+const DAILY = "msch-exits; exits=$?; msch-refs; refs=$?; exit $((exits | refs))";
+
 export const tasksOf = ({
   workspace,
   commands,
@@ -89,7 +91,7 @@ export const tasksOf = ({
   };
   return {
     ...checks,
-    daily: { command: "msch-exits", cache: false },
+    daily: { command: DAILY, cache: false },
     verify: { command: [], dependsOn: [...workspace.tasks.verify, ...Rec.keys(checks)] },
   };
 };

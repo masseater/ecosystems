@@ -29,6 +29,7 @@ export default defineConfig({
       changed: "bin/msch-changed.ts",
       exits: "bin/msch-exits.ts",
       publish: "bin/msch-publish.ts",
+      refs: "bin/msch-refs.ts",
       wake: "bin/msch-wake.ts",
       "cargo-inputs": "src/features/derive-cargo-inputs/index.ts",
       library: "src/features/define-library/index.ts",

@@ -1,6 +1,5 @@
 import {
   Array as Arr,
-  Config,
   Effect,
   HashMap,
   Match,
@@ -10,9 +9,11 @@ import {
   String as Str,
   pipe,
 } from "effect";
-import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http";
-import type { HttpClientError } from "effect/http";
+import { HttpClientResponse } from "effect/http";
+import type { HttpClientError, HttpClient } from "effect/http";
 import semver from "semver";
+
+import { fetched, githubToken, jsonLookup, publicLookup } from "#/shared/lib/lookup.ts";
 
 import { commentsByLine } from "./deviation-entries.ts";
 import type { DeviationEntry, Deviations, Section } from "./deviation-entries.ts";
@@ -22,7 +23,6 @@ import type { Closed, Declares, ExitCondition, Published } from "./exit-conditio
 const NPM = "https://registry.npmjs.org/";
 const CRATES = "https://crates.io/api/v1/crates/";
 const GITHUB = "https://api.github.com/repos/";
-const USER_AGENT = "msch-exits (https://github.com/masseater/ecosystems/tree/main/libs/msch)";
 const LOOKUP_CONCURRENCY = 4;
 const RANGE_OPTIONS = { includePrerelease: true } as const;
 
@@ -69,35 +69,6 @@ export interface MetExit {
   readonly condition: string;
   readonly outcome: "met" | "unchecked";
 }
-
-interface Lookup {
-  readonly url: string;
-  readonly token: Option.Option<string>;
-}
-
-const requestOf = ({ url, token }: Lookup): HttpClientRequest.HttpClientRequest => {
-  const request = HttpClientRequest.get(url).pipe(
-    HttpClientRequest.setHeader("user-agent", USER_AGENT),
-    HttpClientRequest.acceptJson,
-  );
-  return Option.match(token, {
-    onNone: () => request,
-    onSome: (value) => HttpClientRequest.bearerToken(value)(request),
-  });
-};
-
-const fetched = (
-  lookup: Lookup,
-): Effect.Effect<
-  HttpClientResponse.HttpClientResponse,
-  HttpClientError.HttpClientError,
-  HttpClient.HttpClient
-> =>
-  HttpClient.HttpClient.pipe(
-    Effect.flatMap((client) => HttpClient.filterStatusOk(client).execute(requestOf(lookup))),
-  );
-
-const publicLookup = (url: string): Lookup => ({ url, token: Option.none() });
 
 const declaredBy = (version: NpmVersionType): Readonly<Record<string, string>> =>
   pipe(
@@ -194,13 +165,13 @@ export const isMet =
     );
 
 const issueClosed = Effect.fn("issueClosed")(function* lookupIssue(condition: Closed) {
-  const token = yield* Config.option(
-    Config.String("GH_TOKEN").pipe(Config.orElse(() => Config.String("GITHUB_TOKEN"))),
-  ).pipe(Effect.orElseSucceed(() => Option.none<string>()));
-  const issue = yield* fetched({
-    url: `${GITHUB}${condition.owner}/${condition.repo}/issues/${String(condition.number)}`,
-    token,
-  }).pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(Issue)));
+  const token = yield* githubToken;
+  const issue = yield* fetched(
+    jsonLookup({
+      url: `${GITHUB}${condition.owner}/${condition.repo}/issues/${String(condition.number)}`,
+      token,
+    }),
+  ).pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(Issue)));
   return issue.state === "closed";
 });
 
