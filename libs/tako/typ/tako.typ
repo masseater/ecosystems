@@ -69,3 +69,7 @@
 #import "timeline.typ": timeline
 #import "nested.typ": nested
 #import "fork.typ": fork
+#import "sysmap.typ": sysmap
+#import "isotype.typ": isotype
+#import "quadrant.typ": quadrant
+#import "annotated.typ": annotated

@@ -1,16 +1,10 @@
 ---
 name: draw-infographic
 description: >
-  Use when an infographic, a flow with a hero number, or a bar chart with a limit line is wanted
-  as a figure: write a few lines of Typst with the tako parts and tako render lays it out and
-  writes light and dark SVG or PDF.
-metadata:
-  type: core
-  library: "@r_masseater/tako"
-  library_version: 0.1.0
-sources:
-  - typ/**
-  - README.md
+  Use when an infographic is wanted as a figure: a flow with a hero number, a fork, a cycle, a tree,
+  nested boxes, a timeline, a system map, bars, a line, stacked bars, a funnel, a sankey, an isotype row,
+  a two-axis map or an annotated picture. Write a few lines of Typst with the tako parts and tako render
+  lays it out and writes light and dark SVG or PDF.
 ---
 
 # draw-infographic
@@ -45,7 +39,9 @@ Give each node the kind that matches what happens to it: `person` acts, `system`
 
 `bars(rows: (...), limit: (...))` draws bars in the amount color and a dashed limit line in the condition color.
 
-Pick the part by what the figure shows: `flow` for steps, `fork` for a split at a condition, `cycle` for a repeat, `tree` for parent and child, `nested` for inside and outside, `timeline` for dates, `bars` for a size against a limit. The README lists their arguments.
+Pick the part by what the figure shows: `flow` for steps, `fork` for a split at a condition, `cycle` for a repeat, `tree` for parent and child, `nested` for inside and outside, `timeline` for dates, `sysmap` for who hands what to whom, `bars` for a size against a limit, `isotype` for a count, `quadrant` for a position on two axes, `annotated` for the parts of a picture. The README lists their arguments.
+
+The chart parts `trend`, `stacked`, `funnel` and `sankey` come from `#import "/.tako/charts.typ": *`. Typst downloads primaviz for them on the first render, so import that file only for a figure that needs a chart.
 
 ## Render
 

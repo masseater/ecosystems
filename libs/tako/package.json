@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/tako",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Draws infographics from a few lines of Typst: parts for the six kinds of element, flows, a hero number and bars, laid out automatically in light and dark.",
   "keywords": [
     "diagram",
