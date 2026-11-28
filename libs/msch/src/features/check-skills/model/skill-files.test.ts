@@ -104,6 +104,10 @@ const passesWellFormedAndInstalledSkills = Effect.gen(
         ["name: other", "description: Installed.", "license: MIT"],
         ["# Vendor"],
       ),
+      "app/test/fixtures/skills/broken/SKILL.md": skillWith(
+        ["name: other", "description: [unclosed bracket"],
+        ["# Broken"],
+      ),
     });
     expect(findings).toStrictEqual([]);
   },
@@ -116,7 +120,7 @@ layer(fixtureLayer)("skill files follow skill-authoring", (it) => {
   );
   it.effect("flags links to files that do not exist", () => flagsLinksToMissingFiles);
   it.effect(
-    "passes well-formed skills and installed copies",
+    "passes well-formed skills, installed copies and test fixtures",
     () => passesWellFormedAndInstalledSkills,
   );
 });

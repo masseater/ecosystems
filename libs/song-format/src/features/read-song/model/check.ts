@@ -190,9 +190,9 @@ const computeType: From<Context, From<Expression, Type>> = (context) => (node) =
   );
 
 const declaredType: From<Context, From<Binding, Type>> = (context) => {
-  const element = (node: { readonly items: Expression }): Type =>
+  const element: From<Expression, Type> = (items) =>
     pipe(
-      elementOf(context.typeOf(node.items)),
+      elementOf(context.typeOf(items)),
       Option.getOrElse(() => UNKNOWN),
     );
   return (binding) =>
@@ -207,8 +207,8 @@ const declaredType: From<Context, From<Binding, Type>> = (context) => {
               onSome: (type) => typeOfRef(type),
             }),
           ),
-        For: element,
-        Each: element,
+        For: (node) => element(node.items),
+        Each: (node) => element(node.items),
       }),
     );
 };
