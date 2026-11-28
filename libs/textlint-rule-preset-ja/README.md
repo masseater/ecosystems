@@ -4,6 +4,7 @@ A textlint preset for Japanese prose.
 
 - `yomiyasu` flags Japanese that is hard to read, the kind AI tends to write.
 - `no-taigendome` flags a sentence that puts a comma and then ends in a bare noun phrase instead of a predicate.
+- `no-ni-aru-file` flags 「詳細は [foo.md](foo.md) にある」, which says where a topic is written with 「にある」. It suggests 「に書いてある」 or 「を読む」.
 
 `no-taigendome` reads morphemes from [@r_masseater/y8](https://www.npmjs.com/package/@r_masseater/y8), which is a peer dependency.
 
