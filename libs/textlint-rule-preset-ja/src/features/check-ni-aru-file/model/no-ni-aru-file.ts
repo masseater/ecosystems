@@ -30,8 +30,6 @@ const hasTopic = (head: string): boolean =>
     TOPIC.test(rest),
   );
 
-const subjectIsFile = (head: string): boolean => ANY_REF_TEST.test(head);
-
 const lastClause = (head: string): string =>
   pipe(
     Str.split(Str.replace(REF_CHAIN, "")(head), CLAUSE_BREAK),
@@ -47,7 +45,7 @@ const isLocatedAtFile = (sentence: string): boolean => {
     return false;
   }
   const clause = lastClause(Str.slice(NO_OFFSET, found.index)(trimmed));
-  return hasTopic(clause) && !subjectIsFile(clause);
+  return hasTopic(clause) && !ANY_REF_TEST.test(clause);
 };
 
 const violations = (text: string): readonly Range[] =>
