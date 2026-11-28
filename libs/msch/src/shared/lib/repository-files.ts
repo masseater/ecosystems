@@ -162,6 +162,47 @@ const cacheOperations = (
     ),
 });
 
+const gitFiles =
+  (gitPaths: GitPaths) =>
+  (root: string, args: readonly string[]): Effect.Effect<readonly string[]> =>
+    gitPaths(root, ["ls-files", "-z", ...args], "\0");
+
+const gitOperations = (
+  gitPaths: GitPaths,
+  gitText: GitText,
+): Pick<
+  RepositoryFiles["Service"],
+  | "changedFiles"
+  | "ignoredFiles"
+  | "ignoredPaths"
+  | "linkedFiles"
+  | "listedFiles"
+  | "matchingFiles"
+  | "mergeBase"
+  | "ownedFiles"
+  | "readAtRevision"
+  | "trackedFiles"
+> => {
+  const files = gitFiles(gitPaths);
+  return {
+    listedFiles: (root) => files(root, LISTED_ARGS),
+    ownedFiles: (root) => files(root, [...LISTED_ARGS, "--", ...OWNED_PATHSPECS]),
+    linkedFiles: (root) => files(root, STAGED_ARGS).pipe(Effect.map(Arr.flatMap(linkName))),
+    mergeBase: (root, revision) =>
+      gitText(root, ["merge-base", "HEAD", revision]).pipe(
+        Effect.map(Option.map(Str.trim)),
+        Effect.map(Option.filter(Str.isNonEmpty)),
+      ),
+    changedFiles: (root, revision) =>
+      gitPaths(root, ["diff", "--name-only", "--no-renames", "-z", revision], "\0"),
+    readAtRevision: (root, revision, name) => gitText(root, ["show", `${revision}:${name}`]),
+    matchingFiles: (root, pathspecs) => files(root, [...LISTED_ARGS, "--", ...pathspecs]),
+    trackedFiles: (root, pathspecs) => files(root, [...TRACKED_ARGS, "--", ...pathspecs]),
+    ignoredFiles: (root, pathspecs) => files(root, [...IGNORED_ARGS, "--", ...pathspecs]),
+    ignoredPaths: (root, paths) => gitPaths(root, ["check-ignore", "--", ...paths], "\n"),
+  };
+};
+
 export const nodeRepositoryFiles = Layer.effect(
   RepositoryFiles,
   Effect.gen(function* nodeRepositoryFiles() {
@@ -170,29 +211,13 @@ export const nodeRepositoryFiles = Layer.effect(
     const digest = yield* Digest.Digest;
     const gitPaths = yield* gitPathsService;
     const gitText = yield* gitTextService;
-    const gitFiles = (root: string, args: readonly string[]): Effect.Effect<readonly string[]> =>
-      gitPaths(root, ["ls-files", "-z", ...args], "\0");
     return RepositoryFiles.of({
       generatedFiles: (root) =>
-        gitFiles(root, ["--", GENERATED_PATHSPEC]).pipe(
+        gitFiles(gitPaths)(root, ["--", GENERATED_PATHSPEC]).pipe(
           Effect.map(Arr.map((file) => path.join(root, file))),
         ),
-      listedFiles: (root) => gitFiles(root, LISTED_ARGS),
-      ownedFiles: (root) => gitFiles(root, [...LISTED_ARGS, "--", ...OWNED_PATHSPECS]),
-      linkedFiles: (root) => gitFiles(root, STAGED_ARGS).pipe(Effect.map(Arr.flatMap(linkName))),
+      ...gitOperations(gitPaths, gitText),
       readLink: (file) => fs.readLink(file).pipe(Effect.option),
-      mergeBase: (root, revision) =>
-        gitText(root, ["merge-base", "HEAD", revision]).pipe(
-          Effect.map(Option.map(Str.trim)),
-          Effect.map(Option.filter(Str.isNonEmpty)),
-        ),
-      changedFiles: (root, revision) =>
-        gitPaths(root, ["diff", "--name-only", "--no-renames", "-z", revision], "\0"),
-      readAtRevision: (root, revision, name) => gitText(root, ["show", `${revision}:${name}`]),
-      matchingFiles: (root, pathspecs) => gitFiles(root, [...LISTED_ARGS, "--", ...pathspecs]),
-      trackedFiles: (root, pathspecs) => gitFiles(root, [...TRACKED_ARGS, "--", ...pathspecs]),
-      ignoredFiles: (root, pathspecs) => gitFiles(root, [...IGNORED_ARGS, "--", ...pathspecs]),
-      ignoredPaths: (root, paths) => gitPaths(root, ["check-ignore", "--", ...paths], "\n"),
       readFile: (file) => fs.readFileString(file).pipe(Effect.option),
       exists: (file) => fs.exists(file).pipe(Effect.orElseSucceed(() => false)),
       realPath: (file) => fs.realPath(file).pipe(Effect.orElseSucceed(() => file)),

@@ -1,4 +1,4 @@
-import { Array as Arr, Effect, Option } from "effect";
+import { Array as Arr, Effect, Option, pipe } from "effect";
 
 import { RepositoryFiles } from "./repository-files.ts";
 
@@ -15,8 +15,12 @@ export interface ManifestText {
 export const manifestTexts = Effect.fn("manifestTexts")(function* manifestTexts(root: string) {
   const files = yield* RepositoryFiles;
   const listed = yield* files.listedFiles(root);
+  const names = pipe(
+    listed,
+    Arr.filter((name) => MANIFEST.test(name)),
+  );
   const read = yield* Effect.forEach(
-    Arr.filter(listed, (name) => MANIFEST.test(name)),
+    names,
     (file) =>
       Effect.map(
         files.readFile(files.join(root, file)),

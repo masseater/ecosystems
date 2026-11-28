@@ -30,7 +30,6 @@ const ABBREVIATED = "application/vnd.npm.install-v1+json";
 const OWN_SCOPE = /^@(?:r_masseater|masseater\.dev)\//u;
 const WORKSPACE_PROTOCOL = "workspace:";
 const CATALOG_PROTOCOL = "catalog:";
-const DEFAULT_CATALOG = "default";
 const UNVERSIONED = "0.0.0";
 const FIRST_LINE = 1;
 const READ_CONCURRENCY = 16;
@@ -91,9 +90,9 @@ const versionsIn = (response: HttpClientResponse.HttpClientResponse): Versions =
     );
   }
   if (response.status === NOT_FOUND) {
-    return Effect.succeed(Option.some<readonly string[]>([]));
+    return Effect.succeedSome<readonly string[]>([]);
   }
-  return Effect.succeed(Option.none());
+  return Effect.succeedNone;
 };
 
 const publishedVersions = (
@@ -113,7 +112,10 @@ const catalogRanges = (
   pipe(
     settings,
     Option.map((found) => [
-      ...specifiedIn(found["catalog"]).map(({ name, specifier }) => [name, specifier] as const),
+      ...pipe(
+        specifiedIn(found["catalog"]),
+        Arr.map(({ name, specifier }) => [name, specifier] as const),
+      ),
       ...pipe(
         namedCatalogsOf(found),
         Arr.flatMap(([, held]) => specifiedIn(held)),
@@ -190,15 +192,72 @@ const wantedBy =
       }),
     );
 
-/** @internal */
-export const missingVersions = Effect.fn("missingVersions")(function* missingVersions(
+const versionAtTip = (
   root: string,
-) {
-  const files = yield* RepositoryFiles;
-  const tip = yield* baseName;
+  tip: string,
+  { file }: Package,
+): Effect.Effect<Option.Option<string>, never, RepositoryFiles> =>
+  RepositoryFiles.pipe(
+    Effect.flatMap((files) => files.readAtRevision(root, tip, file)),
+    Effect.map((before) =>
+      pipe(
+        before,
+        Option.flatMap(decodeManifest),
+        Option.flatMap((fields) => stringOf(fields["version"])),
+      ),
+    ),
+  );
+
+const notBumpedHere =
+  (root: string, tip: string) =>
+  ({ sibling }: Wanted): Effect.Effect<boolean, never, RepositoryFiles> =>
+    Option.match(sibling, {
+      onNone: () => Effect.succeed(true),
+      onSome: (found) => Effect.map(versionAtTip(root, tip, found), Option.contains(found.version)),
+    });
+
+const lookupsOf = (
+  wanted: readonly Wanted[],
+): Effect.Effect<
+  HashMap.HashMap<string, Option.Option<readonly string[]>>,
+  never,
+  HttpClient.HttpClient
+> =>
+  pipe(
+    wanted,
+    Arr.map(({ name }) => name),
+    Arr.dedupe,
+    (names) =>
+      Effect.forEach(
+        names,
+        (name) => Effect.map(publishedVersions(name), (found) => [name, found] as const),
+        { concurrency: LOOKUP_CONCURRENCY },
+      ),
+    Effect.map(HashMap.fromIterable),
+  );
+
+const missingIn =
+  (known: HashMap.HashMap<string, Option.Option<readonly string[]>>) =>
+  ({ owner, name, range }: Wanted): readonly MissingVersion[] =>
+    pipe(
+      HashMap.get(known, name),
+      Option.flatten,
+      Option.filter((published) => semver.maxSatisfying([...published], range) === null),
+      Option.map((): MissingVersion => ({
+        file: owner.file,
+        line: lineOf(owner.text, name),
+        dependency: `${name}@${range}`,
+        reason: "is not on npm. Publish it first, or lower the range to a version that is.",
+      })),
+      Option.toArray,
+    );
+
+const wantedIn = Effect.fn("wantedIn")(function* wantedIn(root: string) {
   const manifests = yield* manifestTexts(root);
-  const read = Arr.map(manifests, ({ file, text }) => packageAt(file, text));
-  const packages = Arr.getSomes(read);
+  const packages = pipe(
+    manifests,
+    Arr.flatMap(({ file, text }) => Option.toArray(packageAt(file, text))),
+  );
   const siblings = HashMap.fromIterable(
     pipe(
       packages,
@@ -206,55 +265,27 @@ export const missingVersions = Effect.fn("missingVersions")(function* missingVer
     ),
   );
   const settings = yield* workspaceManifest(root);
-  const catalog = catalogRanges(
-    Option.map(settings, (found): Readonly<Record<string, unknown>> => ({ ...found })),
-  );
-  const wanted = pipe(packages, Arr.flatMap(wantedBy(siblings, catalog)));
-  const unchanged = yield* Effect.filter(
+  const catalog = catalogRanges(pipe(settings, Option.map(fieldsOf)));
+  return pipe(packages, Arr.flatMap(wantedBy(siblings, catalog)));
+});
+
+/** @internal */
+export const missingVersions = Effect.fn("missingVersions")(function* missingVersions(
+  root: string,
+) {
+  const tip = yield* baseName;
+  const wanted = yield* wantedIn(root);
+  const keep = notBumpedHere(root, tip);
+  const kept = yield* Effect.forEach(
     wanted,
-    ({ sibling }) =>
-      Option.match(sibling, {
-        onNone: () => Effect.succeed(true),
-        onSome: (found) =>
-          files.readAtRevision(root, tip, found.file).pipe(
-            Effect.map((before) =>
-              pipe(
-                before,
-                Option.flatMap(decodeManifest),
-                Option.flatMap((fields) => stringOf(fields["version"])),
-                Option.contains(found.version),
-              ),
-            ),
-          ),
-      }),
+    (found) => Effect.map(keep(found), (unbumped) => ({ found, unbumped })),
     { concurrency: READ_CONCURRENCY },
   );
-  const names = pipe(
-    unchanged,
-    Arr.map(({ name }) => name),
-    Arr.dedupe,
+  const unchanged = pipe(
+    kept,
+    Arr.filter(({ unbumped }) => unbumped),
+    Arr.map(({ found }) => found),
   );
-  const versions = yield* Effect.forEach(
-    names,
-    (name) => Effect.map(publishedVersions(name), (found) => [name, found] as const),
-    { concurrency: LOOKUP_CONCURRENCY },
-  );
-  const known = HashMap.fromIterable(versions);
-  return pipe(
-    unchanged,
-    Arr.flatMap(({ owner, name, range }) =>
-      pipe(
-        HashMap.get(known, name),
-        Option.flatten,
-        Option.filter((published) => semver.maxSatisfying([...published], range) === null),
-        Option.map((): MissingVersion => ({
-          file: owner.file,
-          line: lineOf(owner.text, name),
-          dependency: `${name}@${range}`,
-          reason: "is not on npm. Publish it first, or lower the range to a version that is.",
-        })),
-        Option.toArray,
-      ),
-    ),
-  );
+  const known = yield* lookupsOf(unchanged);
+  return pipe(unchanged, Arr.flatMap(missingIn(known)));
 });

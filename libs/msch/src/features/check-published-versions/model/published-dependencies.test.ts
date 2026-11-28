@@ -8,8 +8,19 @@ import { changedRepositoryWith, fixtureLayer } from "#/shared/lib/repository.tes
 
 import { missingVersions } from "./published-dependencies.ts";
 
-const manifest = (name: string, version: string, dependencies: Record<string, string>): string =>
-  `${JSON.stringify({ name, version, dependencies }, null, 2)}\n`;
+const dependencyLines = (dependencies: Readonly<Record<string, string>>): string =>
+  pipe(
+    Rec.toEntries(dependencies),
+    Arr.map(([name, range]) => `"${name}":"${range}"`),
+    Arr.join(","),
+  );
+
+const manifest = (
+  name: string,
+  version: string,
+  dependencies: Readonly<Record<string, string>>,
+): string =>
+  `{"name":"${name}","version":"${version}","dependencies":{${dependencyLines(dependencies)}}}\n`;
 
 const withBase = ConfigProvider.fromUnknown({ VPA_BASE: "HEAD" });
 
@@ -18,6 +29,14 @@ const routes: Readonly<Record<string, readonly string[]>> = {
   "registry.npmjs.org/@r_masseater%2fzed": ["1.0.0"],
   "registry.npmjs.org/@r_masseater%2fmerged": ["0.1.0"],
 };
+
+const versionsOf = (found: readonly string[]): Readonly<Record<string, unknown>> =>
+  Rec.fromEntries(
+    pipe(
+      found,
+      Arr.map((version) => [version, {}] as const),
+    ),
+  );
 
 const respond = (
   request: HttpClientRequest.HttpClientRequest,
@@ -29,8 +48,7 @@ const respond = (
       request,
       Option.match(versions, {
         onNone: () => new Response("", { status: 404 }),
-        onSome: (found) =>
-          Response.json({ versions: Rec.fromEntries(Arr.map(found, (v) => [v, {}] as const)) }),
+        onSome: (found) => Response.json({ versions: versionsOf(found) }),
       }),
     ),
   );

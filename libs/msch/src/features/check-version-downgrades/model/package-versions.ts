@@ -10,7 +10,6 @@ const RULE: RuleName = "unbumped-package";
 const UNSHIPPED =
   /(?:\.test\.[\w.]+$|(?:^|\/)(?:fixtures|__tests__|tests?)\/|(?:^|\/)(?:AGENTS|CLAUDE|CHANGELOG)\.md$)/u;
 const UNVERSIONED = "0.0.0";
-const SEPARATOR = "/";
 const FIRST_LINE = 1;
 const FIRST_COLUMN = 1;
 const READ_CONCURRENCY = 16;
@@ -31,7 +30,9 @@ interface Package {
   readonly text: string;
 }
 
-const directoryOf = (file: string): string => Str.slice(0, file.lastIndexOf(SEPARATOR) + 1)(file);
+const LAST_SEGMENT = /[^/]*$/u;
+
+const directoryOf = (file: string): string => Str.replace(LAST_SEGMENT, "")(file);
 
 const decodeManifest = Schema.decodeUnknownOption(Manifest);
 
@@ -70,8 +71,23 @@ const shippedChange = (directory: string, changed: readonly string[]): boolean =
     Arr.some((name) => Str.startsWith(directory)(name) && !UNSHIPPED.test(name)),
   );
 
-const floorOf = (versions: readonly Option.Option<string>[]): Option.Option<string> =>
-  pipe(Arr.getSomes(versions), Arr.sort(semver.compare), Arr.last);
+const higher = (left: string, right: string): string => {
+  if (semver.gt(right, left)) {
+    return right;
+  }
+  return left;
+};
+
+const floorOf = (versions: readonly Option.Option<string>[]): Option.Option<string> => {
+  let floor = Option.none<string>();
+  for (const version of Arr.getSomes(versions)) {
+    floor = Option.match(floor, {
+      onNone: () => Option.some(version),
+      onSome: (lowest) => Option.some(higher(version, lowest)),
+    });
+  }
+  return floor;
+};
 
 const message = ({ name, version }: Package, floor: string): string =>
   `${name} changed, but its version ${version} is not above ${floor}, the version of the base or of main. Another change may already publish ${floor}. Bump the version above ${floor}.`;
