@@ -1,6 +1,6 @@
 {
   "name": "@r_masseater/msch",
-  "version": "0.63.0",
+  "version": "0.64.0",
   "description": "masseater's check policy: points every finite value set and object shape at its one owner, and ships the oxlint preset of plugins and rules.",
   "keywords": [
     "lint",
@@ -23,6 +23,7 @@
     "msch-changed": "./bin/msch-changed.ts",
     "msch-exits": "./bin/msch-exits.ts",
     "msch-publish": "./bin/msch-publish.ts",
+    "msch-refs": "./bin/msch-refs.ts",
     "msch-wake": "./bin/msch-wake.ts"
   },
   "files": [
@@ -61,6 +62,7 @@
       "msch-changed": "./dist/changed.mjs",
       "msch-exits": "./dist/exits.mjs",
       "msch-publish": "./dist/publish.mjs",
+      "msch-refs": "./dist/refs.mjs",
       "msch-wake": "./dist/wake.mjs"
     },
     "exports": {
@@ -143,11 +145,14 @@
     "htmlparser2": "catalog:",
     "modern-web-guidance": "catalog:",
     "oxlint-plugin-eslint": "catalog:",
+    "remark-parse": "catalog:",
     "semver": "catalog:",
     "sql-parser-cst": "catalog:",
     "synckit": "catalog:",
     "textlint-rule-preset-ja-technical-writing": "catalog:",
     "toml-eslint-parser": "catalog:",
+    "unified": "catalog:",
+    "unist-util-visit": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {
@@ -157,6 +162,7 @@
     "@r_masseater/github-workflow": "workspace:*",
     "@r_masseater/node-main": "workspace:*",
     "@r_masseater/vitest-otlp": "workspace:*",
+    "@types/mdast": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
     "effect": "catalog:stack",

@@ -5,11 +5,6 @@ import { checkDocker, checkPython } from "#/features/ban-tools/index.ts";
 import { checkCatalogEntries } from "#/features/check-catalog-entries/index.ts";
 import { checkGitSubpath, checkPackageRegistry } from "#/features/check-overrides/index.ts";
 import {
-  checkPublishedSkills,
-  checkSkillEntry,
-  checkSkillFiles,
-} from "#/features/check-skills/index.ts";
-import {
   checkDowngrades,
   checkRenovateSettings,
 } from "#/features/check-version-downgrades/index.ts";
@@ -21,6 +16,7 @@ import {
   checkUnneededFiles,
 } from "#/features/find-unneeded-files/index.ts";
 
+import { checkDocuments } from "./document-checks.ts";
 import { checkManifests } from "./manifest-checks.ts";
 
 /** @internal */
@@ -36,9 +32,7 @@ export const checkTrackedText = Effect.fn("checkTrackedText")(function* checkTra
       checkReplacedTools(root),
       checkAlchemyPatch(root),
       checkManifests(root),
-      checkSkillFiles(root),
-      checkSkillEntry(root),
-      checkPublishedSkills(root),
+      checkDocuments(root),
       checkComments(root),
       checkAppliedPackages(root),
       checkGitSubpath(root),
