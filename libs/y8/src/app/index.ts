@@ -2,8 +2,8 @@ export { agnix, definePlugin, defineRule } from "#/entities/rule/index.ts";
 export { diagnosticDetail, formatDiagnostic as format } from "@masseater.dev/lint-host";
 export { lint } from "./lint.ts";
 export { tokenize, morphemesOf } from "#/features/split-morphemes/index.ts";
-export { linksIn } from "#/features/read-links/index.ts";
-export type { LinkAt } from "#/features/read-links/index.ts";
+export { linksIn } from "#/features/run-rules/index.ts";
+export type { LinkAt } from "#/features/run-rules/index.ts";
 export {
   NO_PATH,
   REFERENCE_GRAMMAR,

@@ -1,12 +1,13 @@
 import { callAddon } from "@masseater.dev/lint-host";
 import { Array as Arr, Effect, Option, pipe } from "effect";
 
-import { documentOf } from "#/features/run-rules/index.ts";
 import type { MarkdownNode } from "#/shared/config/index.ts";
 import { failedWith } from "#/shared/lib/errors.ts";
 import type { Y8Error } from "#/shared/lib/errors.ts";
 import { native, sourceView } from "#/shared/native/index.ts";
 import type { NativeResult, SourceFile } from "#/shared/native/index.ts";
+
+import { documentOf } from "./document.ts";
 
 export interface LinkAt {
   readonly path: string;
